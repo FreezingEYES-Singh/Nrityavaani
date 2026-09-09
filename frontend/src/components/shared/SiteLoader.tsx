@@ -56,8 +56,17 @@ export default function SiteLoader() {
   // loop can drive it without a re-render per frame.
   const shown = useRef(0);
 
+  // Whether *this* mount is the one playing the intro. Without it, anything
+  // that tears down and re-runs the effect on a still-mounted component —
+  // StrictMode's deliberate double-invoke, a Fast Refresh during development —
+  // would find the module flag already set and bail, leaving an overlay on
+  // screen with no progress loop behind it and a meter frozen at zero.
+  const claimed = useRef(false);
+
   useEffect(() => {
-    if (alreadyPlayed || !onLanding) return;
+    if (!onLanding) return;
+    if (alreadyPlayed && !claimed.current) return;
+    claimed.current = true;
     alreadyPlayed = true;
 
     const startedAt = performance.now();
