@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
 import { Camera } from 'lucide-react';
-import { classifyMudra, getSpecificMudraScore } from '@/lib/mediapipe/classification';
+import { classifyMudra, getSpecificMudraScore, type Point } from '@/lib/mediapipe/classification';
+import type { FrameHandler, HandReading } from '@/lib/mediapipe/types';
 
 interface CameraFeedProps {
   isActive: boolean;
-  onUpdate: (landmarks: any, mudraData: any[]) => void;
+  onUpdate: FrameHandler;
   targetMudra?: string;
   showLandmarks?: boolean;
   showSkeleton?: boolean;
@@ -48,7 +49,10 @@ const CameraFeed = ({
     const initDetector = async () => {
       try {
         const vision = await FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+          // Pinned, not `@latest`: this URL is a script this page executes, and
+          // resolving it to whatever is newest at load time means the code
+          // running here can change without anything in this repo changing.
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.34/wasm"
         );
         
         handLandmarkerRef.current = await HandLandmarker.createFromOptions(vision, {
@@ -75,31 +79,7 @@ const CameraFeed = ({
     };
   }, []);
 
-  useEffect(() => {
-    if (isActive && videoRef.current) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
-
-    return () => stopCamera();
-  }, [isActive]);
-
-  // Clean up on tab visibility change as well
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        stopCamera();
-      } else if (isActive && isMountedRef.current) {
-        startCamera();
-      }
-    };
-    
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isActive]);
-
-  const startCamera = async () => {
+  const startCamera = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { width: 1280, height: 720, facingMode: "user" } 
@@ -116,7 +96,7 @@ const CameraFeed = ({
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadeddata = () => {
-          predictLoop();
+          predictLoopRef.current();
           if (videoRef.current) videoRef.current.onloadeddata = null;
         };
       }
@@ -126,9 +106,9 @@ const CameraFeed = ({
         setError("Webcam access denied. Please enable camera permissions.");
       }
     }
-  };
+  }, []);
 
-  const stopCamera = () => {
+  const stopCamera = useCallback(() => {
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
     }
@@ -139,17 +119,47 @@ const CameraFeed = ({
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
-  };
+  }, []);
 
-  const predictLoop = () => {
+  useEffect(() => {
+    if (isActive && videoRef.current) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+
+    return () => stopCamera();
+  }, [isActive, startCamera, stopCamera]);
+
+  // Clean up on tab visibility change as well
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopCamera();
+      } else if (isActive && isMountedRef.current) {
+        startCamera();
+      }
+    };
+    
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isActive, startCamera, stopCamera]);
+
+  /**
+   * Holds the current predictLoop so callers do not depend on where it is
+   * declared. Written in an effect, never during render.
+   */
+  const predictLoopRef = useRef<() => void>(() => {});
+
+  const predictLoop = useCallback(() => {
     if (!videoRef.current || !handLandmarkerRef.current || !isActive) return;
 
     const startTimeMs = performance.now();
     const results = handLandmarkerRef.current.detectForVideo(videoRef.current, startTimeMs);
     
-    let detectedMudras: any[] = [];
+    const detectedMudras: HandReading[] = [];
     if (results.landmarks && results.landmarks.length > 0) {
-      results.landmarks.forEach((hand: any, index: number) => {
+      results.landmarks.forEach((hand: Point[], index: number) => {
         const handedness = results.handednesses?.[index]?.[0]?.categoryName || 'Unknown';
         
         if (targetMudra) {
@@ -176,10 +186,17 @@ const CameraFeed = ({
     }
 
     onUpdate(results, detectedMudras);
-    animationFrameRef.current = requestAnimationFrame(predictLoop);
-  };
+    animationFrameRef.current = requestAnimationFrame(() => predictLoopRef.current());
+    // drawLandmarks reads only refs and props that are already listed; it is
+    // declared below purely for readability.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive, targetMudra, onUpdate]);
 
-  const drawLandmarks = (landmarks: any[]) => {
+  useEffect(() => {
+    predictLoopRef.current = predictLoop;
+  }, [predictLoop]);
+
+  const drawLandmarks = (landmarks: Point[][]) => {
     if (!canvasRef.current || !videoRef.current) return;
     
     const canvas = canvasRef.current;
@@ -226,7 +243,7 @@ const CameraFeed = ({
       // 2. Draw Landmarks (Points)
       if (showLandmarks) {
         const fingerTips = [4, 8, 12, 16, 20];
-        hand.forEach((lm: any, idx: number) => {
+        hand.forEach((lm: Point, idx: number) => {
           const isTip = fingerTips.includes(idx);
           const cw = lm.x * canvas.width;
           const ch = lm.y * canvas.height;

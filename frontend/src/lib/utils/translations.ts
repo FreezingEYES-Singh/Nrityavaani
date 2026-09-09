@@ -74,17 +74,9 @@ export function translateFeedback(text: string, lang: 'en' | 'hi'): string {
   // Try to find direct match
   if (FEEDBACK_TRANSLATIONS[text]) return FEEDBACK_TRANSLATIONS[text];
   
-  // Handle dynamic strings like "Detected X instead. Try to form Y."
-  let translated = text;
-  
-  // Replace Mudra names
-  Object.keys(MUDRA_NAME_TRANSLATIONS).forEach(name => {
-    const regex = new RegExp(name, 'g');
-    if (lang === 'hi') {
-      // In Hindi mode, we might want to keep the name same or phonetically Hindi
-      // But user said "English me rehne do" for finger names, mudra names are already Sanskrit/Hindi
-    }
-  });
+  // Mudra names are left as they are: they are Sanskrit, and transliterating
+  // them into Devanagari would not make them more readable to a student who
+  // already knows them by these names.
 
   if (text.includes("Detected") && text.includes("instead")) {
     const parts = text.split(" ");

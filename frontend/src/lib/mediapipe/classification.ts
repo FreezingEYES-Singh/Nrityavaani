@@ -1,3 +1,11 @@
+/** What a classifier call returns: the name it settled on, how firmly, and why. */
+export interface MudraScore {
+  name: string;
+  /** 0-1. */
+  confidence: number;
+  feedback: string;
+}
+
 export interface Point {
   x: number;
   y: number;
@@ -32,7 +40,10 @@ export function getFingerExtensionScore(landmarks: Point[], fingerIndices: numbe
   return Math.min(1.0, distMcpTip / distSegments);
 }
 
-export function classifyMudra(landmarks: Point[], handedness: string) {
+// `handedness` is accepted so both call sites can pass what MediaPipe gave
+// them, but the rules are all relative to the hand's own geometry and so
+// read the same on either hand.
+export function classifyMudra(landmarks: Point[], handedness?: string) {
   const thumbIdx = [1, 2, 3, 4];
   const indexIdx = [5, 6, 7, 8];
   const middleIdx = [9, 10, 11, 12];
@@ -60,6 +71,7 @@ export function classifyMudra(landmarks: Point[], handedness: string) {
   const distPkyThumb = calculateDistance(pinkyTip, thumbTip);
 
   const isExt = (s: number) => s > 0.85;
+  const isCurved = (s: number) => s > 0.4 && s < 0.85;
   const isBent = (s: number) => s < 0.65;
 
   let bestMudra = null;
@@ -173,7 +185,6 @@ export function classifyMudra(landmarks: Point[], handedness: string) {
   }
 
   // 13. Padmakosha: All fingers slightly bent (cup shape)
-  const isCurved = (s: number) => s > 0.4 && s < 0.85;
   if (isCurved(sIdx) && isCurved(sMid) && isCurved(sRng) && isCurved(sPky)) {
     // They should be spread a bit, not touching
     if (distIdxMid > 0.03 && distMidRng > 0.03) {
@@ -250,18 +261,28 @@ export function classifyMudra(landmarks: Point[], handedness: string) {
     }
   }
 
-  if (maxConfidence > 0.5) {
+  if (maxConfidence > 0.5 && bestMudra) {
+    // Calibrate confidence curve: keep clean 0..1 bounded precision
+    bestMudra.confidence = Math.min(1.0, Math.round(bestMudra.confidence * 100) / 100);
     return bestMudra;
   }
 
-  return { name: "No Mudra Detected", confidence: maxConfidence || 0, feedback: "Adjust your hand position or check the lighting." };
+  return { name: "No Mudra Detected", confidence: Math.round((maxConfidence || 0) * 100) / 100, feedback: "Adjust your hand position or check the lighting." };
 }
 
 /** 
  * Returns the confidence score for a specific mudra regardless of whether it is the 'best' match.
  * Useful for Practice Mode where we want to see progress towards a specific goal.
  */
-export function getSpecificMudraScore(landmarks: Point[], targetMudra: string, handedness: string): any {
+export function getSpecificMudraScore(landmarks: Point[], targetMudra: string, handedness: string): MudraScore {
+  const result = _getSpecificMudraScoreRaw(landmarks, targetMudra, handedness);
+  if (result && result.confidence) {
+    result.confidence = Math.min(1.0, Math.round(result.confidence * 100) / 100);
+  }
+  return result;
+}
+
+function _getSpecificMudraScoreRaw(landmarks: Point[], targetMudra: string, handedness?: string): MudraScore {
   const thumbIdx = [1, 2, 3, 4];
   const indexIdx = [5, 6, 7, 8];
   const middleIdx = [9, 10, 11, 12];
@@ -283,6 +304,10 @@ export function getSpecificMudraScore(landmarks: Point[], targetMudra: string, h
   const distThumbRing = calculateDistance(thumbTip, ringTip);
   const distIdxMid = calculateDistance(indexTip, middleTip);
   const distMidRng = calculateDistance(middleTip, ringTip);
+  const distThumbIndex = calculateDistance(thumbTip, indexTip);
+  const distMidThumb = calculateDistance(middleTip, thumbTip);
+  const distRngThumb = calculateDistance(ringTip, thumbTip);
+  const distPkyThumb = calculateDistance(pinkyTip, thumbTip);
 
   const isExt = (s: number) => s > 0.85;
   const isBent = (s: number) => s < 0.65;
@@ -456,7 +481,6 @@ export function getSpecificMudraScore(landmarks: Point[], targetMudra: string, h
 
     case 'padmakosha': {
       let feedback = "Nice lotus bud.";
-      const isCurved = (s: number) => s > 0.4 && s < 0.85;
       if (sIdx > 0.85) feedback = "Curve your fingers more.";
       else if (sIdx < 0.4) feedback = "Don't curl fingers too tightly.";
       else if (distIdxMid < 0.02) feedback = "Spread fingers slightly apart.";
@@ -476,7 +500,7 @@ export function getSpecificMudraScore(landmarks: Point[], targetMudra: string, h
       return { name: "Ardhachandra", confidence: (sIdx + sMid + sRng + sPky + sThumb) / 5, feedback };
     }
     case 'sarpashirsha': {
-      let feedback = "Good snake hood.";
+      const feedback = "Good snake hood.";
       return { name: "Sarpashirsha", confidence: (sIdx + sMid + sRng + sPky) / 4, feedback };
     }
     case 'simhamukha': {
@@ -485,7 +509,7 @@ export function getSpecificMudraScore(landmarks: Point[], targetMudra: string, h
       return { name: "Simhamukha", confidence: (sIdx + sPky + (1 - sMid) + (1 - sRng)) / 4, feedback };
     }
     case 'mukula': {
-      let feedback = "Good bud shape.";
+      const feedback = "Good bud shape.";
       const confidence = 1 - (distThumbIndex + distMidThumb + distRngThumb + distPkyThumb) * 2;
       return { name: "Mukula", confidence: Math.max(0, confidence), feedback };
     }
@@ -508,7 +532,6 @@ export function classifySamyuktaMudra(hand1: Point[], hand2: Point[]) {
   if (!h1 || !h2 || h1.name === "No Mudra Detected" || h2.name === "No Mudra Detected") return null;
 
   const distWrists = calculateDistance(hand1[0], hand2[0]);
-  const distIndexTips = calculateDistance(hand1[8], hand2[8]);
   const distMiddleTips = calculateDistance(hand1[12], hand2[12]);
 
   let bestMudra = null;

@@ -1,0 +1,19 @@
+Model Information:
+* title:	<FILL IN>
+* source:	<FILL IN — Sketchfab URL>
+* author:	<FILL IN>
+
+Model License:
+* license type:	<FILL IN>
+* requirements:	<FILL IN>
+
+!! ACTION REQUIRED !!
+
+The source file (vm_god_shiva__nataraja_final.glb) was supplied without its
+licence text. Its glTF generator string is "Sketchfab-0.13.0", so it came off
+Sketchfab, where the great majority of models are CC-BY-4.0 and REQUIRE the
+author to be credited wherever the work is shared.
+
+Fill this file in from the model's Sketchfab page before shipping, the same way
+hand-license.txt is filled in, and add the credit line to the About page. Until
+then the backdrop is running on an asset whose terms are unverified.

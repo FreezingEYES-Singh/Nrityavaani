@@ -1,68 +1,25 @@
-'use client';
+import type { ReactNode } from "react";
 
-import React, { useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-
-interface TiltCardProps {
-  children: React.ReactNode;
+/**
+ * A plain wrapper, kept for the pages that still import it.
+ *
+ * It used to tilt: 17.5 degrees of rotation tracked to the pointer, with the
+ * content pushed 75px toward the viewer on its own transform layer. Every
+ * panel on the site did it — pricing, features, research, the mudra detail
+ * photograph — so the whole page wobbled under the cursor and nothing sat
+ * still long enough to be read. It also put a `preserve-3d` context around
+ * arbitrary content, which quietly breaks `position: fixed` and `overflow`
+ * inside it.
+ *
+ * Left as a passthrough rather than deleted so the pages that use it keep
+ * working; the layout they express through it is still correct.
+ */
+export default function TiltCard({
+  children,
+  className,
+}: {
+  children: ReactNode;
   className?: string;
-}
-
-export default function TiltCard({ children, className }: TiltCardProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x);
-  const mouseYSpring = useSpring(y);
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["17.5deg", "-17.5deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-17.5deg", "17.5deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-
-    const rect = ref.current.getBoundingClientRect();
-
-    const width = rect.width;
-    const height = rect.height;
-
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        rotateY,
-        rotateX,
-        transformStyle: "preserve-3d",
-      }}
-      className={className}
-    >
-      <div 
-        style={{
-          transform: "translateZ(75px)",
-          transformStyle: "preserve-3d",
-        }}
-      >
-        {children}
-      </div>
-    </motion.div>
-  );
+}) {
+  return <div className={className}>{children}</div>;
 }

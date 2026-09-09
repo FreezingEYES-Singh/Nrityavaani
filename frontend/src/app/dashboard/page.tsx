@@ -1,289 +1,330 @@
-'use client';
+"use client";
 
-import React from 'react';
-import DashboardStats from '@/components/dashboard/DashboardStats';
-import { History, Bookmark, Calendar, Settings, Trophy, ChevronRight, ArrowLeft } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import { motion } from 'framer-motion';
-import { StatsService, PracticeSession } from '@/lib/services/StatsService';
-import { formatDistanceToNow } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { formatDistanceToNow } from "date-fns";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import DashboardStats from "@/components/dashboard/DashboardStats";
+import { StatsService, type PracticeSession } from "@/lib/services/StatsService";
+import { MUDRAS } from "@/lib/constants/mudras";
+import { Eyebrow, Rule } from "@/components/ui/editorial";
+import { cn } from "@/lib/utils";
+
+/** A mudra counts as held once you have cleared this in a session. */
+const MASTERY = 90;
+
+const TABS = ["Overview", "History", "Mastered", "Account"] as const;
+type Tab = (typeof TABS)[number];
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
-  const [recentSessions, setRecentSessions] = React.useState<PracticeSession[]>([]);
-  const [allSessions, setAllSessions] = React.useState<PracticeSession[]>([]);
-  const [activeTab, setActiveTab] = React.useState<'Overview' | 'History' | 'Saved' | 'Settings'>('Overview');
-  const [showAccountDetails, setShowAccountDetails] = React.useState(false);
+  const { data: auth } = useSession();
+  const [sessions, setSessions] = useState<PracticeSession[]>([]);
+  const [tab, setTab] = useState<Tab>("Overview");
+  const [showAccount, setShowAccount] = useState(false);
 
-  React.useEffect(() => {
-    let sessions = StatsService.getSessions();
-    
-    // Seed demo data for demo user if no sessions exist
-    if (session?.user?.email === 'demo@example.com' && sessions.length === 0) {
-      const demoData = [
-        { mudraId: 'mayura', mudraName: 'Mayura', accuracy: 98, duration: 300 },
-        { mudraId: 'ardhapataka', mudraName: 'Ardhapataka', accuracy: 95, duration: 200 },
-        { mudraId: 'pataka', mudraName: 'Pataka', accuracy: 92, duration: 120 },
-        { mudraId: 'tripataka', mudraName: 'Tripataka', accuracy: 88, duration: 45 },
-        { mudraId: 'kartarimukha', mudraName: 'Kartarimukha', accuracy: 85, duration: 60 },
-      ];
-      demoData.forEach(data => StatsService.saveSession(data));
-      sessions = StatsService.getSessions();
+  useEffect(() => {
+    let stored = StatsService.getSessions();
+
+    // The demo account is seeded so the dashboard has something to show. A real
+    // account is not: inventing history for someone would make every number on
+    // this page a lie.
+    if (auth?.user?.email === "demo@example.com" && stored.length === 0) {
+      [
+        { mudraId: "mayura", mudraName: "Mayura", accuracy: 98, duration: 300 },
+        { mudraId: "ardhapataka", mudraName: "Ardhapataka", accuracy: 95, duration: 200 },
+        { mudraId: "pataka", mudraName: "Pataka", accuracy: 92, duration: 120 },
+        { mudraId: "tripataka", mudraName: "Tripataka", accuracy: 88, duration: 45 },
+        { mudraId: "kartarimukha", mudraName: "Kartarimukha", accuracy: 85, duration: 60 },
+      ].forEach((d) => StatsService.saveSession(d));
+      stored = StatsService.getSessions();
     }
 
-    setAllSessions(sessions);
-    setRecentSessions(sessions.slice(0, 5));
-  }, [session]);
+    // localStorage cannot be read during render — it does not exist on the
+    // server — so reading it on mount and setting state is the only way in.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSessions(stored);
+  }, [auth]);
 
-  const firstName = session?.user?.name?.split(' ')[0] || 'Dancer';
+  const firstName = auth?.user?.name?.split(" ")[0] ?? "there";
+  const mastered = useMemo(() => sessions.filter((s) => s.accuracy >= MASTERY), [sessions]);
+
+  /**
+   * What to practise next, derived from what actually happened.
+   *
+   * This panel used to be three fixed cards — "You're close to 90% accuracy",
+   * "New mudra unlocked!" — shown to everyone including someone who had never
+   * practised anything. Now it reads the sessions, and when there is nothing to
+   * say it says so instead.
+   */
+  const suggestions = useMemo(() => {
+    const out: { title: string; body: string; href: string }[] = [];
+
+    const close = sessions
+      .filter((s) => s.accuracy >= 75 && s.accuracy < MASTERY)
+      .sort((a, b) => b.accuracy - a.accuracy)[0];
+    if (close) {
+      out.push({
+        title: `Finish ${close.mudraName}`,
+        body: `Your best is ${close.accuracy}%. ${MASTERY}% marks it held.`,
+        href: `/practice/${close.mudraId}`,
+      });
+    }
+
+    const practised = new Set(sessions.map((s) => s.mudraId));
+    const untouched = MUDRAS.find((m) => !practised.has(m.slug));
+    if (untouched) {
+      out.push({
+        title: `Try ${untouched.name}`,
+        body: `${untouched.meaning}. You have not practised this one yet.`,
+        href: `/practice/${untouched.slug}`,
+      });
+    }
+
+    const weakest = [...sessions].sort((a, b) => a.accuracy - b.accuracy)[0];
+    if (weakest && weakest.accuracy < 75) {
+      out.push({
+        title: `Go back to ${weakest.mudraName}`,
+        body: `Your lowest reading, at ${weakest.accuracy}%.`,
+        href: `/practice/${weakest.mudraId}`,
+      });
+    }
+
+    return out.slice(0, 3);
+  }, [sessions]);
 
   return (
-    <div className="pt-32 pb-20 px-6 min-h-screen relative overflow-hidden">
-      <div className="bg-blob blob-gold top-0 -right-40" />
-      
-      <div className="max-w-7xl mx-auto space-y-12 relative z-10">
-        <header className="flex flex-col md:row md:items-end justify-between space-y-6 md:space-y-0">
+    <div className="min-h-screen px-6 pt-32 pb-24">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
           <div>
-            <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tighter italic">Welcome Back, <span className="text-primary not-italic">{firstName}</span></h1>
-            <p className="text-foreground/40 font-medium">
-              {recentSessions.length > 0 
-                ? `You've completed ${recentSessions.length} sessions recently. Keep the momentum!` 
-                : "Ready to start your classical dance journey?"}
+            <Eyebrow tone="primary">dashboard</Eyebrow>
+            <h1 className="serif font-normal tracking-[-0.015em] leading-[1.08] text-[clamp(1.9rem,4.4vw,3rem)] mt-4">
+              Welcome back, {firstName}.
+            </h1>
+            <p className="serif text-[1.02rem] leading-[1.6] text-foreground/60 mt-3 max-w-[52ch]">
+              {sessions.length > 0
+                ? `${sessions.length} ${sessions.length === 1 ? "session" : "sessions"} recorded, all of it stored in this browser.`
+                : "Nothing recorded yet. Practise a mudra and it will show up here."}
             </p>
           </div>
-          
-          <div className="flex items-center bg-foreground/5 p-1 rounded-xl border border-foreground/10">
-            <TabLink 
-              icon={<Calendar className="w-4 h-4" />} 
-              label="Overview" 
-              active={activeTab === 'Overview'} 
-              onClick={() => { setActiveTab('Overview'); setShowAccountDetails(false); }} 
-            />
-            <TabLink 
-              icon={<History className="w-4 h-4" />} 
-              label="History" 
-              active={activeTab === 'History'} 
-              onClick={() => { setActiveTab('History'); setShowAccountDetails(false); }}
-            />
-            <TabLink 
-              icon={<Bookmark className="w-4 h-4" />} 
-              label="Saved" 
-              active={activeTab === 'Saved'} 
-              onClick={() => { setActiveTab('Saved'); setShowAccountDetails(false); }}
-            />
-            <TabLink 
-              icon={<Settings className="w-4 h-4" />} 
-              label="Settings" 
-              active={activeTab === 'Settings'} 
-              onClick={() => setActiveTab('Settings')}
-            />
-          </div>
-        </header>
 
-        {activeTab === 'Overview' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
-            <DashboardStats />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <RecentActivity sessions={recentSessions} />
-              <Suggestions />
-            </div>
-          </motion.div>
-        )}
-
-        {activeTab === 'History' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-10 border-foreground/5 bg-foreground/[0.01]">
-            <h3 className="text-3xl font-black mb-10 italic">Complete Practice History</h3>
-            <div className="space-y-4">
-              {allSessions.length > 0 ? (
-                allSessions.map((s) => <ActivityItem key={s.id} session={s} />)
-              ) : (
-                <EmptyState icon={<History className="w-12 h-12" />} text="No sessions recorded yet." />
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {activeTab === 'Saved' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-10 border-foreground/5">
-             <h3 className="text-3xl font-black mb-10 italic">Mastered Mudras</h3>
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {allSessions.filter(s => s.accuracy >= 90).length > 0 ? (
-                  allSessions.filter(s => s.accuracy >= 90).map(s => (
-                    <div key={s.id} className="p-6 bg-primary/5 border border-primary/20 rounded-2xl flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
-                         <Trophy className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h4 className="font-black text-lg">{s.mudraName}</h4>
-                        <p className="text-[10px] uppercase font-black text-primary/60 italic tracking-widest">Mastered at {s.accuracy}%</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-span-full py-20 text-center bg-foreground/[0.02] rounded-3xl border-2 border-dashed border-foreground/5">
-                     <Bookmark className="w-12 h-12 text-foreground/5 mx-auto mb-4" />
-                     <p className="text-foreground/30 italic">Get 90%+ accuracy in any mudra to save it here.</p>
-                  </div>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2">
+            {TABS.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => {
+                  setTab(t);
+                  setShowAccount(false);
+                }}
+                aria-current={tab === t ? "page" : undefined}
+                className={cn(
+                  "mono text-[10px] uppercase tracking-[0.16em] transition-colors",
+                  tab === t ? "text-primary" : "text-foreground/45 hover:text-foreground",
                 )}
-             </div>
-          </motion.div>
+              >
+                {t}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        <Rule className="mt-10 mb-12" />
+
+        {tab === "Overview" && (
+          <div className="space-y-14">
+            <DashboardStats />
+            <div className="grid lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] gap-10 lg:gap-14">
+              <section>
+                <Eyebrow>recent</Eyebrow>
+                <SessionList sessions={sessions.slice(0, 5)} empty="No sessions yet." />
+              </section>
+              <section>
+                <Eyebrow>what to do next</Eyebrow>
+                {suggestions.length > 0 ? (
+                  <ul className="mt-6">
+                    {suggestions.map((s) => (
+                      <li key={s.title} className="border-t border-foreground/12">
+                        <Link href={s.href} className="block py-4 group">
+                          <p className="text-[0.98rem] font-medium group-hover:text-primary transition-colors">
+                            {s.title}
+                          </p>
+                          <p className="serif text-[0.92rem] leading-[1.5] text-foreground/55 mt-1">
+                            {s.body}
+                          </p>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="serif italic text-[0.98rem] text-foreground/45 mt-6 max-w-[32ch]">
+                    Nothing to suggest yet — practise a few mudras and this will fill in.
+                  </p>
+                )}
+              </section>
+            </div>
+          </div>
         )}
 
-        {activeTab === 'Settings' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto glass-card p-10 border-foreground/5">
-             {!showAccountDetails ? (
-               <div className="flex flex-col items-center space-y-8">
-                  <h3 className="text-3xl font-black italic text-center">Settings</h3>
-                  <div className="w-24 h-24 rounded-full border-4 border-primary/20 p-1 relative">
-                     <img src={'https://api.dicebear.com/9.x/micah/svg?seed=DemoUser&backgroundColor=ffb86c'} className="w-full h-full rounded-full object-cover" alt="Profile" />
-                  </div>
-                  <div className="text-center">
-                     <h4 className="text-2xl font-black">{session?.user?.name}</h4>
-                     <p className="text-foreground/40">{session?.user?.email}</p>
-                  </div>
-                  
-                  <div className="w-full pt-8 border-t border-foreground/5 flex flex-col space-y-4">
-                     <button 
-                       onClick={() => setShowAccountDetails(true)}
-                       className="w-full p-4 rounded-xl bg-foreground/5 border border-foreground/10 hover:bg-foreground/10 transition-all font-bold text-sm text-left flex items-center justify-between group"
-                     >
-                       <span>Account Details</span>
-                       <ChevronRight className="w-4 h-4 text-foreground/20 group-hover:text-primary transition-all" />
-                     </button>
-                     <button 
-                       onClick={() => {
-                          if(confirm('Are you sure? This will delete all your local practice history.')) {
-                             StatsService.clearAll();
-                             window.location.reload();
-                        }
-                     }}
-                     className="w-full p-4 rounded-xl bg-red-500/5 border border-red-500/20 hover:bg-red-500/10 transition-all font-bold text-sm text-red-400 text-left"
-                   >
-                     Reset All Practice Data
-                   </button>
+        {tab === "History" && (
+          <section>
+            <Eyebrow>every session</Eyebrow>
+            <SessionList sessions={sessions} empty="No sessions recorded yet." />
+          </section>
+        )}
+
+        {tab === "Mastered" && (
+          <section>
+            <Eyebrow>held above {MASTERY}%</Eyebrow>
+            {mastered.length > 0 ? (
+              <ul className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8">
+                {mastered.map((s) => (
+                  <li key={s.id} className="border-t border-foreground/12">
+                    <Link href={`/library/${s.mudraId}`} className="block py-4 group">
+                      <div className="flex items-baseline justify-between gap-4">
+                        <span className="text-[1rem] font-medium group-hover:text-primary transition-colors">
+                          {s.mudraName}
+                        </span>
+                        <span className="mono text-[0.9rem] tabular-nums text-primary">
+                          {s.accuracy}%
+                        </span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="serif italic text-[0.98rem] text-foreground/45 mt-6 max-w-[38ch]">
+                Reach {MASTERY}% on any mudra and it will be listed here.
+              </p>
+            )}
+          </section>
+        )}
+
+        {tab === "Account" && (
+          <section className="max-w-2xl">
+            {!showAccount ? (
+              <>
+                <Eyebrow>account</Eyebrow>
+                <h2 className="serif text-[1.8rem] leading-tight tracking-tight mt-4">
+                  {auth?.user?.name ?? "Not signed in"}
+                </h2>
+                <p className="mono text-[11px] text-foreground/45 mt-2">
+                  {auth?.user?.email ?? "—"}
+                </p>
+
+                <Rule className="my-9" />
+
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowAccount(true)}
+                    className="w-full flex items-center justify-between py-4 border-t border-foreground/12 group"
+                  >
+                    <span className="mono text-[11px] uppercase tracking-[0.16em] text-foreground/70 group-hover:text-primary transition-colors">
+                      Account details
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5 text-foreground/30 group-hover:text-primary transition-colors" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        confirm(
+                          "Delete all practice history stored in this browser? This cannot be undone.",
+                        )
+                      ) {
+                        StatsService.clearAll();
+                        setSessions([]);
+                      }
+                    }}
+                    className="w-full text-left py-4 border-t border-foreground/12"
+                  >
+                    <span className="mono text-[11px] uppercase tracking-[0.16em] text-rose-400">
+                      Delete practice history
+                    </span>
+                    <span className="block serif text-[0.92rem] text-foreground/50 mt-1.5">
+                      Removes every session from this browser. Nothing is stored anywhere else,
+                      so there is no copy to restore from.
+                    </span>
+                  </button>
                 </div>
-             </div>
-             ) : (
-               <div className="space-y-10">
-                  <header className="flex items-center space-x-6">
-                    <button 
-                      onClick={() => setShowAccountDetails(false)}
-                      className="w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center hover:bg-foreground/10 transition-all"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                    </button>
-                    <h3 className="text-3xl font-black italic">Account Details</h3>
-                  </header>
-
-                  <div className="space-y-6">
-                    <DetailItem label="Full Name" value={session?.user?.name || 'Not Available'} />
-                    <DetailItem label="Email Address" value={session?.user?.email || 'Not Available'} />
-                    <DetailItem label="Auth Provider" value="Google OAuth" />
-                    <DetailItem label="Account Status" value="Active (Student)" />
-                  </div>
-               </div>
-             )}
-          </motion.div>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowAccount(false)}
+                  className="mono inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-foreground/45 hover:text-primary transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  Account
+                </button>
+                <h2 className="serif text-[1.8rem] leading-tight tracking-tight mt-6">
+                  Account details
+                </h2>
+                <dl className="mt-8">
+                  <Detail label="name" value={auth?.user?.name ?? "—"} />
+                  <Detail label="email" value={auth?.user?.email ?? "—"} />
+                  {/*
+                    Derived, not asserted. This row read "Google OAuth" for
+                    everyone, including anyone signed in with the demo password.
+                  */}
+                  <Detail
+                    label="signed in with"
+                    value={auth?.user?.email === "demo@example.com" ? "Demo account" : "Google"}
+                  />
+                  <Detail label="history stored in" value="This browser only" />
+                </dl>
+              </>
+            )}
+          </section>
         )}
       </div>
     </div>
   );
 }
 
-function DetailItem({ label, value }: { label: string, value: string }) {
+function Detail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="p-5 bg-foreground/[0.03] rounded-2xl border border-foreground/5 flex justify-between items-center group">
-       <span className="text-xs font-black uppercase tracking-widest text-foreground/40">{label}</span>
-       <span className="text-lg font-bold group-hover:text-primary transition-colors">{value}</span>
+    <div className="flex items-baseline justify-between gap-6 py-3.5 border-t border-foreground/12">
+      <dt className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/45">{label}</dt>
+      <dd className="text-[0.98rem] text-foreground/85 text-right">{value}</dd>
     </div>
   );
 }
 
-function RecentActivity({ sessions }: { sessions: PracticeSession[] }) {
+function SessionList({ sessions, empty }: { sessions: PracticeSession[]; empty: string }) {
+  if (sessions.length === 0) {
+    return <p className="serif italic text-[0.98rem] text-foreground/45 mt-6">{empty}</p>;
+  }
   return (
-    <div className="lg:col-span-2 glass-card p-8 border-foreground/10 bg-foreground/[0.01]">
-      <h3 className="text-xl font-black mb-8 flex items-center justify-between italic tracking-tight">
-        <span>Recent Activity</span>
-      </h3>
-      <div className="space-y-4">
-        {sessions.length > 0 ? (
-          sessions.map((s) => <ActivityItem key={s.id} session={s} />)
-        ) : (
-          <EmptyState icon={<History className="w-12 h-12" />} text="No recent activity detected." />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ActivityItem({ session }: { session: PracticeSession }) {
-  return (
-    <div className="flex items-center justify-between p-5 bg-foreground/[0.03] rounded-2xl border border-foreground/5 hover:bg-foreground/5 hover:border-primary/20 transition-all cursor-pointer group">
-      <div className="flex items-center space-x-5">
-        <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-all">
-          <span className="text-xl font-black uppercase">{session.mudraName[0]}</span>
-        </div>
-        <div>
-          <h4 className="font-bold text-lg group-hover:text-primary transition-colors">{session.mudraName}</h4>
-          <p className="text-[10px] text-foreground/30 uppercase tracking-[0.2em] font-black">
-            {formatDistanceToNow(session.timestamp)} ago • {Math.floor(session.duration)}s session
-          </p>
-        </div>
-      </div>
-      <div className="text-right">
-        <span className="text-2xl font-black text-foreground">{session.accuracy}%</span>
-        <p className="text-[10px] text-primary font-black uppercase tracking-widest">Accuracy</p>
-      </div>
-    </div>
-  );
-}
-
-function EmptyState({ icon, text }: { icon: React.ReactNode, text: string }) {
-  return (
-    <div className="py-12 text-center">
-       <div className="text-foreground/5 mx-auto mb-4">{icon}</div>
-       <p className="text-foreground/30 text-sm italic font-medium">{text}</p>
-    </div>
-  );
-}
-
-function Suggestions() {
-  return (
-    <div className="glass-card p-6 border-accent-gold/20">
-      <h3 className="text-lg font-bold mb-6 italic">Suggested for You</h3>
-      <div className="space-y-6">
-        <SuggestionItem title="Master the Mayura" desc="You're close to 90% accuracy. Almost there!" tag="Goal" />
-        <SuggestionItem title="Daily Warmup" desc="Start your session with 5 minutes of basic Pataka." tag="Routine" />
-        <SuggestionItem title="Learn Kartarimukha" desc="New mudra unlocked! Try the intro lesson." tag="New Skill" />
-      </div>
-    </div>
-  );
-}
-
-function TabLink({ icon, label, active = false, onClick }: { icon: React.ReactNode, label: string, active?: boolean, onClick: () => void }) {
-  return (
-    <button 
-      onClick={onClick}
-      className={cn(
-        "flex items-center space-x-2 px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
-        active ? 'bg-primary text-black' : 'text-foreground/30 hover:text-foreground hover:bg-foreground/5'
-      )}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-}
-
-function SuggestionItem({ title, desc, tag }: { title: string, desc: string, tag: string }) {
-  return (
-    <div className="p-4 bg-accent-gold/5 rounded-xl border border-accent-gold/10 group cursor-pointer hover:bg-accent-gold/10 transition-all">
-      <span className="text-[10px] font-bold text-accent-gold uppercase tracking-tighter bg-accent-gold/20 px-2 py-0.5 rounded-full mb-2 inline-block">
-        {tag}
-      </span>
-      <h4 className="font-bold text-foreground group-hover:text-accent-gold transition-colors">{title}</h4>
-      <p className="text-xs text-foreground/40 mt-1 leading-relaxed">{desc}</p>
-    </div>
+    <ul className="mt-6">
+      {sessions.map((s) => (
+        <li key={s.id} className="border-t border-foreground/12">
+          {/* Really a link now. These rows carried `cursor-pointer` and a hover
+              state with no handler behind them — they looked clickable and were
+              not. */}
+          <Link
+            href={`/library/${s.mudraId}`}
+            className="flex items-center justify-between gap-6 py-4 group"
+          >
+            <div className="min-w-0">
+              <p className="text-[1rem] font-medium group-hover:text-primary transition-colors truncate">
+                {s.mudraName}
+              </p>
+              <p className="mono text-[10px] uppercase tracking-[0.14em] text-foreground/40 mt-1.5">
+                {formatDistanceToNow(s.timestamp)} ago · {Math.floor(s.duration)}s
+              </p>
+            </div>
+            <span className="mono text-[1.15rem] tabular-nums text-foreground/85 shrink-0">
+              {s.accuracy}%
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }

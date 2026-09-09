@@ -1,93 +1,97 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Mail, Lock, ArrowRight, User, Github } from 'lucide-react';
+import { useState } from "react";
+import Link from "next/link";
+import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { Eyebrow, Rule } from "@/components/ui/editorial";
+import { GoogleMark } from "@/components/shared/GoogleMark";
 
+/**
+ * Creating an account.
+ *
+ * This page used to carry a full name / email / password form whose submit
+ * handler was `(e) => e.preventDefault()` — it collected three fields, created
+ * nothing, and returned you to a page that looked identical. There is no
+ * registration endpoint behind it and no credentials store: the credentials
+ * provider authorises exactly one hard-coded demo account.
+ *
+ * So it offers the two things that actually work — Google, which really does
+ * create an account, and the demo login for trying the app without one — and
+ * says plainly that email sign-up is not built yet. That is a smaller page than
+ * the one it replaces and a truthful one.
+ */
 export default function SignupPage() {
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
+
+  const withGoogle = async () => {
+    setPending(true);
+    setError("");
+    try {
+      await signIn("google", { callbackUrl: "/" });
+    } catch {
+      setError("Could not reach Google. Try again.");
+      setPending(false);
+    }
+  };
+
   return (
-    <div className="pt-32 pb-20 px-6 min-h-screen flex items-center justify-center relative overflow-hidden">
-      <div className="bg-blob blob-gold -top-40 -left-40" />
-      <div className="bg-blob blob-violet -bottom-40 -right-40" />
-      
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full glass-card p-10 relative z-10"
-      >
-        <div className="text-center mb-10">
-          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-6">
-            <span className="text-black font-bold text-xl">N</span>
-          </div>
-          <h1 className="text-3xl font-black mb-2">Join NrityaVaani</h1>
-          <p className="text-foreground/40 text-sm">Create your account and start perfecting your mudras.</p>
-        </div>
-
-        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-          <div className="space-y-4">
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
-              <input 
-                type="text" 
-                placeholder="Full name"
-                className="w-full bg-foreground/5 border border-foreground/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-colors"
-              />
-            </div>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
-              <input 
-                type="email" 
-                placeholder="Email address"
-                className="w-full bg-foreground/5 border border-foreground/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-colors"
-              />
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
-              <input 
-                type="password" 
-                placeholder="Create password"
-                className="w-full bg-foreground/5 border border-foreground/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-colors"
-              />
-            </div>
-          </div>
-
-          <div className="text-[10px] text-foreground/30 text-center px-4 leading-relaxed">
-            By signing up, you agree to our <span className="text-primary cursor-pointer">Terms of Service</span> and <span className="text-primary cursor-pointer">Privacy Policy</span>.
-          </div>
-
-          <button className="w-full premium-button flex items-center justify-center space-x-2">
-            <span>Create Account</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
-
-        <div className="my-8 flex items-center space-x-4">
-          <div className="flex-1 h-[1px] bg-foreground/10" />
-          <span className="text-[10px] text-foreground/30 uppercase font-bold tracking-widest">Or sign up with</span>
-          <div className="flex-1 h-[1px] bg-foreground/10" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <button className="flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-foreground/5 border border-foreground/10 hover:bg-foreground/10 transition-colors text-sm font-medium">
-            <Github className="w-4 h-4" />
-            <span>GitHub</span>
-          </button>
-          <button className="flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-foreground/5 border border-foreground/10 hover:bg-foreground/10 transition-colors text-sm font-medium">
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            </svg>
-            <span>Google</span>
-          </button>
-        </div>
-
-        <p className="mt-10 text-center text-sm text-foreground/40">
-          Already have an account? <Link href="/auth/login" className="text-primary hover:underline font-bold">Sign in</Link>
+    <div className="min-h-screen px-6 pt-32 pb-20 flex items-center">
+      <div className="w-full max-w-md mx-auto">
+        <Eyebrow tone="primary">create an account</Eyebrow>
+        <h1 className="serif font-normal tracking-[-0.015em] leading-[1.1] text-[clamp(1.9rem,4.4vw,2.6rem)] mt-4">
+          Start keeping your practice.
+        </h1>
+        <p className="serif text-[1.02rem] leading-[1.6] text-foreground/60 mt-3">
+          Recognition and the full library work without an account — they run on your machine.
+          An account is what gives your session history somewhere to belong.
         </p>
-      </motion.div>
+
+        <button
+          type="button"
+          onClick={withGoogle}
+          disabled={pending}
+          className="mono mt-9 w-full inline-flex items-center justify-center gap-2.5 rounded-full bg-primary text-black py-3.5 text-[11px] uppercase tracking-[0.16em] hover:bg-primary/85 disabled:opacity-50 transition-colors"
+        >
+          {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : <GoogleMark className="w-4 h-4" />}
+          Continue with Google
+        </button>
+
+        {error && (
+          <p role="alert" className="mono mt-4 text-[11px] text-rose-400">
+            {error}
+          </p>
+        )}
+
+        <Rule className="my-9" />
+
+        <div className="border-l-2 border-foreground/15 pl-5">
+          <Eyebrow>email sign-up</Eyebrow>
+          <p className="serif text-[0.98rem] leading-[1.6] text-foreground/60 mt-2.5">
+            Not built yet. Google is the only way to create a real account at the moment.
+            To look around without one, sign in with the demo account below.
+          </p>
+        </div>
+
+        <Rule className="my-9" />
+
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <p className="text-[0.92rem] text-foreground/55">
+            Already have an account?{" "}
+            <Link href="/auth/login" className="text-primary hover:underline underline-offset-4">
+              Sign in
+            </Link>
+          </p>
+          <p className="mono text-[10px] uppercase tracking-[0.14em] text-foreground/35">
+            demo@example.com · demo123
+          </p>
+        </div>
+
+        <p className="mono text-[10px] leading-relaxed text-foreground/30 mt-10">
+          By continuing you agree to the terms and the privacy policy.
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,91 +1,112 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Camera, LayoutDashboard, Library, Info, LogIn, LogOut, Home, CreditCard, Upload } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useSession, signOut } from "next-auth/react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { LogOut, Menu, X } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
-import { ThemeToggle } from '@/components/shared/ThemeToggle';
+/**
+ * The one piece of chrome on every page, so it stays out of the way.
+ *
+ * Set in monospace at label size rather than as seven equal-weight sentences,
+ * which is what let the old bar read as a row of buttons competing with the
+ * page. The current section is marked, because a nav that never tells you where
+ * you are is decoration.
+ */
 
-const navLinks = [
-  { name: 'Home', href: '/', icon: Home },
-  { name: 'Live Detection', href: '/live', icon: Camera },
-  { name: 'Upload', href: '/upload', icon: Upload },
-  { name: 'Library', href: '/library', icon: Library },
-  { name: 'Pricing', href: '/#pricing', icon: CreditCard },
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'About', href: '/about', icon: Info },
+const LINKS = [
+  { name: "Live", href: "/live" },
+  { name: "Upload", href: "/upload" },
+  { name: "Library", href: "/library" },
+  { name: "Research", href: "/research" },
+  { name: "Pricing", href: "/#pricing" },
+  { name: "Dashboard", href: "/dashboard" },
+  { name: "About", href: "/about" },
 ];
+
+const AVATAR = "https://api.dicebear.com/9.x/micah/svg?seed=DemoUser&backgroundColor=ffb86c";
+
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { data: session } = useSession();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = open ? "hidden" : "";
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [open]);
+
+  const isCurrent = (href: string) =>
+    href.startsWith("/#") ? false : href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <nav
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 md:px-6 py-4',
-        scrolled ? 'bg-background/80 backdrop-blur-2xl border-b border-foreground/5 shadow-[0_4px_30px_rgba(0,0,0,0.3)] shadow-primary/5' : 'bg-transparent'
+        "fixed top-0 inset-x-0 z-50 px-5 md:px-6 py-4 transition-colors duration-300",
+        scrolled
+          ? "bg-background/85 backdrop-blur-xl border-b border-foreground/10"
+          : "bg-transparent border-b border-transparent",
       )}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2 group">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform shrink-0">
-            <span className="text-black font-bold text-xl">N</span>
-          </div>
-          <span className="text-xl md:text-2xl font-bold tracking-tight text-foreground font-heading truncate">
-            Nritya<span className="text-primary font-extrabold tracking-tight">Vaani</span>
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-6">
+        <Link href="/" className="flex items-center gap-2.5 shrink-0">
+          <span className="w-8 h-8 bg-primary rounded-sm grid place-items-center text-black font-bold text-[17px]">
+            N
+          </span>
+          <span className="text-[1.1rem] font-semibold tracking-tight font-outfit">
+            Nritya<span className="text-primary">Vaani</span>
           </span>
         </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center space-x-8">
-          {navLinks.map((link) => (
+        <div className="hidden md:flex items-center gap-7">
+          {LINKS.map((link) => (
             <Link
               key={link.name}
               href={link.href}
-              className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors flex items-center space-x-2"
+              aria-current={isCurrent(link.href) ? "page" : undefined}
+              className={cn(
+                "mono text-[10px] uppercase tracking-[0.16em] transition-colors",
+                isCurrent(link.href)
+                  ? "text-primary"
+                  : "text-foreground/55 hover:text-foreground",
+              )}
             >
               {link.name}
             </Link>
           ))}
-          
-          <div className="flex items-center space-x-6">
+
+          <div className="flex items-center gap-5 pl-2">
             <ThemeToggle />
-            
             {session ? (
-              <div className="flex items-center space-x-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full border border-foreground/10 overflow-hidden bg-foreground/5">
-                    <img src={'https://api.dicebear.com/9.x/micah/svg?seed=DemoUser&backgroundColor=ffb86c'} alt="" className="w-full h-full object-cover" />
-                  </div>
-                  <span className="text-sm font-bold text-foreground/50">{session.user?.name}</span>
-                </div>
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={AVATAR}
+                  alt=""
+                  className="w-7 h-7 rounded-full border border-foreground/15 bg-foreground/5"
+                />
+                <span className="mono text-[10px] uppercase tracking-[0.14em] text-foreground/55 max-w-[9ch] truncate">
+                  {session.user?.name}
+                </span>
                 <button
+                  type="button"
                   onClick={() => signOut()}
-                  className="text-foreground/40 hover:text-red-400 transition-colors"
-                  title="Logout"
+                  title="Sign out"
+                  className="text-foreground/40 hover:text-rose-400 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -93,78 +114,91 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/auth/login"
-                className="premium-button flex items-center space-x-2 !py-2 !px-5 text-sm"
+                className="mono rounded-full bg-primary text-black px-5 py-2 text-[10px] uppercase tracking-[0.16em] hover:bg-primary/85 transition-colors"
               >
-                <LogIn className="w-4 h-4" />
-                <span>Login</span>
+                Sign in
               </Link>
             )}
           </div>
         </div>
 
-        {/* Mobile Toggle */}
-        <div className="md:hidden flex items-center space-x-4">
+        <div className="md:hidden flex items-center gap-3">
           <ThemeToggle />
           <button
-            className="text-foreground p-2"
-            onClick={() => setIsOpen(!isOpen)}
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={open ? "Close menu" : "Open menu"}
+            className="p-2 text-foreground"
           >
-            {isOpen ? <X /> : <Menu />}
+            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Nav */}
       <AnimatePresence>
-        {isOpen && (
+        {open && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-2xl border-b border-foreground/10 p-6 md:hidden"
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.22 }}
+            className="md:hidden absolute top-full inset-x-0 bg-background/97 backdrop-blur-xl border-b border-foreground/10 px-6 py-8"
           >
-            <div className="flex flex-col space-y-6">
-              {session && (
-                 <div className="flex items-center space-x-4 p-4 rounded-xl bg-foreground/5 mb-2">
-                    <div className="w-12 h-12 rounded-full border border-foreground/10 overflow-hidden">
-                      <img src={'https://api.dicebear.com/9.x/micah/svg?seed=DemoUser&backgroundColor=ffb86c'} alt="" className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-foreground">{session.user?.name}</h4>
-                      <p className="text-xs text-foreground/40">{session.user?.email}</p>
-                    </div>
-                 </div>
-              )}
-              
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="text-lg font-medium text-foreground/70 hover:text-primary flex items-center space-x-3"
-                >
-                  <link.icon className="w-5 h-5" />
-                  <span>{link.name}</span>
-                </Link>
-              ))}
+            {session && (
+              <div className="flex items-center gap-3 pb-6 mb-6 border-b border-foreground/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={AVATAR}
+                  alt=""
+                  className="w-10 h-10 rounded-full border border-foreground/15"
+                />
+                <div className="min-w-0">
+                  <p className="text-[0.95rem] font-semibold truncate">{session.user?.name}</p>
+                  <p className="mono text-[10px] text-foreground/45 truncate">
+                    {session.user?.email}
+                  </p>
+                </div>
+              </div>
+            )}
 
-              {session ? (
-                <button
-                  onClick={() => signOut()}
-                  className="premium-button bg-red-500/10 border-red-500/20 text-red-400 text-center"
-                >
-                  Logout
-                </button>
-              ) : (
-                <Link
-                  href="/auth/login"
-                  onClick={() => setIsOpen(false)}
-                  className="premium-button text-center"
-                >
-                  Login
-                </Link>
-              )}
-            </div>
+            <ul className="space-y-5">
+              {LINKS.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    // A menu left open across a navigation covers the page you
+                    // just asked for.
+                    onClick={() => setOpen(false)}
+                    aria-current={isCurrent(link.href) ? "page" : undefined}
+                    className={cn(
+                      "mono text-[12px] uppercase tracking-[0.16em]",
+                      isCurrent(link.href) ? "text-primary" : "text-foreground/70",
+                    )}
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            {session ? (
+              <button
+                type="button"
+                onClick={() => signOut()}
+                className="mono mt-8 w-full rounded-full border border-rose-500/30 text-rose-400 py-3 text-[11px] uppercase tracking-[0.16em]"
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link
+                href="/auth/login"
+                onClick={() => setOpen(false)}
+                className="mono mt-8 block text-center rounded-full bg-primary text-black py-3 text-[11px] uppercase tracking-[0.16em]"
+              >
+                Sign in
+              </Link>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

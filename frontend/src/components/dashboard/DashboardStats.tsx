@@ -1,11 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, AreaChart, Area
-} from 'recharts';
 import { Activity, Target, Clock, Trophy } from 'lucide-react';
 
 import { StatsService, UserStats } from '@/lib/services/StatsService';
@@ -84,7 +79,7 @@ export default function DashboardStats() {
         <div className="glass-card p-20 text-center border-dashed border-foreground/10">
            <Trophy className="w-16 h-16 text-foreground/10 mx-auto mb-6" />
            <h3 className="text-2xl font-black mb-2 italic">Begin Your Journey</h3>
-           <p className="text-foreground/30 max-w-md mx-auto mb-8">You haven't recorded any practice sessions yet. Start your first live detection session to see your progress here.</p>
+           <p className="text-foreground/30 max-w-md mx-auto mb-8">You haven&rsquo;t recorded any practice sessions yet. Start your first live detection session to see your progress here.</p>
            <button 
              onClick={() => window.location.href = '/live'}
              className="premium-button px-10"

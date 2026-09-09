@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Bot, User, Loader2, Sparkles, Mail } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 interface ChatMessage {
@@ -47,7 +47,10 @@ export default function LiveChat() {
 
   const handleFAQClick = (faq: typeof FAQ_OPTIONS[0]) => {
     // Add user message
-    const newMessage: ChatMessage = { id: Date.now().toString(), sender: 'user', text: faq.label };
+    // crypto.randomUUID rather than Date.now: two clicks inside the same
+    // millisecond produced duplicate React keys, and Date.now in a render
+    // path is impure besides.
+    const newMessage: ChatMessage = { id: crypto.randomUUID(), sender: 'user', text: faq.label };
     setMessages(prev => [...prev, newMessage]);
     
     // Simulate typing

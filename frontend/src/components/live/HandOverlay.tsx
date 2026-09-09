@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
+import type { Point } from '@/lib/mediapipe/classification';
+import type { FrameLandmarks } from '@/lib/mediapipe/types';
 
 interface HandOverlayProps {
-  landmarks: any;
+  landmarks: FrameLandmarks | null;
   showDots: boolean;
   showLines: boolean;
 }
@@ -19,7 +21,7 @@ const CONNECTIONS = [
 
 export default function HandOverlay({ landmarks, showDots, showLines }: HandOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const smoothedLandmarks = useRef<any[]>([]);
+  const smoothedLandmarks = useRef<Point[]>([]);
   const animationFrameRef = useRef<number | null>(null);
 
   // Smooth interpolation factor (0.1 = very smooth, 0.5 = responsive)
@@ -43,7 +45,7 @@ export default function HandOverlay({ landmarks, showDots, showLines }: HandOver
     
     // Initialize or update smoothed points
     if (smoothedLandmarks.current.length !== rawHand.length) {
-      smoothedLandmarks.current = rawHand.map((p: any) => ({ ...p }));
+      smoothedLandmarks.current = rawHand.map((p: Point) => ({ ...p }));
     } else {
       for (let i = 0; i < rawHand.length; i++) {
         smoothedLandmarks.current[i].x += (rawHand[i].x - smoothedLandmarks.current[i].x) * LERP_FACTOR;
@@ -139,6 +141,10 @@ export default function HandOverlay({ landmarks, showDots, showLines }: HandOver
     return () => {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
+    // `draw` is redefined every render by design — it closes over the latest
+    // landmarks — and is only ever called through the animation frame this
+    // effect owns, so listing it would restart the loop on every frame.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [landmarks, showDots, showLines]);
 
   return (

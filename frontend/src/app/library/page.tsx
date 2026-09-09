@@ -1,154 +1,168 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { MUDRAS } from '@/lib/constants/mudras';
-import MudraCard from '@/components/library/MudraCard';
-import { Search, Filter, SlidersHorizontal } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useMemo, useState } from "react";
+import { MUDRAS } from "@/lib/constants/mudras";
+import MudraCard from "@/components/library/MudraCard";
+import { Search } from "lucide-react";
+import { Eyebrow, Headline, Mark, Prose, Rule } from "@/components/ui/editorial";
+
+const DIFFICULTIES = ["All", "Beginner", "Intermediate", "Advanced"];
 
 export default function LibraryPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('All');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [query, setQuery] = useState("");
+  const [difficulty, setDifficulty] = useState("All");
+  const [category, setCategory] = useState("All");
 
-  const categories = ['All', ...Array.from(new Set(MUDRAS.map(m => m.category)))];
+  const categories = useMemo(
+    () => ["All", ...Array.from(new Set(MUDRAS.map((m) => m.category)))],
+    [],
+  );
 
-  const filteredMudras = MUDRAS.filter(m => {
-    const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          m.meaning.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDifficulty = selectedDifficulty === 'All' || m.difficulty === selectedDifficulty;
-    const matchesCategory = selectedCategory === 'All' || m.category === selectedCategory;
-    return matchesSearch && matchesDifficulty && matchesCategory;
-  });
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return MUDRAS.filter((m) => {
+      const matchesQuery =
+        !q || m.name.toLowerCase().includes(q) || m.meaning.toLowerCase().includes(q);
+      return (
+        matchesQuery &&
+        (difficulty === "All" || m.difficulty === difficulty) &&
+        (category === "All" || m.category === category)
+      );
+    });
+  }, [query, difficulty, category]);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+  const reset = () => {
+    setQuery("");
+    setDifficulty("All");
+    setCategory("All");
   };
 
   return (
-    <div className="pt-32 pb-32 px-6 min-h-screen relative overflow-hidden bg-background">
-      {/* Background Orbs */}
-      <div className="bg-blob blob-violet -top-40 -left-20 opacity-20" />
-      <div className="bg-blob blob-saffron -bottom-40 -right-20 opacity-10" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        
-        {/* HERO SECTION */}
-        <div className="text-center mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-foreground/5 border border-foreground/10 text-[10px] font-black uppercase tracking-widest text-primary mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-              <span>Comprehensive Knowledge Base</span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter italic">
-              Explore the <span className="text-primary not-italic">Library</span>
-            </h1>
-            <p className="text-foreground/90 max-w-2xl mx-auto text-lg leading-relaxed font-medium">
-              A curated collection of classical Bharatanatyam mudras. Master the hand gestures that tell stories through movement.
+    <div className="px-6 pt-32 pb-28 min-h-screen">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] gap-10 lg:gap-16 items-end">
+          <div>
+            <Eyebrow tone="primary">the library</Eyebrow>
+            <Headline as="h1" className="mt-5">
+              Twenty-eight <Mark>asamyukta hasta</Mark>.
+            </Headline>
+          </div>
+          <Prose>
+            <p>
+              The single-hand gestures of Bharatanatyam, as set down in the Abhinaya Darpana.
+              Each entry carries what the gesture depicts, how the hand is held, and the
+              mistake most often made holding it.
             </p>
-          </motion.div>
+          </Prose>
         </div>
 
-        {/* FILTER BAR (GLASSMORHPIC) */}
-        <div className="sticky top-28 z-40 mb-16 px-4">
-          <div className="glass-card p-2 md:p-3 border-foreground/10 flex flex-col lg:row lg:items-center justify-between gap-4 shadow-2xl backdrop-blur-3xl">
-            
-            {/* Search Input */}
-            <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/20 group-focus-within:text-primary transition-colors" />
-              <input 
-                type="text"
-                placeholder="Search by name or meaning..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-foreground/5 border border-foreground/5 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:bg-foreground/[0.08] transition-all"
-              />
-            </div>
+        {/* ---------------------------------------------------------- filters */}
+        <div className="mt-14 border-y border-foreground/12 py-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <label className="relative block">
+            <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name or meaning"
+              className="mono w-full bg-transparent border-0 border-b border-transparent focus:border-primary/60 pl-7 py-2 text-[12px] tracking-wide placeholder:text-foreground/35 focus:outline-none transition-colors"
+            />
+          </label>
 
-            <div className="h-8 w-[1px] bg-foreground/10 hidden lg:block" />
-
-            {/* Category Tabs */}
-            <div className="flex items-center space-x-1 bg-background/40 p-1 rounded-xl border border-foreground/5 overflow-x-auto no-scrollbar">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${
-                    selectedCategory === cat ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-foreground/90 hover:text-foreground'
-                  }`}
-                >
-                  {cat === 'All' ? 'All Hand Types' : cat}
-                </button>
-              ))}
-            </div>
-
-            <div className="h-8 w-[1px] bg-foreground/10 hidden lg:block" />
-
-            {/* Difficulty Filter */}
-            <div className="flex items-center space-x-1 bg-background/40 p-1 rounded-xl border border-foreground/5">
-              {['All', 'Beginner', 'Intermediate', 'Advanced'].map((level) => (
-                <button
-                  key={level}
-                  onClick={() => setSelectedDifficulty(level)}
-                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                    selectedDifficulty === level ? 'bg-primary/20 text-primary border border-primary/20' : 'text-foreground/90 hover:text-foreground border border-transparent'
-                  }`}
-                >
-                  {level}
-                </button>
-              ))}
-            </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Filters
+              label="type"
+              options={categories}
+              value={category}
+              onChange={setCategory}
+              display={(c) => (c === "All" ? "all" : c)}
+            />
+            <Filters
+              label="level"
+              options={DIFFICULTIES}
+              value={difficulty}
+              onChange={setDifficulty}
+              display={(d) => d.toLowerCase()}
+            />
           </div>
         </div>
 
-        {/* MUDRA GRID */}
-        {filteredMudras.length > 0 ? (
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
-          >
-            {filteredMudras.map((mudra) => (
-              <motion.div key={mudra.id} variants={itemVariants}>
-                <MudraCard mudra={mudra} />
-              </motion.div>
+        {/*
+          The count is live and stated plainly. A filtered grid that silently
+          shrinks leaves the reader guessing whether a mudra is missing or
+          simply filtered out.
+        */}
+        <p className="mono mt-5 text-[10px] uppercase tracking-[0.18em] text-foreground/45">
+          {filtered.length} of {MUDRAS.length} shown
+        </p>
+
+        {filtered.length > 0 ? (
+          <div className="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-12 md:gap-x-7">
+            {filtered.map((mudra) => (
+              <MudraCard key={mudra.id} mudra={mudra} />
             ))}
-          </motion.div>
+          </div>
         ) : (
-          <div className="py-40 text-center glass-card border-dashed border-foreground/10 max-w-2xl mx-auto">
-            <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6 scale-110">
-              <Search className="w-8 h-8 text-primary/40 animate-pulse" />
-            </div>
-            <h3 className="text-2xl font-black mb-3 italic">Mudra not found</h3>
-            <p className="text-foreground/30 text-lg">Your search didn't return any matches in our classical database.</p>
-            <button 
-              onClick={() => {setSearchQuery(''); setSelectedDifficulty('All'); setSelectedCategory('All');}}
-              className="mt-8 px-8 py-3 bg-foreground/5 border border-foreground/10 rounded-full text-xs font-black uppercase tracking-widest hover:bg-foreground/10 transition-all hover:scale-105 active:scale-95"
+          <div className="mt-20 max-w-md">
+            <Rule className="mb-8" />
+            <h2 className="serif text-[1.6rem] leading-tight">Nothing matches that.</h2>
+            <p className="serif text-[1rem] leading-[1.6] text-foreground/60 mt-3">
+              No mudra in the library matches{" "}
+              {query ? <span className="text-foreground">“{query}”</span> : "those filters"}.
+            </p>
+            <button
+              type="button"
+              onClick={reset}
+              className="mono mt-7 inline-flex rounded-full border border-foreground/25 px-6 py-3 text-[11px] uppercase tracking-[0.16em] text-foreground/80 hover:border-primary/60 hover:text-primary transition-colors"
             >
-              Reset All Filters
+              Clear filters
             </button>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A filter row. Set as text rather than as pills or a select: with four or five
+ * short options the whole set fits on one line, and showing every option at
+ * once is faster to scan than a control that hides them behind a click.
+ */
+function Filters({
+  label,
+  options,
+  value,
+  onChange,
+  display,
+}: {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (v: string) => void;
+  display: (v: string) => string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/35">
+        {label}
+      </span>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        {options.map((option) => (
+          <button
+            key={option}
+            type="button"
+            onClick={() => onChange(option)}
+            aria-pressed={value === option}
+            className={`mono text-[10px] uppercase tracking-[0.14em] transition-colors ${
+              value === option
+                ? "text-primary"
+                : "text-foreground/45 hover:text-foreground/80"
+            }`}
+          >
+            {display(option)}
+          </button>
+        ))}
       </div>
     </div>
   );

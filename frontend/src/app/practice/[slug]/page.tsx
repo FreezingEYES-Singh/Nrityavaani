@@ -3,17 +3,18 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowLeft, Camera, Sparkles, Volume2, VolumeX, 
-  CheckCircle, AlertCircle, Info, Play, RotateCcw,
-  Activity, Target, ChevronRight
-} from 'lucide-react';
+import { ArrowLeft, Camera, ChevronRight, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import Link from 'next/link';
 import { MUDRAS } from '@/lib/constants/mudras';
+import type { Point } from '@/lib/mediapipe/classification';
 import CameraFeed from '@/components/live/CameraFeed';
 import { cn } from '@/lib/utils';
-import TiltCard from '@/components/shared/TiltCard';
+import Image from 'next/image';
+import { Eyebrow, Rule } from '@/components/ui/editorial';
 import { translateFeedback } from '@/lib/utils/translations';
+
+/** What CameraFeed hands back for each hand it reads. */
+type DetectedMudra = { name: string; confidence: number; feedback: string };
 
 export default function PracticeModePage() {
   const params = useParams();
@@ -27,15 +28,15 @@ export default function PracticeModePage() {
   const [confidence, setConfidence] = useState(0);
   const [bestDetection, setBestDetection] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string>("Show your hand to the camera to begin.");
-  const [landmarks, setLandmarks] = useState<any>(null);
-  const [hasLanded, setHasLanded] = useState(false);
 
   // Voice Assistant Ref
   const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(null);
   const lastSpokenRef = useRef<string>("");
   const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasGreetedRef = useRef(false);
-  const lastHandSeenRef = useRef<number>(Date.now());
+  // Seeded in an effect rather than here: a useRef initialiser runs during
+  // render, and Date.now() there makes the render impure.
+  const lastHandSeenRef = useRef<number | null>(null);
   const nudgeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize voices
@@ -84,8 +85,14 @@ export default function PracticeModePage() {
   useEffect(() => {
     if (!isCameraActive || !isVoiceEnabled) return;
 
+    // The clock starts when the camera does, not when the component mounts:
+    // otherwise time spent reading the page before switching the camera on
+    // counts as time spent not showing a hand, and the first nudge fires
+    // immediately.
+    lastHandSeenRef.current = Date.now();
+
     nudgeIntervalRef.current = setInterval(() => {
-      const idleTime = Date.now() - lastHandSeenRef.current;
+      const idleTime = Date.now() - (lastHandSeenRef.current ?? Date.now());
       if (idleTime > 12000) { // 12 seconds of silence
         const nudgeMsg = translateFeedback("Adjust your hand position to match the reference image.", language);
         speak(nudgeMsg);
@@ -99,7 +106,7 @@ export default function PracticeModePage() {
   }, [isCameraActive, isVoiceEnabled, language, speak]);
 
   // Handle detection updates
-  const handleUpdate = useCallback((landmarkData: any, mudraData: any[]) => {
+  const handleUpdate = useCallback((landmarkData: { landmarks?: Point[][] } | null, mudraData: DetectedMudra[]) => {
     // Freeze logic: If no hands are detected, don't update results state, but update idle timer
     if (!landmarkData || !landmarkData.landmarks || landmarkData.landmarks.length === 0) {
       return;
@@ -114,8 +121,6 @@ export default function PracticeModePage() {
       speak(greeting);
       hasGreetedRef.current = true;
     }
-
-    setLandmarks(landmarkData);
     
     if (!mudra) return;
 
@@ -148,270 +153,258 @@ export default function PracticeModePage() {
 
   if (!mudra) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Mudra not found</h1>
-          <Link href="/library" className="text-primary hover:underline">Back to Library</Link>
+      <div className="min-h-screen grid place-items-center px-6">
+        <div className="max-w-md">
+          <Eyebrow>not found</Eyebrow>
+          <h1 className="serif text-[2rem] leading-tight mt-4">No mudra by that name.</h1>
+          <Link
+            href="/library"
+            className="mono mt-7 inline-flex rounded-full border border-foreground/25 px-6 py-3 text-[11px] uppercase tracking-[0.16em] text-foreground/80 hover:border-primary/60 hover:text-primary transition-colors"
+          >
+            Back to the library
+          </Link>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="pt-24 min-h-screen bg-[#050505] text-foreground px-6 pb-20 relative overflow-hidden">
-      {/* Background Blobs */}
-      <div className="bg-blob blob-violet -top-40 -left-20 opacity-20" />
-      <div className="bg-blob blob-saffron -bottom-40 -right-20 opacity-10" />
+  const reading =
+    confidence > 0.8 ? "holding" : confidence > 0.4 ? "close" : isCameraActive ? "searching" : "idle";
 
-      <div className="max-w-[1600px] mx-auto relative z-10">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 space-y-4 md:space-y-0">
-          <div className="flex items-center space-x-6">
-            <button 
+  return (
+    <div className="min-h-screen px-6 pt-28 pb-20">
+      <div className="max-w-[1500px] mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div>
+            <button
+              type="button"
               onClick={() => router.back()}
-              className="w-12 h-12 rounded-full bg-foreground/5 border border-foreground/10 flex items-center justify-center hover:bg-foreground/10 transition-all group"
+              className="mono inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-foreground/45 hover:text-primary transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
             </button>
-            <div>
-              <div className="flex items-center space-x-3 mb-1">
-                <span className="px-2 py-0.5 rounded bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">Practice Mode</span>
-                <span className="text-foreground/40 text-xs font-medium">{mudra.category}</span>
-              </div>
-              <h1 className="text-4xl md:text-5xl font-black tracking-tight">{mudra.name} <span className="text-primary italic font-serif opacity-50">/{mudra.meaning}/</span></h1>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-6">
+              <Eyebrow tone="primary">practice</Eyebrow>
+              <span className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/40">
+                {mudra.category}
+              </span>
+              <span className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/40">
+                {mudra.difficulty}
+              </span>
             </div>
+            <h1 className="serif font-normal tracking-[-0.015em] leading-[1.05] text-[clamp(1.9rem,4.4vw,3rem)] mt-3">
+              {mudra.name} <span className="italic text-primary">{mudra.meaning}</span>
+            </h1>
           </div>
 
-          <div className="flex items-center space-x-4">
-             {/* Language Toggle */}
-             <div className="flex bg-foreground/5 p-1 rounded-xl border border-foreground/10">
-                <button 
-                  onClick={() => setLanguage('en')}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="flex items-center gap-3">
+              <span className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/35">
+                voice
+              </span>
+              {(["en", "hi"] as const).map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => setLanguage(code)}
+                  aria-pressed={language === code}
                   className={cn(
-                    "px-4 py-2 rounded-lg text-xs font-bold transition-all",
-                    language === 'en' ? "bg-primary text-black shadow-lg" : "text-foreground/40 hover:text-foreground"
+                    "mono text-[10px] uppercase tracking-[0.14em] transition-colors",
+                    language === code ? "text-primary" : "text-foreground/45 hover:text-foreground",
                   )}
                 >
-                  English
+                  {code === "en" ? "English" : "\u0939\u093f\u0902\u0926\u0940"}
                 </button>
-                <button 
-                  onClick={() => setLanguage('hi')}
-                  className={cn(
-                    "px-4 py-2 rounded-lg text-xs font-bold transition-all",
-                    language === 'hi' ? "bg-primary text-black shadow-lg" : "text-foreground/40 hover:text-foreground"
-                  )}
-                >
-                  हिंदी
-                </button>
-             </div>
+              ))}
+            </div>
 
-             <button 
-                onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
-                className={cn(
-                  "flex items-center space-x-2 px-5 py-3 rounded-xl border transition-all font-bold text-sm",
-                  isVoiceEnabled ? "bg-primary/20 border-primary/30 text-primary shadow-[0_0_20px_rgba(255,153,51,0.1)]" : "bg-foreground/5 border-foreground/10 text-foreground/40"
-                )}
-             >
-               {isVoiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-               <span>AI Coach: {isVoiceEnabled ? 'ON' : 'OFF'}</span>
-             </button>
-             <button 
-                onClick={() => setConfidence(0) /* Dummy reset for now */}
-                className="flex items-center space-x-2 px-5 py-3 rounded-xl bg-foreground/5 border border-foreground/10 hover:bg-foreground/10 transition-all font-bold text-sm"
-             >
-               <RotateCcw className="w-4 h-4" />
-               <span>Reset</span>
-             </button>
+            <button
+              type="button"
+              onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
+              className="mono inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-foreground/70 hover:text-primary transition-colors"
+            >
+              {isVoiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+              Spoken cues {isVoiceEnabled ? "on" : "off"}
+            </button>
+
+            {/*
+              A real reset. This button used to set the confidence number to zero
+              and nothing else — the detection, the feedback line and the
+              greeting all carried on from wherever they were.
+            */}
+            <button
+              type="button"
+              onClick={() => {
+                setConfidence(0);
+                setBestDetection(null);
+                setFeedback("Show your hand to the camera to begin.");
+                hasGreetedRef.current = false;
+                lastSpokenRef.current = "";
+                if (typeof window !== "undefined") window.speechSynthesis?.cancel();
+              }}
+              className="mono inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-foreground/70 hover:text-primary transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-          
-          {/* LEFT: LIVE FEED */}
-          <div className="xl:col-span-7 space-y-6">
-            <div className="relative aspect-video glass-card overflow-hidden bg-background/60 border-foreground/10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)]">
-                <CameraFeed 
-                  isActive={isCameraActive} 
-                  onUpdate={handleUpdate}
-                  targetMudra={mudra.name}
-                />
-               
-               {/* Reference Image Overlay (Ghost) */}
-               <AnimatePresence>
-                 {isCameraActive && (
-                   <motion.div 
-                     initial={{ opacity: 0 }}
-                     animate={{ opacity: 0.15 }}
-                     exit={{ opacity: 0 }}
-                     className="absolute inset-0 pointer-events-none flex items-center justify-center p-20"
-                   >
-                     <img 
-                        src={mudra.image} 
-                        alt="Reference Overlay" 
-                        className="h-full w-auto object-contain grayscale invert" 
-                     />
-                   </motion.div>
-                 )}
-               </AnimatePresence>
+        <Rule className="mt-8 mb-8" />
 
-               {!isCameraActive && (
-                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mb-6 animate-pulse border border-primary/30">
-                      <Camera className="w-10 h-10 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-2">Camera Ready</h3>
-                    <p className="text-foreground/40 mb-8 max-w-xs text-center">Allow camera access to start practicing with the AI coach.</p>
-                    <button 
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-12">
+          <div className="xl:col-span-7 space-y-8">
+            <div className="relative aspect-video overflow-hidden rounded-sm border border-foreground/12 bg-black">
+              <CameraFeed isActive={isCameraActive} onUpdate={handleUpdate} targetMudra={mudra.name} />
+
+              <AnimatePresence>
+                {isCameraActive && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.15 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 pointer-events-none grid place-items-center p-16"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={mudra.image}
+                      alt=""
+                      aria-hidden
+                      className="h-full w-auto object-contain grayscale invert"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {!isCameraActive && (
+                <div className="absolute inset-0 grid place-items-center px-6">
+                  <div className="text-center">
+                    <Camera className="w-7 h-7 text-foreground/30 mx-auto" />
+                    <p className="mono text-[11px] uppercase tracking-[0.16em] text-foreground/60 mt-5">
+                      Camera off
+                    </p>
+                    <p className="mono text-[10px] text-foreground/35 mt-2.5 max-w-[32ch] mx-auto leading-relaxed">
+                      The reference is laid over the feed as a guide. Nothing is recorded.
+                    </p>
+                    <button
+                      type="button"
                       onClick={() => setIsCameraActive(true)}
-                      className="premium-button px-10 py-4"
+                      className="mono mt-7 inline-flex rounded-full bg-primary text-black px-7 py-3 text-[11px] uppercase tracking-[0.16em] hover:bg-primary/85 transition-colors"
                     >
-                      Start Practicing
+                      Start camera
                     </button>
-                 </div>
-               )}
-
-               {/* Landmarks Visualization Overlay can be added here if needed, but CameraFeed handles it */}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* QUICK TIPS GRID */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div className="glass-card p-6 border-foreground/5 space-y-4">
-                  <div className="flex items-center space-x-2 text-primary">
-                    <Info className="w-4 h-4" />
-                    <span className="text-xs font-black uppercase tracking-widest">How to Perform</span>
-                  </div>
-                  <p className="text-foreground/70 leading-relaxed text-sm">
-                    {mudra.instructions}
-                  </p>
-               </div>
-               <div className="glass-card p-6 border-red-500/10 space-y-4 bg-red-500/[0.02]">
-                  <div className="flex items-center space-x-2 text-red-400">
-                    <AlertCircle className="w-4 h-4" />
-                    <span className="text-xs font-black uppercase tracking-widest">Common Mistakes</span>
-                  </div>
-                  <p className="text-foreground/70 leading-relaxed text-sm">
-                    {mudra.commonMistakes}
-                  </p>
-               </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <section>
+                <Eyebrow tone="primary">how it is held</Eyebrow>
+                <p className="serif text-[1rem] leading-[1.6] text-foreground/70 mt-3">
+                  {mudra.instructions}
+                </p>
+              </section>
+              <section className="border-l-2 border-rose-400/40 pl-5">
+                <Eyebrow className="text-rose-400/80">where it goes wrong</Eyebrow>
+                <p className="serif text-[1rem] leading-[1.6] text-foreground/70 mt-3">
+                  {mudra.commonMistakes}
+                </p>
+              </section>
             </div>
           </div>
 
-          {/* RIGHT: PRACTICE STATS */}
-          <div className="xl:col-span-5 space-y-8">
-            
-            {/* TARGET MUDRA CARD */}
-            <TiltCard>
-               <div className="glass-card p-8 border-foreground/10 relative overflow-hidden group">
-                  <div className="absolute -right-10 -bottom-10 opacity-5 group-hover:scale-110 transition-transform duration-700">
-                    <Target className="w-64 h-64 text-primary" />
-                  </div>
-                  
-                  <div className="relative z-10 flex items-start space-x-6">
-                     <div className="w-24 h-24 rounded-2xl overflow-hidden border border-foreground/10 bg-background shrink-0">
-                        <img src={mudra.image} className="w-full h-full object-cover opacity-80" alt="Mudra Reference" />
-                     </div>
-                     <div>
-                        <p className="text-foreground/40 text-[10px] font-black uppercase tracking-widest mb-1">Target Proficiency</p>
-                        <h2 className="text-3xl font-black mb-2">{mudra.name}</h2>
-                        <div className="flex items-center space-x-4">
-                           <div className="flex items-center space-x-1 text-accent-gold">
-                              <Sparkles className="w-4 h-4" />
-                              <span className="text-xs font-bold">{mudra.difficulty}</span>
-                           </div>
-                           <div className="w-1 h-1 rounded-full bg-foreground/20" />
-                           <span className="text-foreground/40 text-xs">Standard Form</span>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </TiltCard>
-
-            {/* CONFIDENCE METER (PREMIUM) */}
-            <div className="glass-card p-10 border-foreground/5 flex flex-col items-center justify-center text-center relative overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-               
-               <div className="relative w-48 h-48 mb-6">
-                  {/* SVG Circular Progress */}
-                  <svg className="w-full h-full -rotate-90">
-                    <circle 
-                      cx="96" cy="96" r="80" 
-                      fill="none" stroke="currentColor" 
-                      strokeWidth="8" className="text-foreground/5" 
-                    />
-                    <motion.circle 
-                      cx="96" cy="96" r="80" 
-                      fill="none" stroke="currentColor" 
-                      strokeWidth="10" 
-                      strokeDasharray="502.65"
-                      animate={{ strokeDashoffset: 502.65 * (1 - confidence) }}
-                      className="text-primary"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <motion.span 
-                      key={Math.round(confidence * 100)}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="text-5xl font-black tracking-tighter"
-                    >
-                      {Math.round(confidence * 100)}%
-                    </motion.span>
-                    <span className="text-[10px] font-black text-foreground/30 uppercase tracking-[0.2em]">Confidence</span>
-                  </div>
-                  
-                  {/* Glow Effect */}
-                  <div className="absolute inset-0 rounded-full shadow-[0_0_60px_rgba(255,153,51,0.2)] pointer-events-none" />
-               </div>
-
-               <AnimatePresence mode="wait">
-                 <motion.div 
-                   key={feedback}
-                   initial={{ opacity: 0, y: 10 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   exit={{ opacity: 0, y: -10 }}
-                   className="space-y-4"
-                 >
-                    <div className={cn(
-                      "inline-flex items-center space-x-2 px-4 py-2 rounded-full border text-xs font-bold transition-colors",
-                      confidence > 0.8 ? "bg-green-500/10 border-green-500/20 text-green-400" :
-                      confidence > 0.4 ? "bg-yellow-500/10 border-yellow-500/20 text-yellow-400" :
-                      "bg-foreground/5 border-foreground/10 text-foreground/40"
-                    )}>
-                      {confidence > 0.8 ? <CheckCircle className="w-4 h-4" /> : <Activity className="w-4 h-4 animate-pulse" />}
-                      <span>{confidence > 0.8 ? 'Excellent Form' : confidence > 0.4 ? 'Keep Adjusting' : 'Awaiting Match'}</span>
-                    </div>
-                    <p className="text-xl font-bold text-foreground/90 leading-relaxed max-w-sm">
-                      {feedback}
-                    </p>
-                 </motion.div>
-               </AnimatePresence>
+          <div className="xl:col-span-5 space-y-10">
+            <div className="flex items-start gap-6">
+              <div className="relative w-24 h-[7.5rem] shrink-0 overflow-hidden rounded-sm border border-foreground/12 bg-black">
+                <Image
+                  src={mudra.image}
+                  alt={`The ${mudra.name} mudra`}
+                  fill
+                  sizes="96px"
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <Eyebrow>you are aiming for</Eyebrow>
+                <h2 className="serif text-[1.6rem] leading-tight tracking-tight mt-2">
+                  {mudra.name}
+                </h2>
+                <p className="serif italic text-[1rem] text-foreground/55 mt-1">{mudra.meaning}</p>
+              </div>
             </div>
 
-            {/* CURRENT DETECTION STATUS */}
-            <div className="glass-card p-6 border-foreground/5 flex items-center justify-between">
-               <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 rounded-xl bg-foreground/5 flex items-center justify-center border border-foreground/10">
-                    <Sparkles className="w-6 h-6 text-foreground/40" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-foreground/40 font-black uppercase tracking-widest mb-0.5">Live Detection</p>
-                    <h4 className="font-bold text-lg">{bestDetection || 'None'}</h4>
-                  </div>
-               </div>
-               <div className="flex items-center space-x-1 text-primary">
-                  <span className="text-xs font-bold uppercase">Active</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
-               </div>
+            <div className="border border-foreground/12 rounded-sm p-8 sm:p-10 bg-background/50 backdrop-blur-sm">
+              <div className="flex items-baseline gap-3">
+                <span className="mono text-[3.4rem] leading-none tabular-nums tracking-tight text-primary">
+                  {Math.round(confidence * 100)}
+                </span>
+                <span className="mono text-[11px] uppercase tracking-[0.16em] text-foreground/45">
+                  % match
+                </span>
+              </div>
+
+              <div className="mt-5 h-px w-full bg-foreground/15">
+                <div
+                  className="h-full bg-primary transition-[width] duration-200"
+                  style={{ width: `${Math.round(confidence * 100)}%` }}
+                />
+              </div>
+
+              <p
+                aria-live="polite"
+                className="serif text-[1.08rem] leading-[1.55] text-foreground/80 mt-7"
+              >
+                {feedback}
+              </p>
+
+              <Rule className="my-7" />
+
+              <dl className="space-y-3.5">
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/45">
+                    reading
+                  </dt>
+                  <dd className="mono text-[11px] uppercase tracking-[0.14em] text-foreground/85">
+                    {bestDetection ?? "\u2014"}
+                  </dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/45">
+                    status
+                  </dt>
+                  {/*
+                    Derived from the camera and the score. This row read "Active"
+                    with a pulsing dot at all times, including with the camera
+                    switched off.
+                  */}
+                  <dd
+                    className={cn(
+                      "mono text-[11px] uppercase tracking-[0.14em]",
+                      reading === "holding"
+                        ? "text-emerald-400"
+                        : reading === "close"
+                          ? "text-primary"
+                          : "text-foreground/50",
+                    )}
+                  >
+                    {reading}
+                  </dd>
+                </div>
+              </dl>
             </div>
 
+            <Link
+              href={`/library/${mudra.slug}`}
+              className="mono inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-primary hover:gap-3 transition-all"
+            >
+              Read the full entry
+              <ChevronRight className="w-3 h-3" />
+            </Link>
           </div>
         </div>
       </div>
     </div>
   );
-}
-
-function setMessages(arg0: never[]) {
-  // Placeholder for history reset if added later
 }

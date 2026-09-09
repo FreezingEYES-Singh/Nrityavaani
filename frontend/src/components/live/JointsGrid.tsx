@@ -2,9 +2,11 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import type { Point } from '@/lib/mediapipe/classification';
+import type { FrameLandmarks } from '@/lib/mediapipe/types';
 
 interface JointsGridProps {
-  landmarks: any;
+  landmarks: FrameLandmarks | null;
 }
 
 const JOINT_LABELS = [
@@ -16,8 +18,10 @@ const JOINT_LABELS = [
 ];
 
 export default function JointsGrid({ landmarks }: JointsGridProps) {
-  const hasLandmarks = landmarks && landmarks.landmarks && landmarks.landmarks.length > 0;
-  const hand = hasLandmarks ? landmarks.landmarks[0] : null;
+  // One expression, so the narrowing survives: the previous pair let
+  // TypeScript forget that `landmarks.landmarks` had already been checked.
+  const hand = landmarks?.landmarks?.[0] ?? null;
+  const hasLandmarks = hand !== null;
 
   return (
     <div className="glass-card p-6 overflow-hidden flex flex-col min-h-[400px]">
@@ -42,7 +46,7 @@ export default function JointsGrid({ landmarks }: JointsGridProps) {
               <span className="text-right">Y</span>
               <span className="text-right">Z</span>
             </div>
-            {hand.map((land: any, i: number) => (
+            {hand.map((land: Point, i: number) => (
               <motion.div 
                 key={i} 
                 initial={{ opacity: 0 }}

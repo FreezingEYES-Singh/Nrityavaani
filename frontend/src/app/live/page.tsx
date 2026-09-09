@@ -5,38 +5,51 @@ import CameraFeed from '@/components/live/CameraFeed';
 import PredictionPanel from '@/components/live/PredictionPanel';
 import JointsGrid from '@/components/live/JointsGrid';
 import ControlPanel from '@/components/live/ControlPanel';
-import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, Sparkles, BookOpen, AlertCircle, 
-  Info, Play, Target, CheckCircle2,
-  ChevronRight, Bookmark, Clock, Camera
-} from 'lucide-react';
+import Link from 'next/link';
+import { Camera } from 'lucide-react';
+import { Eyebrow, Rule } from '@/components/ui/editorial';
+import type { FrameLandmarks, HandReading } from '@/lib/mediapipe/types';
 import { StatsService } from '@/lib/services/StatsService';
 import { format } from 'date-fns';
+
+/** One held mudra, logged while the camera is running. */
+type TimelineEntry = { id: string; name: string; confidence: number; time: number };
 
 export default function LiveDetectionPage() {
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [showLandmarks, setShowLandmarks] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
   const [session, setSession] = useState<{
-    landmarks: any,
-    detectedMudra: any
+    landmarks: FrameLandmarks | null,
+    detectedMudra: HandReading[] | null
   }>({
     landmarks: null,
     detectedMudra: null
   });
 
   // Timeline state
-  const [timeline, setTimeline] = useState<any[]>([]);
+  const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const masteryTimer = useRef<{ name: string, startTime: number } | null>(null);
   const sessionStartTime = useRef<number | null>(null);
   const sessionStats = useRef<{ totalAccuracy: number, count: number }>({ totalAccuracy: 0, count: 0 });
+  // Read by the save effect when the camera stops. Held in a ref rather than
+  // listed as a dependency: depending on it would re-run the effect on every
+  // logged mudra, and that effect's job is to save once, at the end.
+  const timelineRef = useRef<TimelineEntry[]>([]);
 
   // Handle Session End/Start
+  useEffect(() => {
+    timelineRef.current = timeline;
+  }, [timeline]);
+
   useEffect(() => {
     if (isCameraActive) {
       sessionStartTime.current = Date.now();
       sessionStats.current = { totalAccuracy: 0, count: 0 };
+      // Starting a camera session is exactly the external event this state
+      // mirrors; there is no render-time value to derive an empty timeline
+      // from.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTimeline([]);
     } else if (sessionStartTime.current) {
       const duration = (Date.now() - sessionStartTime.current) / 1000;
@@ -45,11 +58,12 @@ export default function LiveDetectionPage() {
         const avgAccuracy = Math.round(sessionStats.current.totalAccuracy / sessionStats.current.count);
         
         // Find most frequent mudra in timeline for the session name
-        const mostFrequent = timeline.length > 0 
-          ? timeline.reduce((acc, curr) => {
+        const finished = timelineRef.current;
+        const mostFrequent = finished.length > 0 
+          ? finished.reduce((acc, curr) => {
               acc[curr.name] = (acc[curr.name] || 0) + 1;
               return acc;
-            }, {} as any)
+            }, {} as Record<string, number>)
           : null;
         
         const topMudra = mostFrequent ? Object.keys(mostFrequent).reduce((a, b) => mostFrequent[a] > mostFrequent[b] ? a : b) : 'Free Practice';
@@ -100,8 +114,11 @@ export default function LiveDetectionPage() {
     lastSpokenRef.current = text;
   }, [voice]);
 
-  const handleUpdate = React.useCallback((landmarkData: any, mudraData: any[]) => {
-    const now = performance.now();
+  const handleUpdate = React.useCallback((landmarkData: FrameLandmarks | null, mudraData: HandReading[]) => {
+    // Throttle to ~33fps. Date.now rather than performance.now: the difference
+    // is irrelevant at a 30ms gate, and performance.now made the React compiler
+    // bail out of memoising this component entirely.
+    const now = Date.now();
     if (now - lastUpdateTime.current < 30) return;
     lastUpdateTime.current = now;
 
@@ -132,7 +149,9 @@ export default function LiveDetectionPage() {
               name: bestMudra.name,
               confidence: Math.round(bestMudra.confidence * 100),
               time: Date.now(),
-              id: Math.random()
+              // A collision here means two rows sharing a React key, which
+              // makes the list reorder wrongly. Math.random() collides.
+              id: crypto.randomUUID()
             }, ...t].slice(0, 10);
           });
           masteryTimer.current = { name: bestMudra.name, startTime: Date.now() }; 
@@ -144,8 +163,8 @@ export default function LiveDetectionPage() {
         masteryTimer.current = null;
       }
 
-      const prevMudrasStr = JSON.stringify(prev.detectedMudra?.map((m: any) => ({ n: m.name, c: Math.round(m.confidence * 10) })) || []);
-      const newMudrasStr = JSON.stringify(mudraData?.map((m: any) => ({ n: m.name, c: Math.round(m.confidence * 10) })) || []);
+      const prevMudrasStr = JSON.stringify(prev.detectedMudra?.map((m: HandReading) => ({ n: m.name, c: Math.round(m.confidence * 10) })) || []);
+      const newMudrasStr = JSON.stringify(mudraData?.map((m: HandReading) => ({ n: m.name, c: Math.round(m.confidence * 10) })) || []);
       
       const mudraChanged = prevMudrasStr !== newMudrasStr;
 
@@ -156,131 +175,124 @@ export default function LiveDetectionPage() {
         detectedMudra: mudraChanged ? mudraData : prev.detectedMudra
       };
     });
-  }, [timeline]);
+  }, [speak]);
 
   return (
-    <div className="pt-24 min-h-screen bg-background px-6 pb-12">
-      <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-6 items-start">
-        
-        {/* Mobile Quick Actions */}
-        <div className="lg:hidden col-span-full flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-3">
-             <div className="w-10 h-10 rounded-xl bg-accent-violet/20 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-accent-violet" />
-             </div>
-             <div>
-                <h2 className="text-lg font-bold">Live AI Practice</h2>
-                <p className="text-[10px] text-foreground/40 uppercase font-black tracking-widest">Real-time Landmark Tracking</p>
-             </div>
+    <div className="min-h-screen px-6 pt-28 pb-16">
+      <div className="max-w-[1500px] mx-auto">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <Eyebrow tone="primary">live detection</Eyebrow>
+            <h1 className="serif font-normal tracking-[-0.015em] leading-[1.05] text-[clamp(1.7rem,3.6vw,2.6rem)] mt-3">
+              Hold a mudra to the camera.
+            </h1>
           </div>
-          <motion.a 
-            href="/upload"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center space-x-2 px-4 py-2 bg-foreground/5 border border-foreground/10 rounded-xl hover:bg-foreground/10 transition-colors group"
-          >
-            <Camera className="w-4 h-4 text-primary group-hover:animate-pulse" />
-            <span className="text-xs font-bold">Upload Photo</span>
-          </motion.a>
+          <p className="mono text-[10px] uppercase tracking-[0.16em] text-foreground/45 max-w-[34ch] leading-relaxed">
+            Runs in this tab · no frame is uploaded ·{" "}
+            <Link href="/upload" className="text-primary hover:underline underline-offset-4">
+              read a photo instead
+            </Link>
+          </p>
         </div>
 
-        {/* Camera View */}
-        <div className="lg:col-span-8 lg:col-start-1">
-          <div className="relative aspect-video glass-card overflow-hidden bg-background/40 border-foreground/5 shadow-2xl">
-            <CameraFeed 
-              isActive={isCameraActive} 
-              onUpdate={handleUpdate}
-              showLandmarks={showLandmarks}
-              showSkeleton={showSkeleton}
-            />
-            
-            {!isCameraActive && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
-                <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center animate-pulse">
-                  <Camera className="w-10 h-10 text-primary" />
-                </div>
-                <p className="text-foreground/40 font-medium">Camera is inactive</p>
-                <button 
-                  onClick={() => setIsCameraActive(true)}
-                  className="premium-button"
-                >
-                  Start Live Camera
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        <Rule className="mt-8 mb-8" />
 
-        {/* Control Panel */}
-        <div className="lg:col-span-8 lg:col-start-1">
-          <ControlPanel 
-            isActive={isCameraActive}
-            onToggleCamera={() => setIsCameraActive(!isCameraActive)}
-            showLandmarks={showLandmarks}
-            onToggleLandmarks={() => setShowLandmarks(!showLandmarks)}
-            showSkeleton={showSkeleton}
-            onToggleSkeleton={() => setShowSkeleton(!showSkeleton)}
-          />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-8 items-start">
+          {/* ------------------------------------------------------- camera */}
+          <div className="lg:col-span-8">
+            <div className="relative aspect-video overflow-hidden rounded-sm border border-foreground/12 bg-black">
+              <CameraFeed
+                isActive={isCameraActive}
+                onUpdate={handleUpdate}
+                showLandmarks={showLandmarks}
+                showSkeleton={showSkeleton}
+              />
 
-        {/* Prediction Panel */}
-        <div className="lg:col-span-4 lg:col-start-9 lg:row-start-1 lg:row-span-3 space-y-6">
-          <PredictionPanel 
-            detectedMudras={session.detectedMudra || []} 
-            landmarks={session.landmarks}
-          />
-        </div>
-
-        {/* Statistics & Timeline */}
-        <div className="lg:col-span-8 lg:col-start-1 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <JointsGrid landmarks={session.landmarks} />
-          
-          <div className="glass-card p-6 min-h-[400px] flex flex-col">
-            <h3 className="text-lg font-bold mb-6 flex items-center space-x-2">
-              <span className="w-2 h-2 bg-accent-violet rounded-full" />
-              <span>Session Timeline</span>
-            </h3>
-            
-            <div className="flex-1 space-y-4 overflow-y-auto pr-2 no-scrollbar">
-              {timeline.length > 0 ? (
-                timeline.map((event) => (
-                  <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    key={event.id} 
-                    className="flex items-center justify-between p-4 bg-foreground/[0.03] rounded-xl border border-foreground/5"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-                        <CheckCircle2 className="w-4 h-4 text-green-400" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold">{event.name}</h4>
-                        <p className="text-[10px] text-foreground/30 uppercase font-black">{format(event.time, 'HH:mm:ss')}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                       <span className="text-xs font-black text-green-400">PERFECT</span>
-                       <p className="text-[10px] text-foreground/20 uppercase font-black">{event.confidence}% Match</p>
-                    </div>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-                  <div className="w-12 h-12 rounded-full border-2 border-dashed border-foreground/10 flex items-center justify-center">
-                     <Clock className="w-5 h-5 text-foreground/10" />
+              {!isCameraActive && (
+                <div className="absolute inset-0 grid place-items-center px-6">
+                  <div className="text-center">
+                    <Camera className="w-7 h-7 text-foreground/30 mx-auto" />
+                    <p className="mono text-[11px] uppercase tracking-[0.16em] text-foreground/60 mt-5">
+                      Camera off
+                    </p>
+                    <p className="mono text-[10px] text-foreground/35 mt-2.5 max-w-[30ch] mx-auto leading-relaxed">
+                      Your browser will ask permission. The video is never sent anywhere.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsCameraActive(true)}
+                      className="mono mt-7 inline-flex rounded-full bg-primary text-black px-7 py-3 text-[11px] uppercase tracking-[0.16em] hover:bg-primary/85 transition-colors"
+                    >
+                      Start camera
+                    </button>
                   </div>
-                  <p className="text-foreground/20 text-xs italic font-medium max-w-[200px]">
-                    {isCameraActive ? "Perform a mudra with >85% confidence to log a mastery event." : "Start camera to track session timeline."}
-                  </p>
                 </div>
               )}
             </div>
           </div>
-        </div>
 
+          {/* --------------------------------------------------- predictions */}
+          <div className="lg:col-span-4 lg:row-start-1 lg:col-start-9 lg:row-span-3 space-y-6">
+            <PredictionPanel detectedMudras={session.detectedMudra || []} />
+          </div>
+
+          {/* ------------------------------------------------------ controls */}
+          <div className="lg:col-span-8">
+            <ControlPanel
+              isActive={isCameraActive}
+              onToggleCamera={() => setIsCameraActive(!isCameraActive)}
+              showLandmarks={showLandmarks}
+              onToggleLandmarks={() => setShowLandmarks(!showLandmarks)}
+              showSkeleton={showSkeleton}
+              onToggleSkeleton={() => setShowSkeleton(!showSkeleton)}
+            />
+          </div>
+
+          {/* ------------------------------------------ joints and timeline */}
+          <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <JointsGrid landmarks={session.landmarks} />
+
+            <div className="border border-foreground/12 rounded-sm p-6 min-h-[400px] flex flex-col bg-background/50 backdrop-blur-sm">
+              <Eyebrow>this session</Eyebrow>
+
+              <div className="flex-1 mt-6 overflow-y-auto pr-1 no-scrollbar">
+                {timeline.length > 0 ? (
+                  <ol className="space-y-0">
+                    {timeline.map((event) => (
+                      <li
+                        key={event.id}
+                        className="flex items-baseline justify-between gap-4 py-3.5 border-t border-foreground/10"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-[0.95rem] font-medium truncate">{event.name}</p>
+                          <p className="mono text-[10px] text-foreground/40 mt-1">
+                            {format(event.time, "HH:mm:ss")}
+                          </p>
+                        </div>
+                        {/*
+                          The real number. This slot used to read "PERFECT" on
+                          every row regardless of what was measured, with the
+                          actual score printed underneath it — so a 86% hold and
+                          a 99% hold were both labelled perfect.
+                        */}
+                        <span className="mono text-[0.95rem] tabular-nums text-primary shrink-0">
+                          {event.confidence}%
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="serif italic text-[0.98rem] leading-[1.6] text-foreground/40 max-w-[30ch]">
+                    {isCameraActive
+                      ? "Hold a mudra above 85% for a second and a half and it will be logged here."
+                      : "Start the camera and held mudras will be logged here."}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-

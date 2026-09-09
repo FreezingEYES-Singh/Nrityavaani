@@ -1,24 +1,28 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Zap, ShieldCheck, AlertCircle, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { classifyMudra } from '@/lib/mediapipe/classification';
+
+import type { HandReading } from '@/lib/mediapipe/types';
 
 interface PredictionPanelProps {
-  detectedMudras: any[];
-  landmarks: any;
+  detectedMudras: HandReading[];
 }
 
-export default function PredictionPanel({ detectedMudras, landmarks }: PredictionPanelProps) {
-  const [lastValidMudras, setLastValidMudras] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (detectedMudras && detectedMudras.length > 0) {
-      setLastValidMudras(detectedMudras);
-    }
-  }, [detectedMudras]);
+export default function PredictionPanel({ detectedMudras }: PredictionPanelProps) {
+  // Keeps the last reading on screen when the hand leaves the frame, so a
+  // result does not vanish the moment you look away from the camera.
+  //
+  // Adjusted during render rather than in an effect. React sanctions this
+  // for deriving state from props; doing it in an effect renders once with
+  // the stale value, then immediately again — a flicker on every frame the
+  // hand is lost.
+  const [lastValidMudras, setLastValidMudras] = useState<HandReading[]>([]);
+  if (detectedMudras.length > 0 && detectedMudras !== lastValidMudras) {
+    setLastValidMudras(detectedMudras);
+  }
 
   const displayMudras = (detectedMudras && detectedMudras.length > 0) ? detectedMudras : lastValidMudras;
   const isStale = (!detectedMudras || detectedMudras.length === 0) && lastValidMudras.length > 0;
@@ -150,16 +154,4 @@ export default function PredictionPanel({ detectedMudras, landmarks }: Predictio
       </div>
     </div>
   );
-}
-
-// SIMULATED MUDRA IDENTIFICATION LOGIC
-function identifyMudra(landmarks: any[]) {
-  // This is a placeholder for the actual heuristic logic.
-  // In Phase 4, we will refine these rules or use the FastAPI backend.
-  const top3 = [
-    { name: 'Pataka', confidence: 0.94, feedback: 'Keep all fingers together and extended.' },
-    { name: 'Arala', confidence: 0.12, feedback: '' },
-    { name: 'Mayura', confidence: 0.04, feedback: '' }
-  ];
-  return { top3 };
 }

@@ -1,280 +1,225 @@
-'use client';
+import Image from "next/image";
+import { Linkedin } from "lucide-react";
+import {
+  Eyebrow,
+  FactStrip,
+  Headline,
+  Mark,
+  Pill,
+  Prose,
+  Rule,
+  Section,
+} from "@/components/ui/editorial";
 
-import React from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { Trophy, Compass, Database, Cpu, Layout, Activity, Target, Zap, Quote, GraduationCap, Github, Linkedin, Code } from 'lucide-react';
-import TiltCard from '@/components/shared/TiltCard';
-import { cn } from '@/lib/utils';
+export const metadata = {
+  title: "About | NrityaVaani",
+  description: "Who built NrityaVaani, how it was made, and where it is going.",
+};
+
+const STAGES = [
+  { n: "01", title: "Research", desc: "Studied Bharatanatyam mudras, the existing tools, and the gaps in digital learning." },
+  { n: "02", title: "Data", desc: "Collected and prepared datasets of mudras for training." },
+  { n: "03", title: "Models", desc: "Trained models to identify and classify hand gestures." },
+  { n: "04", title: "Interface", desc: "Built an interface for real-time use and feedback." },
+  { n: "05", title: "Refinement", desc: "Continuously improved accuracy, usability and performance." },
+];
+
+const TEAM = [
+  {
+    name: "Divyanand Pandey",
+    role: "Team lead",
+    img: "/divyanand1.jpg.jpeg",
+    linkedin: "https://www.linkedin.com/in/divyanand-pandey-5b2b152b9",
+  },
+  {
+    name: "Mayank",
+    role: "Team member",
+    img: "/mayank.jpg.jpeg",
+    linkedin: "https://www.linkedin.com/in/mayank-850255381",
+  },
+  {
+    name: "Pranav Jithesh",
+    role: "Team member",
+    img: "/pranav.jpg.jpeg",
+    linkedin: "https://www.linkedin.com/in/pranav-jithesh-5b7055367",
+  },
+];
+
+const NEXT = [
+  "A mobile app, for wider reach",
+  "Better accuracy from stronger models",
+  "Support for other classical forms",
+  "Guided learning modules",
+  "Collaboration with dance institutions",
+];
 
 export default function AboutPage() {
-  const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 1000], [0, 300]);
-  const y2 = useTransform(scrollY, [0, 1000], [0, -300]);
-
-  const approaches = [
-    { title: "Research Phase", desc: "Studied Bharatanatyam mudras, existing tools, and gaps in digital learning.", icon: <Compass /> },
-    { title: "Data Collection", desc: "Collected and prepared datasets of mudras for training AI models.", icon: <Database /> },
-    { title: "Model Development", desc: "Trained machine learning models to identify and classify hand gestures.", icon: <Cpu /> },
-    { title: "App Development", desc: "Built an interactive interface for real-time usage and feedback.", icon: <Layout /> },
-    { title: "Testing & Improv.", desc: "Continuously refined accuracy, usability, and performance.", icon: <Activity /> }
-  ];
-
-  const goals = [
-    "Build a mobile app for wider accessibility",
-    "Improve AI accuracy using advanced models",
-    "Support multiple classical dance forms",
-    "Provide guided learning modules",
-    "Integrate real-time feedback system",
-    "Collaborate with dance institutions"
-  ];
-
-  const innovations = [
-    "Combines AI + Culture (rare domain)",
-    "Solves a real learning problem",
-    "Focus on accessibility and scalability",
-    "Student-driven innovation",
-    "Startup potential"
-  ];
-
   return (
-    <div className="pt-32 pb-20 px-6 min-h-screen relative overflow-hidden selection:bg-primary/30 selection:text-primary">
-      {/* Dynamic Backgrounds */}
-      <motion.div style={{ y: y1 }} className="bg-blob blob-saffron -top-40 -left-40 opacity-70" />
-      <motion.div style={{ y: y2 }} className="bg-blob blob-violet top-1/2 -right-40 opacity-50" />
-      
-      <div className="max-w-6xl mx-auto space-y-32 relative z-10">
-        
-        {/* HERO SECTION */}
-        <section className="text-center max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold tracking-[0.2em] uppercase mb-8 backdrop-blur-md">
-              <Zap className="w-3 h-3" />
-              <span>The Journey of DivyCoders</span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter">About <span className="text-primary text-shadow-glow">NrityaVaani</span></h1>
-            <p className="text-foreground/90 text-xl md:text-2xl leading-relaxed font-medium">
-              An innovative tech-driven initiative that blends Indian classical dance with Artificial Intelligence, 
-              aiming to preserve, analyze, and promote traditional art forms like <span className="text-accent-gold italic">Bharatanatyam</span> in the digital era.
-            </p>
-          </motion.div>
-        </section>
+    <div className="min-h-screen px-6 pt-32 pb-8">
+      <div className="max-w-6xl mx-auto">
+        <Eyebrow tone="primary">about</Eyebrow>
+        <Headline as="h1" className="mt-5 max-w-4xl">
+          A student project that turned into <Mark>something that works</Mark>.
+        </Headline>
+        <Prose className="mt-8">
+          <p>
+            NrityaVaani blends Indian classical dance with computer vision, to help people
+            learn, check and keep the hand vocabulary of Bharatanatyam. It is built by three
+            students under the name DivyCoders.
+          </p>
+        </Prose>
+        <FactStrip
+          className="mt-10"
+          items={["DivyCoders", "Bharatanatyam", "Dron Tech Fest 2026", "3rd place"]}
+        />
+      </div>
 
-        {/* OUR STORY */}
-        <section>
-          <TiltCard className="max-w-5xl mx-auto">
-            <div className="glass-card p-10 md:p-16 relative overflow-hidden border-foreground/10 group hover:border-primary/30 transition-colors duration-500">
-              <div className="absolute top-0 right-0 opacity-5 scale-150 -rotate-12 group-hover:rotate-0 transition-transform duration-1000 p-10">
-                <Quote className="w-64 h-64 text-primary" />
-              </div>
-              <div className="relative z-10">
-                <div className="flex items-center space-x-4 mb-8">
-                  <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary">
-                    <Compass className="w-6 h-6" />
-                  </div>
-                  <h2 className="text-4xl md:text-5xl font-black tracking-tight">Our Story</h2>
-                </div>
-                
-                <div className="space-y-6 text-foreground/90 leading-relaxed text-lg md:text-xl font-medium max-w-3xl">
-                  <p>
-                    NrityaVaani started as an idea during our early college journey, where we explored how technology can solve real-world cultural challenges. We noticed that learning and understanding classical dance mudras is difficult without expert guidance, and there was no accessible smart system to assist learners.
-                  </p>
-                  <p>
-                    With this problem in mind, we began building a solution from scratch—starting with research, dataset collection, and understanding how AI/ML models can interpret human gestures.
-                  </p>
-                  <p className="text-foreground">
-                    What began as a concept soon turned into a working prototype through continuous experimentation, failures, and learning.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </TiltCard>
-        </section>
-
-        {/* HACKATHON PROUD */}
-        <section>
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="glass-card p-10 md:p-14 relative overflow-hidden border-accent-gold/30 bg-gradient-to-br from-accent-gold/10 via-background to-background shadow-[0_0_50px_rgba(255,215,0,0.15)] group">
-              <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                <Trophy className="w-80 h-80 text-accent-gold" />
-              </div>
-              
-              <div className="relative z-10 max-w-3xl">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="w-16 h-16 bg-accent-gold/20 rounded-2xl flex items-center justify-center text-accent-gold border border-accent-gold/30 shadow-[0_0_20px_rgba(255,215,0,0.3)]">
-                    <Trophy className="w-8 h-8" />
-                  </div>
-                  <h2 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-accent-gold to-yellow-200 tracking-tighter">
-                    Hackathon Proud!
-                  </h2>
-                </div>
-                
-                <p className="text-xl md:text-2xl text-foreground/90 leading-relaxed font-medium">
-                  We proudly secured <strong className="text-accent-gold">3rd Prize</strong> in our first hackathon, which validated our idea and boosted our confidence to take NrityaVaani further. We also secured <strong className="text-accent-gold">3rd position</strong> at the Inter-College Dron Tech Fest 2026 (Innovative Startup Pitch). These achievements reflect our dedication, innovation, and ability to turn ideas into reality.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </section>
-
-        {/* OUR APPROACH */}
-        <section>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-4">Our <span className="text-primary">Approach</span></h2>
-            <p className="text-foreground/90 text-lg">The engineering lifecycle behind NrityaVaani.</p>
+      {/* ------------------------------------------------------------ the story */}
+      <Section ruled>
+        <div className="grid lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)] gap-10 lg:gap-16">
+          <div>
+            <Eyebrow tone="primary">the story</Eyebrow>
+            <h2 className="serif text-[clamp(1.7rem,3.4vw,2.5rem)] leading-[1.1] tracking-tight mt-4">
+              It began as a problem nobody had solved for us.
+            </h2>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {approaches.map((step, i) => (
-              <TiltCard key={step.title} className="h-full">
-                <div className="glass-card p-6 h-full flex flex-col items-center text-center group hover:border-primary/50 transition-colors duration-300">
-                   <div className="w-14 h-14 bg-foreground/5 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary/20 group-hover:shadow-[0_0_20px_rgba(255,153,51,0.3)] transition-all text-foreground/90 group-hover:text-primary">
-                      {step.icon}
-                   </div>
-                   <h4 className="font-black text-lg mb-3 tracking-tight">{step.title}</h4>
-                   <p className="text-sm text-foreground/90 leading-relaxed font-medium">{step.desc}</p>
+          <Prose>
+            <p>
+              NrityaVaani started early in our college years, while we were looking at how
+              technology might answer a real cultural problem. Learning mudras is hard without
+              a teacher in the room, and there was no accessible system to help.
+            </p>
+            <p>
+              So we built one from scratch — research first, then datasets, then working out
+              how a model could read a human gesture at all.
+            </p>
+            <p>
+              <strong>
+                What began as a concept became a working prototype through experiment, failure
+                and repetition.
+              </strong>{" "}
+              We took 3rd prize in our first hackathon, and 3rd again at the Inter-College Dron
+              Tech Fest 2026 startup pitch.
+            </p>
+          </Prose>
+        </div>
+      </Section>
+
+      {/* ------------------------------------------------------------ approach */}
+      <Section ruled>
+        <Eyebrow tone="primary">how it was built</Eyebrow>
+        <Headline className="mt-5 max-w-3xl">Five stages, in order.</Headline>
+        <ol className="mt-14 grid sm:grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-10">
+          {STAGES.map((stage) => (
+            <li key={stage.n}>
+              <Rule className="mb-5" />
+              <div className="flex items-baseline gap-3">
+                <span className="mono text-[10px] text-primary tabular-nums">{stage.n}</span>
+                <h3 className="serif text-[1.25rem] leading-none tracking-tight">{stage.title}</h3>
+              </div>
+              <p className="serif text-[0.96rem] leading-[1.55] text-foreground/65 mt-4">
+                {stage.desc}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </Section>
+
+      {/* ------------------------------------------------------------ team */}
+      <Section ruled>
+        <div className="grid lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)] gap-10 lg:gap-16 items-end">
+          <div>
+            <Eyebrow tone="primary">team divycoders</Eyebrow>
+            <Headline className="mt-5">Three students.</Headline>
+          </div>
+          <Prose>
+            <p>
+              Between us: the research, the datasets, the model work, the interface and the
+              3D. Everything on this site was made by the three of us.
+            </p>
+          </Prose>
+        </div>
+
+        <ul className="mt-14 grid sm:grid-cols-3 gap-x-7 gap-y-10">
+          {TEAM.map((person) => (
+            <li key={person.name}>
+              <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-foreground/5 border border-foreground/12">
+                <Image
+                  src={person.img}
+                  alt={person.name}
+                  fill
+                  sizes="(min-width: 640px) 30vw, 90vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="mt-4 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="text-[1.02rem] font-semibold leading-tight truncate">
+                    {person.name}
+                  </h3>
+                  <p className="mono text-[10px] uppercase tracking-[0.16em] text-foreground/45 mt-1.5">
+                    {person.role}
+                  </p>
                 </div>
-              </TiltCard>
+                <a
+                  href={person.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${person.name} on LinkedIn`}
+                  className="text-foreground/35 hover:text-primary transition-colors shrink-0"
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      {/* ------------------------------------------------------------ next */}
+      <Section ruled>
+        <div className="grid lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)] gap-10 lg:gap-16">
+          <div>
+            <Eyebrow tone="primary">what is next</Eyebrow>
+            <h2 className="serif text-[clamp(1.7rem,3.4vw,2.5rem)] leading-[1.1] tracking-tight mt-4">
+              Where this goes from here.
+            </h2>
+          </div>
+          <ul>
+            {NEXT.map((item, i) => (
+              <li
+                key={item}
+                className="flex items-baseline gap-5 py-4 border-t border-foreground/12"
+              >
+                <span className="mono text-[10px] text-foreground/30 tabular-nums shrink-0">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="text-[1.02rem] text-foreground/80">{item}</span>
+              </li>
             ))}
-          </div>
-        </section>
+          </ul>
+        </div>
+      </Section>
 
-        {/* TEAM */}
-        <section className="relative">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-foreground/5 border border-foreground/10 text-foreground/90 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              <Code className="w-3 h-3" />
-              <span>Meet The Creators</span>
-            </div>
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-4">Team <span className="text-accent-cyan">DivyCoders</span></h2>
-            <p className="text-foreground/90 text-lg max-w-2xl mx-auto">
-              We are a passionate team of developers and learners. As a team, this was our first hackathon experience, where we explored real-world problem solving, teamwork, and AI model development.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <TeamMember 
-              name="Divyanand Pandey" 
-              role="Team Leader" 
-              img="/divyanand1.jpg.jpeg" 
-              linkedinUrl="https://www.linkedin.com/in/divyanand-pandey-5b2b152b9"
-            />
-            <TeamMember 
-              name="Mayank" 
-              role="Team Member" 
-              img="/mayank.jpg.jpeg" 
-              linkedinUrl="https://www.linkedin.com/in/mayank-850255381"
-            />
-            <TeamMember 
-              name="Pranav Jithesh" 
-              role="Team Member" 
-              img="/pranav.jpg.jpeg" 
-              linkedinUrl="https://www.linkedin.com/in/pranav-jithesh-5b7055367"
-            />
-          </div>
-        </section>
+      {/* ------------------------------------------------------------ vision */}
+      <Section ruled className="pb-24">
+        <blockquote className="max-w-3xl">
+          <p className="serif text-[clamp(1.5rem,3.2vw,2.2rem)] leading-[1.28] tracking-tight">
+            To build a bridge between tradition and technology — making Indian classical dance
+            more accessible, more interactive, and better known.
+          </p>
+          <footer className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/45 mt-7">
+            DivyCoders
+          </footer>
+        </blockquote>
 
-        {/* GOALS & INNOVATION GRID */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <TiltCard>
-            <div className="glass-card p-10 h-full border-foreground/5 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-125 transition-transform duration-700">
-                <Target className="w-40 h-40" />
-              </div>
-              <h3 className="text-3xl font-black mb-8 flex items-center space-x-3">
-                <Target className="w-8 h-8 text-accent-pink" />
-                <span>Future Goals</span>
-              </h3>
-              <ul className="space-y-4 relative z-10">
-                {goals.map((goal, i) => (
-                  <li key={i} className="flex items-start space-x-3">
-                    <div className="w-6 h-6 rounded-full bg-accent-pink/20 flex items-center justify-center shrink-0 mt-0.5">
-                      <div className="w-2 h-2 rounded-full bg-accent-pink" />
-                    </div>
-                    <span className="text-foreground/90 font-medium text-lg leading-relaxed">{goal}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </TiltCard>
-          
-          <TiltCard>
-            <div className="glass-card p-10 h-full border-foreground/5 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-125 transition-transform duration-700">
-                <Zap className="w-40 h-40" />
-              </div>
-              <h3 className="text-3xl font-black mb-8 flex items-center space-x-3">
-                <Zap className="w-8 h-8 text-accent-cyan" />
-                <span>Why We're Innovative</span>
-              </h3>
-              <ul className="space-y-4 relative z-10">
-                {innovations.map((inn, i) => (
-                  <li key={i} className="flex items-start space-x-3">
-                    <div className="w-6 h-6 rounded-full bg-accent-cyan/20 flex items-center justify-center shrink-0 mt-0.5">
-                      <div className="w-2 h-2 rounded-full bg-accent-cyan" />
-                    </div>
-                    <span className="text-foreground/90 font-medium text-lg leading-relaxed">{inn}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </TiltCard>
-        </section>
-
-        {/* VISION */}
-        <section className="pb-20 text-center">
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl mx-auto space-y-12"
-          >
-            <div className="relative">
-              <Quote className="w-20 h-20 text-primary/20 absolute -top-10 -left-10 rotate-180" />
-              <h2 className="text-3xl md:text-5xl font-black leading-tight tracking-tighter relative z-10 text-foreground">
-                "To create a bridge between tradition and technology, making Indian classical dance more accessible, interactive, and globally recognized through innovation."
-              </h2>
-              <Quote className="w-20 h-20 text-primary/20 absolute -bottom-10 -right-10" />
-            </div>
-            
-            <p className="text-xl md:text-2xl text-primary font-medium italic">
-              “NrityaVaani is not just a project — it's a step towards preserving tradition through technology and shaping the future of cultural learning.”
-            </p>
-          </motion.div>
-        </section>
-
-      </div>
+        <div className="mt-12 flex flex-wrap gap-3">
+          <Pill href="/live" variant="solid">
+            Try live detection
+          </Pill>
+          <Pill href="/research">Read the technical write-up</Pill>
+        </div>
+      </Section>
     </div>
-  );
-}
-
-function TeamMember({ name, role, img, linkedinUrl }: { name: string, role: string, img: string, linkedinUrl: string }) {
-  return (
-    <TiltCard>
-      <div className="glass-card p-8 border-foreground/5 flex flex-col items-center text-center group hover:border-accent-cyan/30 transition-colors duration-500">
-        <div className="w-32 h-32 rounded-full overflow-hidden mb-6 ring-4 ring-foreground/5 ring-offset-8 ring-offset-background group-hover:ring-accent-cyan/50 transition-all duration-500 shadow-xl relative">
-          <div className="absolute inset-0 bg-accent-cyan/20 opacity-0 group-hover:opacity-100 mix-blend-overlay transition-opacity duration-500 z-10" />
-          <img src={img} alt={name} className="w-full h-full object-cover grayscale-0 md:grayscale md:group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" />
-        </div>
-        <h4 className="text-2xl font-black mb-2">{name}</h4>
-        <div className="inline-block px-3 py-1 rounded-full bg-foreground/5 mb-6">
-          <p className="text-xs text-accent-cyan uppercase font-bold tracking-widest">{role}</p>
-        </div>
-        <div className="flex items-center justify-center space-x-4 opacity-50 group-hover:opacity-100 transition-opacity">
-          <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center hover:bg-[#0077b5] hover:text-foreground transition-colors">
-            <Linkedin className="w-5 h-5" />
-          </a>
-        </div>
-      </div>
-    </TiltCard>
   );
 }

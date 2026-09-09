@@ -1,153 +1,194 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Mail, Lock, ArrowRight, Github, Loader2 } from 'lucide-react';
+import { useState, type FormEvent } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { useRouter } from 'next/navigation';
+import { Eyebrow, Rule } from "@/components/ui/editorial";
+import { GoogleMark } from "@/components/shared/GoogleMark";
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('demo@example.com');
-  const [password, setPassword] = useState('demo123');
-  const [error, setError] = useState('');
+  const [pending, setPending] = useState<"credentials" | "google" | null>(null);
+  const [email, setEmail] = useState("demo@example.com");
+  const [password, setPassword] = useState("demo123");
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
+  const withGoogle = async () => {
+    setPending("google");
+    setError("");
     try {
-      await signIn('google', { callbackUrl: '/' });
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
+      await signIn("google", { callbackUrl: "/" });
+    } catch {
+      setError("Could not reach Google. Try again.");
+      setPending(null);
     }
   };
 
-  const handleCredentialsLogin = async (e: React.FormEvent) => {
+  const withPassword = async (e: FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
+    setPending("credentials");
+    setError("");
     try {
-      const res = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
+      const res = await signIn("credentials", { email, password, redirect: false });
       if (res?.error) {
-        setError("Invalid email or password");
-        setIsLoading(false);
+        setError("That email and password do not match an account.");
+        setPending(null);
       } else {
-        router.push('/');
+        router.push("/");
         router.refresh();
       }
-    } catch (error) {
-      console.error(error);
-      setError("An unexpected error occurred");
-      setIsLoading(false);
+    } catch {
+      setError("Something went wrong signing in.");
+      setPending(null);
     }
   };
 
   return (
-    <div className="pt-32 pb-20 px-6 min-h-screen flex items-center justify-center relative overflow-hidden">
-      <div className="bg-blob blob-saffron -top-40 -left-40" />
-      <div className="bg-blob blob-violet -bottom-40 -right-40" />
-      
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full glass-card p-10 relative z-10"
-      >
-        <div className="text-center mb-10">
-          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-6">
-            <span className="text-black font-bold text-xl">N</span>
-          </div>
-          <h1 className="text-3xl font-black mb-2">Welcome Back</h1>
-          <p className="text-foreground/40 text-sm">Sign in to continue your mudra journey.</p>
-        </div>
+    <div className="min-h-screen px-6 pt-32 pb-20 flex items-center">
+      <div className="w-full max-w-md mx-auto">
+        <Eyebrow tone="primary">sign in</Eyebrow>
+        <h1 className="serif font-normal tracking-[-0.015em] leading-[1.1] text-[clamp(1.9rem,4.4vw,2.6rem)] mt-4">
+          Welcome back.
+        </h1>
+        <p className="serif text-[1.02rem] leading-[1.6] text-foreground/60 mt-3">
+          Your practice history lives in this browser. Signing in is what ties it to you.
+        </p>
 
-        <form className="space-y-6" onSubmit={handleCredentialsLogin}>
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-          <div className="space-y-4">
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email address"
-                className="w-full bg-foreground/5 border border-foreground/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-colors"
-                required
-              />
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full bg-foreground/5 border border-foreground/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-colors"
-                required
-              />
-            </div>
-          </div>
+        <form className="mt-10 space-y-5" onSubmit={withPassword}>
+          <Field
+            label="email"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            autoComplete="email"
+          />
+          <Field
+            label="password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            autoComplete="current-password"
+          />
 
-          <div className="flex items-center justify-between text-xs">
-            <label className="flex items-center space-x-2 cursor-pointer group">
-              <input type="checkbox" className="w-3 h-3 rounded bg-foreground/5 border-foreground/10 text-primary focus:ring-primary" />
-              <span className="text-foreground/40 group-hover:text-foreground transition-colors">Remember me</span>
+          {/*
+            Announced, not just coloured: a message that only exists as red text
+            is not read out to anyone using a screen reader.
+          */}
+          {error && (
+            <p role="alert" className="mono text-[11px] text-rose-400 leading-relaxed">
+              {error}
+            </p>
+          )}
+
+          <div className="flex items-center justify-between pt-1">
+            <label className="flex items-center gap-2.5 cursor-pointer group">
+              <input
+                type="checkbox"
+                className="w-3.5 h-3.5 accent-primary bg-transparent"
+              />
+              <span className="mono text-[10px] uppercase tracking-[0.14em] text-foreground/45 group-hover:text-foreground/70 transition-colors">
+                Remember me
+              </span>
             </label>
-            <Link href="/auth/forgot" className="text-primary hover:underline font-bold">Forgot password?</Link>
           </div>
 
-          <button 
+          <button
             type="submit"
-            disabled={isLoading}
-            className="w-full premium-button flex items-center justify-center space-x-2 disabled:opacity-50"
+            disabled={pending !== null}
+            className="mono w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-black py-3.5 text-[11px] uppercase tracking-[0.16em] hover:bg-primary/85 disabled:opacity-50 transition-colors"
           >
-            <span>{isLoading ? 'Signing In...' : 'Sign In'}</span>
-            {!isLoading && <ArrowRight className="w-4 h-4" />}
+            {pending === "credentials" ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Signing in
+              </>
+            ) : (
+              <>
+                Sign in
+                <ArrowRight className="w-3.5 h-3.5" />
+              </>
+            )}
           </button>
         </form>
 
-        <div className="my-8 flex items-center space-x-4">
-          <div className="flex-1 h-[1px] bg-foreground/10" />
-          <span className="text-[10px] text-foreground/30 uppercase font-bold tracking-widest">Or continue with</span>
-          <div className="flex-1 h-[1px] bg-foreground/10" />
+        <div className="my-8 flex items-center gap-4">
+          <Rule className="flex-1" />
+          <span className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/35">or</span>
+          <Rule className="flex-1" />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <button 
-            disabled={isLoading}
-            className="flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-foreground/5 border border-foreground/10 hover:bg-foreground/10 transition-colors text-sm font-medium disabled:opacity-50"
-          >
-            <Github className="w-4 h-4" />
-            <span>GitHub</span>
-          </button>
-          <button 
-            onClick={handleGoogleLogin}
-            disabled={isLoading}
-            className="flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-foreground/5 border border-foreground/10 hover:bg-foreground/10 transition-colors text-sm font-medium disabled:opacity-50"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-              </svg>
-            )}
-            <span>Google</span>
-          </button>
-        </div>
+        {/*
+          Google only. There was a GitHub button here with no handler on it at
+          all, and no GitHub provider configured to give it one — a control that
+          looked available and silently did nothing.
+        */}
+        <button
+          type="button"
+          onClick={withGoogle}
+          disabled={pending !== null}
+          className="mono w-full inline-flex items-center justify-center gap-2.5 rounded-full border border-foreground/25 py-3.5 text-[11px] uppercase tracking-[0.16em] text-foreground/80 hover:border-primary/60 hover:text-primary disabled:opacity-50 transition-colors"
+        >
+          {pending === "google" ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <GoogleMark className="w-4 h-4" />
+          )}
+          Continue with Google
+        </button>
 
-        <p className="mt-10 text-center text-sm text-foreground/40">
-          Don't have an account? <Link href="/auth/signup" className="text-primary hover:underline font-bold">Sign up</Link>
-        </p>
-      </motion.div>
+        <Rule className="mt-10 mb-6" />
+
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <p className="text-[0.92rem] text-foreground/55">
+            No account?{" "}
+            <Link href="/auth/signup" className="text-primary hover:underline underline-offset-4">
+              Create one
+            </Link>
+          </p>
+          <p className="mono text-[10px] uppercase tracking-[0.14em] text-foreground/35">
+            demo@example.com · demo123
+          </p>
+        </div>
+      </div>
     </div>
+  );
+}
+
+/**
+ * A labelled field.
+ *
+ * The label is a real `<label>` rather than placeholder text. Placeholders
+ * vanish the moment you type, so a form built from them leaves you filling in
+ * boxes with no idea what any of them were for.
+ */
+function Field({
+  label,
+  type,
+  value,
+  onChange,
+  autoComplete,
+}: {
+  label: string;
+  type: string;
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mono text-[10px] uppercase tracking-[0.18em] text-foreground/45">
+        {label}
+      </span>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        autoComplete={autoComplete}
+        required
+        className="mt-2 w-full bg-transparent border-0 border-b border-foreground/20 focus:border-primary py-2.5 text-[0.95rem] focus:outline-none transition-colors"
+      />
+    </label>
   );
 }

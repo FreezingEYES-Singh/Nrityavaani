@@ -40,7 +40,7 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        // @ts-ignore
+        // @ts-expect-error next-auth's Session type has no id on user
         session.user.id = token.id;
         if (token.image) {
           session.user.image = token.image as string;

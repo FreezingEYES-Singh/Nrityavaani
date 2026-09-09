@@ -29,6 +29,14 @@
 @theme {
   --font-inter: "Inter", sans-serif;
   --font-outfit: "Outfit", sans-serif;
+  /*
+   * These two names are also Tailwind's own theme tokens, so setting them here
+   * repoints the `font-serif` and `font-mono` utilities at the project's faces
+   * rather than at the framework's generic stacks. next/font overrides both on
+   * <html> with the real loaded families.
+   */
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -77,10 +85,25 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
     opacity: 0.05;
     pointer-events: none;
     z-index: 9999;
+  }
+
+/*
+   * `.serif` was in use across the app long before it existed — on every mudra
+   * meaning and every italic pull-quote — so all of that was rendering as
+   * italic Inter. Both classes are plain, not utilities, because that is how
+   * the existing markup already calls them.
+   */
+  .serif {
+    font-family: var(--font-serif);
+    letter-spacing: 0;
+  }
+
+  .mono {
+    font-family: var(--font-mono);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -106,63 +129,65 @@
 
 /* Custom Components */
 @layer components {
+  /*
+   * These three carry the pages that are mostly application rather than
+   * editorial — the dashboard, the camera, the forms. Restating them here
+   * restyles all of that at once without touching a single event handler,
+   * which is the right trade for pages whose logic is the valuable part.
+   *
+   * The old versions were the house style of the thing being replaced: 20px
+   * radii, saturating backdrop blur, a 30px black shadow under every panel,
+   * and buttons that grew 5% and lifted on hover. Flat, ruled and still.
+   */
   .glass-card {
-    background-color: var(--color-card);
-    backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid var(--color-card-border);
-    border-radius: 1.25rem;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    background-color: color-mix(in srgb, var(--color-foreground) 2%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-foreground) 12%, transparent);
+    border-radius: 0.25rem;
     position: relative;
-    overflow: hidden;
   }
 
-  .glass-card::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--color-foreground) 5%, transparent) 0%, transparent 100%);
-    pointer-events: none;
-  }
-  
   .premium-button {
-    padding: 0.85rem 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.6rem;
     border-radius: 9999px;
-    font-weight: 700;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: var(--font-mono);
+    font-size: 0.69rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
     background-color: var(--color-primary);
     color: black;
-    box-shadow: 0 0 30px rgba(255, 153, 51, 0.2);
-    position: relative;
-    overflow: hidden;
+    transition: background-color 0.2s ease;
   }
 
   .premium-button:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 0 40px rgba(255, 153, 51, 0.4);
-  }
-
-  .premium-button:active {
-    transform: scale(0.95);
+    background-color: color-mix(in srgb, var(--color-primary) 85%, transparent);
   }
 
   .secondary-button {
-    padding: 0.85rem 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.6rem;
     border-radius: 9999px;
-    font-weight: 700;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    background-color: color-mix(in srgb, var(--color-foreground) 3%, transparent);
-    color: var(--color-foreground);
-    border: 1px solid color-mix(in srgb, var(--color-foreground) 8%, transparent);
-    backdrop-filter: blur(8px);
+    font-family: var(--font-mono);
+    font-size: 0.69rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    background-color: transparent;
+    color: color-mix(in srgb, var(--color-foreground) 80%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-foreground) 25%, transparent);
+    transition: border-color 0.2s ease, color 0.2s ease;
   }
 
   .secondary-button:hover {
-    background-color: color-mix(in srgb, var(--color-foreground) 8%, transparent);
-    border-color: color-mix(in srgb, var(--color-foreground) 15%, transparent);
-    transform: translateY(-2px) scale(1.05);
+    border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+    color: var(--color-primary);
   }
 
   .text-shadow-glow {
