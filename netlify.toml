@@ -1,8 +1,8 @@
 # Netlify configuration for monorepo structure
-# The site is located in the 'frontend' directory
+# The delivery site is in 'main-website'; 'studio' is the authoring tool.
 
 [build]
-  base = "frontend"
+  base = "main-website"
   command = "npm run build"
   publish = ".next"
 
