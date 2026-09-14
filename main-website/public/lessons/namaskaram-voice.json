@@ -1,0 +1,245 @@
+[
+ {
+  "index": 0,
+  "start": 0.75,
+  "end": 8.83,
+  "hi": {
+   "male": "/lessons/namaskaram-voice/00-hi-m.mp3",
+   "female": "/lessons/namaskaram-voice/00-hi-f.mp3"
+  }
+ },
+ {
+  "index": 1,
+  "start": 9.27,
+  "end": 19.07,
+  "en": {
+   "female": "/lessons/namaskaram-voice/01-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/01-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/namaskaram-voice/01-hi-f.mp3",
+   "male": "/lessons/namaskaram-voice/01-hi-m.mp3"
+  }
+ },
+ {
+  "index": 2,
+  "start": 19.69,
+  "end": 28.11,
+  "en": {
+   "female": "/lessons/namaskaram-voice/02-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/02-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/namaskaram-voice/02-hi-f.mp3",
+   "male": "/lessons/namaskaram-voice/02-hi-m.mp3"
+  }
+ },
+ {
+  "index": 3,
+  "start": 29.01,
+  "end": 37.19,
+  "en": {
+   "female": "/lessons/namaskaram-voice/03-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/03-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/namaskaram-voice/03-hi-f.mp3",
+   "male": "/lessons/namaskaram-voice/03-hi-m.mp3"
+  }
+ },
+ {
+  "index": 4,
+  "start": 37.51,
+  "end": 40.63,
+  "en": {
+   "female": "/lessons/namaskaram-voice/04-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/04-en-m.mp3"
+  },
+  "hi": {
+   "male": "/lessons/namaskaram-voice/04-hi-m.mp3",
+   "female": "/lessons/namaskaram-voice/04-hi-f.mp3"
+  }
+ },
+ {
+  "index": 5,
+  "start": 41.09,
+  "end": 47.83,
+  "en": {
+   "female": "/lessons/namaskaram-voice/05-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/05-en-m.mp3"
+  },
+  "hi": {
+   "male": "/lessons/namaskaram-voice/05-hi-m.mp3",
+   "female": "/lessons/namaskaram-voice/05-hi-f.mp3"
+  }
+ },
+ {
+  "index": 6,
+  "start": 48.29,
+  "end": 49.69,
+  "en": {
+   "female": "/lessons/namaskaram-voice/06-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/06-en-m.mp3"
+  },
+  "hi": {
+   "male": "/lessons/namaskaram-voice/06-hi-m.mp3",
+   "female": "/lessons/namaskaram-voice/06-hi-f.mp3"
+  }
+ },
+ {
+  "index": 7,
+  "start": 50.39,
+  "end": 57.43,
+  "en": {
+   "female": "/lessons/namaskaram-voice/07-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/07-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/namaskaram-voice/07-hi-f.mp3",
+   "male": "/lessons/namaskaram-voice/07-hi-m.mp3"
+  }
+ },
+ {
+  "index": 8,
+  "start": 58.11,
+  "end": 60.07,
+  "en": {
+   "female": "/lessons/namaskaram-voice/08-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/08-en-m.mp3"
+  },
+  "hi": {
+   "male": "/lessons/namaskaram-voice/08-hi-m.mp3",
+   "female": "/lessons/namaskaram-voice/08-hi-f.mp3"
+  }
+ },
+ {
+  "index": 9,
+  "start": 60.55,
+  "end": 63.55,
+  "en": {
+   "female": "/lessons/namaskaram-voice/09-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/09-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/namaskaram-voice/09-hi-f.mp3",
+   "male": "/lessons/namaskaram-voice/09-hi-m.mp3"
+  }
+ },
+ {
+  "index": 10,
+  "start": 63.95,
+  "end": 65.25,
+  "en": {
+   "female": "/lessons/namaskaram-voice/10-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/10-en-m.mp3"
+  },
+  "hi": {
+   "male": "/lessons/namaskaram-voice/10-hi-m.mp3",
+   "female": "/lessons/namaskaram-voice/10-hi-f.mp3"
+  }
+ },
+ {
+  "index": 11,
+  "start": 65.95,
+  "end": 68.67,
+  "en": {
+   "female": "/lessons/namaskaram-voice/11-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/11-en-m.mp3"
+  },
+  "hi": {
+   "male": "/lessons/namaskaram-voice/11-hi-m.mp3",
+   "female": "/lessons/namaskaram-voice/11-hi-f.mp3"
+  }
+ },
+ {
+  "index": 12,
+  "start": 68.67,
+  "end": 71.93,
+  "en": {
+   "female": "/lessons/namaskaram-voice/12-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/12-en-m.mp3"
+  },
+  "hi": {
+   "male": "/lessons/namaskaram-voice/12-hi-m.mp3",
+   "female": "/lessons/namaskaram-voice/12-hi-f.mp3"
+  }
+ },
+ {
+  "index": 13,
+  "start": 72.11,
+  "end": 74.73,
+  "en": {
+   "female": "/lessons/namaskaram-voice/13-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/13-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/namaskaram-voice/13-hi-f.mp3",
+   "male": "/lessons/namaskaram-voice/13-hi-m.mp3"
+  }
+ },
+ {
+  "index": 14,
+  "start": 75.55,
+  "end": 77.65,
+  "en": {
+   "female": "/lessons/namaskaram-voice/14-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/14-en-m.mp3"
+  },
+  "hi": {
+   "male": "/lessons/namaskaram-voice/14-hi-m.mp3",
+   "female": "/lessons/namaskaram-voice/14-hi-f.mp3"
+  }
+ },
+ {
+  "index": 15,
+  "start": 78.07,
+  "end": 80.53,
+  "en": {
+   "male": "/lessons/namaskaram-voice/15-en-m.mp3",
+   "female": "/lessons/namaskaram-voice/15-en-f.mp3"
+  },
+  "hi": {
+   "female": "/lessons/namaskaram-voice/15-hi-f.mp3",
+   "male": "/lessons/namaskaram-voice/15-hi-m.mp3"
+  }
+ },
+ {
+  "index": 16,
+  "start": 80.53,
+  "end": 83.23,
+  "en": {
+   "female": "/lessons/namaskaram-voice/16-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/16-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/namaskaram-voice/16-hi-f.mp3",
+   "male": "/lessons/namaskaram-voice/16-hi-m.mp3"
+  }
+ },
+ {
+  "index": 17,
+  "start": 83.23,
+  "end": 88.27,
+  "en": {
+   "female": "/lessons/namaskaram-voice/17-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/17-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/namaskaram-voice/17-hi-f.mp3",
+   "male": "/lessons/namaskaram-voice/17-hi-m.mp3"
+  }
+ },
+ {
+  "index": 18,
+  "start": 89.01,
+  "end": 90.57,
+  "en": {
+   "female": "/lessons/namaskaram-voice/18-en-f.mp3",
+   "male": "/lessons/namaskaram-voice/18-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/namaskaram-voice/18-hi-f.mp3",
+   "male": "/lessons/namaskaram-voice/18-hi-m.mp3"
+  }
+ }
+]

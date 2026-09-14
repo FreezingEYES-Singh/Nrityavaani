@@ -1,0 +1,240 @@
+{
+ "slug": "namaskaram",
+ "title": "Namaskaram",
+ "subtitle": "Bhumi pranam — the salutation danced before class begins",
+ "clip": "/lessons/namaskaram.nvclip",
+ "clips": {
+  "female": "/lessons/namaskaram.nvclip",
+  "male": "/lessons/namaskaram-male.nvclip"
+ },
+ "duration": 106.96,
+ "fps": 15,
+ "sex": "female",
+ "steps": [
+  {
+   "start": 0.0,
+   "end": 19.4,
+   "name": "Guru Vandana",
+   "gloss": "The shloka to the teacher, hands joined at the chest.",
+   "cues": [
+    "Anjali at the chest, thumbs against the breastbone.",
+    "Stand in samapada throughout."
+   ]
+  },
+  {
+   "start": 19.4,
+   "end": 29.0,
+   "name": "Samapada",
+   "gloss": "Feet together — where any pose in Bharatanatyam starts.",
+   "cues": [
+    "Heels and toes touching, weight even."
+   ]
+  },
+  {
+   "start": 29.0,
+   "end": 37.5,
+   "name": "Katakamukha",
+   "gloss": "Two fingers meet the thumb; both hands held away from the chest.",
+   "cues": [
+    "Index and middle finger joined to the thumb.",
+    "Keep both hands away from the chest, not resting on it."
+   ]
+  },
+  {
+   "start": 37.5,
+   "end": 50.4,
+   "name": "Aramandi",
+   "gloss": "The half-sit that most of the namaskaram is danced in.",
+   "cues": [
+    "Feet in a V shape, a bit of space between them.",
+    "Knees bent, opening out over the toes.",
+    "Remember to keep your core tight."
+   ]
+  },
+  {
+   "start": 50.4,
+   "end": 60.5,
+   "name": "Tapping",
+   "gloss": "Tap and lift, right foot then left, holding aramandi.",
+   "cues": [
+    "Hands stay away from the chest.",
+    "Tap the right foot first and then lift. Right and left."
+   ]
+  },
+  {
+   "start": 60.5,
+   "end": 65.9,
+   "name": "Shikhara, and the jump",
+   "gloss": "Thumbs up in shikhara, then a jump back into aramandi.",
+   "cues": [
+    "Thumb up, the other fingers closed.",
+    "Land back in aramandi, not upright."
+   ]
+  },
+  {
+   "start": 65.9,
+   "end": 72.1,
+   "name": "Saluting around",
+   "gloss": "The hands come together at the front, saluting all things around.",
+   "cues": [
+    "Look to each side as the hands travel.",
+    "Bring the hands together at the front."
+   ]
+  },
+  {
+   "start": 72.1,
+   "end": 78.0,
+   "name": "Touching the ground",
+   "gloss": "Sit, and offer the salutation to the earth.",
+   "cues": [
+    "Sit into muzhumandi, knees wide.",
+    "Touch the ground. Touch the ground."
+   ]
+  },
+  {
+   "start": 78.0,
+   "end": 80.5,
+   "name": "Touching the eyes",
+   "gloss": "What was offered to the ground is brought to the eyes — both hands to the right eye, then to the left.",
+   "cues": [
+    "Touch the eyes. Touch the eyes."
+   ]
+  },
+  {
+   "start": 80.5,
+   "end": 88.5,
+   "name": "Rising",
+   "gloss": "Stand gradually, saluting God, the Guru and the audience.",
+   "cues": [
+    "Gradually stand up — no rush out of the sit.",
+    "Anjali above the head, then the face, then the chest."
+   ]
+  },
+  {
+   "start": 88.5,
+   "end": 106.96,
+   "name": "The whole namaskaram",
+   "gloss": "Everything again, at speed and without stopping.",
+   "cues": [
+    "Let's give it a try again."
+   ]
+  }
+ ],
+ "lines": [
+  {
+   "start": 0.75,
+   "end": 8.83,
+   "text": "Guru Brahma, Guru Vishnu, Guru Devo Maheshwaraha, Guru Saakshar Parabrahma, Tasmai Shri Gurave Namaha.",
+   "textHi": "गुरुर्ब्रह्मा गुरुर्विष्णुर्गुरुर्देवो महेश्वरः। गुरुः साक्षात्परब्रह्म तस्मै श्रीगुरवे नमः॥"
+  },
+  {
+   "start": 9.27,
+   "end": 19.07,
+   "text": "Namaste. Today we will be learning the first and foremost thing that is performed before beginning any classical dance and that is the bhumi pranam or namaskar.",
+   "textHi": "नमस्ते। आज हम वह पहली और सबसे महत्वपूर्ण चीज़ सीखेंगे जो किसी भी शास्त्रीय नृत्य को शुरू करने से पहले की जाती है, और वह है भूमि प्रणाम या नमस्कार।"
+  },
+  {
+   "start": 19.69,
+   "end": 28.11,
+   "text": "So without much ado, we will get into it. Any pose in Bharatanatyam is started in the position samapadha, that is the feet are together.",
+   "textHi": "तो बिना देर किए, हम शुरू करते हैं। भरतनाट्यम में कोई भी मुद्रा समपद स्थिति से शुरू होती है, यानी पैर आपस में जुड़े होते हैं।"
+  },
+  {
+   "start": 29.01,
+   "end": 37.19,
+   "text": "The hand gesture will be katakamukha in which we will be joining the two fingers with the thumb and we will keep both of the hands away from our chest.",
+   "textHi": "हाथ की मुद्रा कटकामुख होगी, जिसमें हम दो उंगलियों को अंगूठे से मिलाते हैं और दोनों हाथों को छाती से दूर रखते हैं।"
+  },
+  {
+   "start": 37.51,
+   "end": 40.63,
+   "text": "And then we will take the next position that is aramandi.",
+   "textHi": "और फिर हम अगली स्थिति लेंगे, जो है अरैमंडी।"
+  },
+  {
+   "start": 41.09,
+   "end": 47.83,
+   "text": "In aramandi, the feet are in V shape and there is a bit of a space between both of the feet and the knees are bent.",
+   "textHi": "अरैमंडी में पैर वी आकार में होते हैं, दोनों पैरों के बीच थोड़ी जगह होती है और घुटने मुड़े होते हैं।"
+  },
+  {
+   "start": 48.29,
+   "end": 49.69,
+   "text": "Remember to keep your core tight.",
+   "textHi": "अपना कोर कस कर रखें।"
+  },
+  {
+   "start": 50.39,
+   "end": 57.43,
+   "text": "We will take the aramandi position, the hands are away from the chest and then we will tap the right foot first and then lift.",
+   "textHi": "हम अरैमंडी स्थिति लेंगे, हाथ छाती से दूर होंगे, और फिर हम पहले दाएँ पैर को थपथपाएँगे और फिर उठाएँगे।"
+  },
+  {
+   "start": 58.11,
+   "end": 60.07,
+   "text": "Right and left.",
+   "textHi": "दाएँ और बाएँ।"
+  },
+  {
+   "start": 60.55,
+   "end": 63.55,
+   "text": "Then we will take a jump and the hands will be like this.",
+   "textHi": "फिर हम एक छलांग लेंगे और हाथ ऐसे होंगे।"
+  },
+  {
+   "start": 63.95,
+   "end": 65.25,
+   "text": "Shikhara. Jump.",
+   "textHi": "शिखर, छलांग।"
+  },
+  {
+   "start": 65.95,
+   "end": 68.67,
+   "text": "Then we will bring the hands together at the front.",
+   "textHi": "फिर हम हाथों को सामने एक साथ लाएँगे।"
+  },
+  {
+   "start": 68.67,
+   "end": 71.93,
+   "text": "We are saluting all things around us.",
+   "textHi": "हम अपने चारों ओर की सभी चीज़ों को प्रणाम कर रहे हैं।"
+  },
+  {
+   "start": 72.11,
+   "end": 74.73,
+   "text": "And then we will sit and offer it to the ground.",
+   "textHi": "और फिर हम बैठेंगे और इसे भूमि को अर्पित करेंगे।"
+  },
+  {
+   "start": 75.55,
+   "end": 77.65,
+   "text": "Touch the ground. Touch the ground.",
+   "textHi": "भूमि छुइए, भूमि छुइए।"
+  },
+  {
+   "start": 78.07,
+   "end": 80.53,
+   "text": "Touch the eyes. Touch the eyes.",
+   "textHi": "आँखें छुइए, आँखें छुइए।"
+  },
+  {
+   "start": 80.53,
+   "end": 83.23,
+   "text": "And then we will gradually stand up.",
+   "textHi": "और फिर हम धीरे-धीरे खड़े होंगे।"
+  },
+  {
+   "start": 83.23,
+   "end": 88.27,
+   "text": "We are saluting the God, the Guru and the audience.",
+   "textHi": "हम भगवान, गुरु और दर्शकों को प्रणाम कर रहे हैं।"
+  },
+  {
+   "start": 89.01,
+   "end": 90.57,
+   "text": "Let's give it a try again.",
+   "textHi": "चलिए इसे फिर से आज़माते हैं।"
+  }
+ ],
+ "voice": "/lessons/namaskaram-voice.json"
+}

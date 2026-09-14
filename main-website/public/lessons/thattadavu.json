@@ -1,0 +1,320 @@
+{
+ "slug": "thattadavu",
+ "title": "Thattadavu",
+ "subtitle": "The eight striking steps — the first adavus of Bharatanatyam",
+ "dance": "bharatanatyam",
+ "part": 2,
+ "clip": "/lessons/thattadavu.nvclip",
+ "clips": {
+  "female": "/lessons/thattadavu.nvclip",
+  "male": "/lessons/thattadavu-male.nvclip"
+ },
+ "duration": 341.65,
+ "fps": 15,
+ "sex": "female",
+ "steps": [
+  {
+   "start": 0.0,
+   "end": 25.1,
+   "name": "Thattadavu",
+   "gloss": "The striking steps: the first adavus, danced with the hands on the waist.",
+   "cues": [
+    "Tattu means to strike.",
+    "Hands rest on the waist and stay still.",
+    "All the attention is on footwork and rhythm."
+   ]
+  },
+  {
+   "start": 25.1,
+   "end": 50.93,
+   "name": "Aramandi",
+   "gloss": "The half-sitting position every thattadavu is danced in.",
+   "cues": [
+    "Heels together, toes turned out.",
+    "Knees bent wide, over the toes.",
+    "Torso straight; stay at the same height.",
+    "Strike with the whole sole, flat.",
+    "Always begin with the right foot."
+   ]
+  },
+  {
+   "start": 50.93,
+   "end": 85.93,
+   "name": "Adavu 1",
+   "gloss": "Right, then left — through all three speeds and back down.",
+   "cues": [
+    "Strike right, then left.",
+    "Three speeds: the second twice as fast, the third twice again.",
+    "Go up through the speeds, then come back down."
+   ]
+  },
+  {
+   "start": 85.93,
+   "end": 108.12,
+   "name": "Adavu 2",
+   "gloss": "Two strikes on each foot.",
+   "cues": [
+    "Right, right — then left, left."
+   ]
+  },
+  {
+   "start": 108.12,
+   "end": 130.32,
+   "name": "Adavu 3",
+   "gloss": "Three strikes on each foot.",
+   "cues": [
+    "Right, right, right — then left, left, left."
+   ]
+  },
+  {
+   "start": 130.32,
+   "end": 152.53,
+   "name": "Adavu 4",
+   "gloss": "Four strikes on each foot.",
+   "cues": [
+    "Four on the right, then four on the left.",
+    "Keep the body upright while you stay low."
+   ]
+  },
+  {
+   "start": 152.53,
+   "end": 180.98,
+   "name": "Adavu 5",
+   "gloss": "Five strikes on one foot, counted one-two, one-two-three.",
+   "cues": [
+    "The same foot for all five.",
+    "Two slow strikes, then three quick ones.",
+    "Then the same on the left foot."
+   ]
+  },
+  {
+   "start": 180.98,
+   "end": 229.09,
+   "name": "Adavu 6",
+   "gloss": "Three and three: six strikes on the same foot.",
+   "cues": [
+    "Two groups of three on one foot.",
+    "A pause after each group.",
+    "Then six on the left."
+   ]
+  },
+  {
+   "start": 229.09,
+   "end": 282.26,
+   "name": "Adavu 7",
+   "gloss": "Seven counts, with count four on the other foot.",
+   "cues": [
+    "Right on one, two, three.",
+    "Left on four.",
+    "Right on five, six, seven; eight is silent.",
+    "Then begin with the left foot."
+   ]
+  },
+  {
+   "start": 282.26,
+   "end": 323.03,
+   "name": "Adavu 8",
+   "gloss": "Seven alternating strikes, and a silent eighth count.",
+   "cues": [
+    "Alternate the feet on every strike.",
+    "The last three come quicker.",
+    "Stop at seven; eight is silent.",
+    "Start right, then start left."
+   ]
+  },
+  {
+   "start": 323.03,
+   "end": 341.65,
+   "name": "Practising",
+   "gloss": "How to practise the series.",
+   "cues": [
+    "All three speeds, up and back down.",
+    "Aramandi steady, every strike flat.",
+    "Learn under a teacher's guidance."
+   ]
+  }
+ ],
+ "lines": [
+  {
+   "start": 0.0,
+   "end": 10.56,
+   "text": "Thattadavu is the first set of adavus in Bharatanatyam. Tattu means to strike, so these are the striking steps.",
+   "textHi": "तट्टडवु भरतनाट्यम के अडवुओं का पहला समूह है। तट्टु का अर्थ है प्रहार करना, इसलिए ये प्रहार वाले चरण हैं।"
+  },
+  {
+   "start": 10.91,
+   "end": 17.54,
+   "text": "The hands stay still on the waist, so all your attention goes to the feet and the rhythm.",
+   "textHi": "हाथ कमर पर स्थिर रहते हैं, ताकि पूरा ध्यान पैरों और लय पर रहे।"
+  },
+  {
+   "start": 17.89,
+   "end": 24.45,
+   "text": "There are eight of them, and every adavu you learn later builds on these.",
+   "textHi": "ये आठ हैं, और आगे सीखा जाने वाला हर अडवु इन्हीं पर बनता है।"
+  },
+  {
+   "start": 25.1,
+   "end": 31.04,
+   "text": "Every thattadavu is danced in aramandi, the half-sitting position.",
+   "textHi": "हर तट्टडवु अरैमंडी में किया जाता है, यानी आधी बैठी मुद्रा में।"
+  },
+  {
+   "start": 31.39,
+   "end": 38.89,
+   "text": "Heels together, toes turned out, knees bent wide over the toes, and the torso straight.",
+   "textHi": "एड़ियाँ साथ, पंजे बाहर, घुटने पंजों के ऊपर चौड़े मुड़े हुए, और धड़ सीधा।"
+  },
+  {
+   "start": 39.24,
+   "end": 48.68,
+   "text": "Stay at that height, lift the foot, and bring the whole sole down flat. Always start with the right foot.",
+   "textHi": "इसी ऊँचाई पर रहें, पैर उठाएँ और पूरा तलवा सपाट नीचे लाएँ। हमेशा दाएँ पैर से शुरू करें।"
+  },
+  {
+   "start": 50.93,
+   "end": 55.01,
+   "text": "Adavu one: strike right, then left.",
+   "textHi": "अडवु एक: दायाँ, फिर बायाँ।"
+  },
+  {
+   "start": 58.43,
+   "end": 65.78,
+   "text": "Each adavu goes through three speeds. The second is twice as fast.",
+   "textHi": "हर अडवु तीन गतियों में होता है। दूसरी गति दुगुनी तेज़ होती है।"
+  },
+  {
+   "start": 66.43,
+   "end": 70.08,
+   "text": "The third, twice as fast again.",
+   "textHi": "तीसरी, उससे भी दुगुनी तेज़।"
+  },
+  {
+   "start": 72.83,
+   "end": 77.18,
+   "text": "Then back down, through the second speed to the first.",
+   "textHi": "फिर वापस, दूसरी गति से पहली तक।"
+  },
+  {
+   "start": 85.93,
+   "end": 89.73,
+   "text": "Adavu two: two strikes on each foot.",
+   "textHi": "अडवु दो: हर पैर पर दो प्रहार।"
+  },
+  {
+   "start": 99.83,
+   "end": 102.44,
+   "text": "Now in second speed.",
+   "textHi": "अब दूसरी गति में।"
+  },
+  {
+   "start": 108.12,
+   "end": 112.21,
+   "text": "Adavu three: three strikes on each foot.",
+   "textHi": "अडवु तीन: हर पैर पर तीन प्रहार।"
+  },
+  {
+   "start": 118.82,
+   "end": 121.44,
+   "text": "Now in second speed.",
+   "textHi": "अब दूसरी गति में।"
+  },
+  {
+   "start": 130.32,
+   "end": 138.29,
+   "text": "Adavu four: four strikes on each foot. Keep the body upright while you stay low.",
+   "textHi": "अडवु चार: हर पैर पर चार प्रहार। नीचे बैठे हुए भी शरीर सीधा रखें।"
+  },
+  {
+   "start": 144.22,
+   "end": 146.84,
+   "text": "Now in second speed.",
+   "textHi": "अब दूसरी गति में।"
+  },
+  {
+   "start": 152.53,
+   "end": 159.53,
+   "text": "Adavu five keeps all five strikes on one foot, counted one-two, one-two-three.",
+   "textHi": "अडवु पाँच में पाँचों प्रहार एक ही पैर पर होते हैं, गिनती एक-दो, एक-दो-तीन।"
+  },
+  {
+   "start": 166.28,
+   "end": 168.51,
+   "text": "Then the left foot.",
+   "textHi": "फिर बायाँ पैर।"
+  },
+  {
+   "start": 172.68,
+   "end": 175.29,
+   "text": "Now in second speed.",
+   "textHi": "अब दूसरी गति में।"
+  },
+  {
+   "start": 180.98,
+   "end": 188.44,
+   "text": "Adavu six gives one foot six strikes: three, a pause, and three more.",
+   "textHi": "अडवु छह में एक पैर पर छह प्रहार होते हैं: तीन, एक विराम, और फिर तीन।"
+  },
+  {
+   "start": 201.59,
+   "end": 203.78,
+   "text": "Now the left foot.",
+   "textHi": "अब बायाँ पैर।"
+  },
+  {
+   "start": 214.39,
+   "end": 217.0,
+   "text": "Now in second speed.",
+   "textHi": "अब दूसरी गति में।"
+  },
+  {
+   "start": 229.09,
+   "end": 241.61,
+   "text": "Adavu seven: the right foot strikes one, two, three, the left takes four, and the right strikes five, six, seven. Eight is silent.",
+   "textHi": "अडवु सात: दायाँ पैर एक, दो, तीन पर प्रहार करता है, चार पर बायाँ, और पाँच, छह, सात पर फिर दायाँ। आठ खाली रहता है।"
+  },
+  {
+   "start": 254.76,
+   "end": 257.44,
+   "text": "Now begin with the left.",
+   "textHi": "अब बाएँ से शुरू करें।"
+  },
+  {
+   "start": 267.56,
+   "end": 270.18,
+   "text": "Now in second speed.",
+   "textHi": "अब दूसरी गति में।"
+  },
+  {
+   "start": 282.26,
+   "end": 291.98,
+   "text": "Adavu eight changes feet on every strike: seven strikes from the right, the last three quicker, and a silent eighth count.",
+   "textHi": "अडवु आठ में हर प्रहार पर पैर बदलता है: दाएँ से सात प्रहार, आखिरी तीन थोड़े तेज़, और आठवीं गिनती खाली।"
+  },
+  {
+   "start": 301.93,
+   "end": 304.54,
+   "text": "Then seven from the left.",
+   "textHi": "फिर बाएँ से सात।"
+  },
+  {
+   "start": 311.53,
+   "end": 314.14,
+   "text": "Now in second speed.",
+   "textHi": "अब दूसरी गति में।"
+  },
+  {
+   "start": 323.03,
+   "end": 333.08,
+   "text": "Practise every thattadavu through the three speeds, up and back down, keeping aramandi steady and each strike flat.",
+   "textHi": "हर तट्टडवु का अभ्यास तीनों गतियों में करें, ऊपर जाते हुए और वापस आते हुए, अरैमंडी स्थिर और हर प्रहार सपाट रखें।"
+  },
+  {
+   "start": 333.43,
+   "end": 340.3,
+   "text": "And learn them with a teacher, who can watch your form and correct it.",
+   "textHi": "और इन्हें किसी गुरु के साथ सीखें, जो आपकी मुद्रा देखकर उसे सुधार सकें।"
+  }
+ ],
+ "voice": "/lessons/thattadavu-voice.json"
+}

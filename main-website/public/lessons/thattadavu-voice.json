@@ -1,0 +1,392 @@
+[
+ {
+  "index": 0,
+  "start": 0.0,
+  "end": 10.56,
+  "en": {
+   "male": "/lessons/thattadavu-voice/00-en-m.mp3",
+   "female": "/lessons/thattadavu-voice/00-en-f.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/00-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/00-hi-m.mp3"
+  }
+ },
+ {
+  "index": 1,
+  "start": 10.91,
+  "end": 17.54,
+  "en": {
+   "male": "/lessons/thattadavu-voice/01-en-m.mp3",
+   "female": "/lessons/thattadavu-voice/01-en-f.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/01-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/01-hi-m.mp3"
+  }
+ },
+ {
+  "index": 2,
+  "start": 17.89,
+  "end": 24.45,
+  "en": {
+   "female": "/lessons/thattadavu-voice/02-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/02-en-m.mp3"
+  },
+  "hi": {
+   "male": "/lessons/thattadavu-voice/02-hi-m.mp3",
+   "female": "/lessons/thattadavu-voice/02-hi-f.mp3"
+  }
+ },
+ {
+  "index": 3,
+  "start": 25.1,
+  "end": 31.04,
+  "en": {
+   "male": "/lessons/thattadavu-voice/03-en-m.mp3",
+   "female": "/lessons/thattadavu-voice/03-en-f.mp3"
+  },
+  "hi": {
+   "male": "/lessons/thattadavu-voice/03-hi-m.mp3",
+   "female": "/lessons/thattadavu-voice/03-hi-f.mp3"
+  }
+ },
+ {
+  "index": 4,
+  "start": 31.39,
+  "end": 38.89,
+  "en": {
+   "female": "/lessons/thattadavu-voice/04-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/04-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/04-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/04-hi-m.mp3"
+  }
+ },
+ {
+  "index": 5,
+  "start": 39.24,
+  "end": 48.68,
+  "en": {
+   "male": "/lessons/thattadavu-voice/05-en-m.mp3",
+   "female": "/lessons/thattadavu-voice/05-en-f.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/05-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/05-hi-m.mp3"
+  }
+ },
+ {
+  "index": 6,
+  "start": 50.93,
+  "end": 55.01,
+  "en": {
+   "female": "/lessons/thattadavu-voice/06-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/06-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/06-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/06-hi-m.mp3"
+  }
+ },
+ {
+  "index": 7,
+  "start": 58.43,
+  "end": 65.78,
+  "en": {
+   "female": "/lessons/thattadavu-voice/07-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/07-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/07-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/07-hi-m.mp3"
+  }
+ },
+ {
+  "index": 8,
+  "start": 66.43,
+  "end": 70.08,
+  "en": {
+   "female": "/lessons/thattadavu-voice/08-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/08-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/08-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/08-hi-m.mp3"
+  }
+ },
+ {
+  "index": 9,
+  "start": 72.83,
+  "end": 77.18,
+  "en": {
+   "male": "/lessons/thattadavu-voice/09-en-m.mp3",
+   "female": "/lessons/thattadavu-voice/09-en-f.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/09-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/09-hi-m.mp3"
+  }
+ },
+ {
+  "index": 10,
+  "start": 85.93,
+  "end": 89.73,
+  "en": {
+   "male": "/lessons/thattadavu-voice/10-en-m.mp3",
+   "female": "/lessons/thattadavu-voice/10-en-f.mp3"
+  },
+  "hi": {
+   "male": "/lessons/thattadavu-voice/10-hi-m.mp3",
+   "female": "/lessons/thattadavu-voice/10-hi-f.mp3"
+  }
+ },
+ {
+  "index": 11,
+  "start": 99.83,
+  "end": 102.44,
+  "en": {
+   "female": "/lessons/thattadavu-voice/11-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/11-en-m.mp3"
+  },
+  "hi": {
+   "male": "/lessons/thattadavu-voice/11-hi-m.mp3",
+   "female": "/lessons/thattadavu-voice/11-hi-f.mp3"
+  }
+ },
+ {
+  "index": 12,
+  "start": 108.12,
+  "end": 112.21,
+  "en": {
+   "female": "/lessons/thattadavu-voice/12-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/12-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/12-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/12-hi-m.mp3"
+  }
+ },
+ {
+  "index": 13,
+  "start": 118.82,
+  "end": 121.44,
+  "en": {
+   "female": "/lessons/thattadavu-voice/13-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/13-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/13-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/13-hi-m.mp3"
+  }
+ },
+ {
+  "index": 14,
+  "start": 130.32,
+  "end": 138.29,
+  "en": {
+   "female": "/lessons/thattadavu-voice/14-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/14-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/14-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/14-hi-m.mp3"
+  }
+ },
+ {
+  "index": 15,
+  "start": 144.22,
+  "end": 146.84,
+  "en": {
+   "female": "/lessons/thattadavu-voice/15-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/15-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/15-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/15-hi-m.mp3"
+  }
+ },
+ {
+  "index": 16,
+  "start": 152.53,
+  "end": 159.53,
+  "en": {
+   "female": "/lessons/thattadavu-voice/16-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/16-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/16-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/16-hi-m.mp3"
+  }
+ },
+ {
+  "index": 17,
+  "start": 166.28,
+  "end": 168.51,
+  "en": {
+   "female": "/lessons/thattadavu-voice/17-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/17-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/17-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/17-hi-m.mp3"
+  }
+ },
+ {
+  "index": 18,
+  "start": 172.68,
+  "end": 175.29,
+  "en": {
+   "female": "/lessons/thattadavu-voice/18-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/18-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/18-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/18-hi-m.mp3"
+  }
+ },
+ {
+  "index": 19,
+  "start": 180.98,
+  "end": 188.44,
+  "en": {
+   "female": "/lessons/thattadavu-voice/19-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/19-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/19-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/19-hi-m.mp3"
+  }
+ },
+ {
+  "index": 20,
+  "start": 201.59,
+  "end": 203.78,
+  "en": {
+   "female": "/lessons/thattadavu-voice/20-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/20-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/20-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/20-hi-m.mp3"
+  }
+ },
+ {
+  "index": 21,
+  "start": 214.39,
+  "end": 217.0,
+  "en": {
+   "female": "/lessons/thattadavu-voice/21-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/21-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/21-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/21-hi-m.mp3"
+  }
+ },
+ {
+  "index": 22,
+  "start": 229.09,
+  "end": 241.61,
+  "en": {
+   "female": "/lessons/thattadavu-voice/22-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/22-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/22-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/22-hi-m.mp3"
+  }
+ },
+ {
+  "index": 23,
+  "start": 254.76,
+  "end": 257.44,
+  "en": {
+   "female": "/lessons/thattadavu-voice/23-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/23-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/23-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/23-hi-m.mp3"
+  }
+ },
+ {
+  "index": 24,
+  "start": 267.56,
+  "end": 270.18,
+  "en": {
+   "female": "/lessons/thattadavu-voice/24-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/24-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/24-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/24-hi-m.mp3"
+  }
+ },
+ {
+  "index": 25,
+  "start": 282.26,
+  "end": 291.98,
+  "en": {
+   "female": "/lessons/thattadavu-voice/25-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/25-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/25-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/25-hi-m.mp3"
+  }
+ },
+ {
+  "index": 26,
+  "start": 301.93,
+  "end": 304.54,
+  "en": {
+   "female": "/lessons/thattadavu-voice/26-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/26-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/26-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/26-hi-m.mp3"
+  }
+ },
+ {
+  "index": 27,
+  "start": 311.53,
+  "end": 314.14,
+  "en": {
+   "female": "/lessons/thattadavu-voice/27-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/27-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/27-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/27-hi-m.mp3"
+  }
+ },
+ {
+  "index": 28,
+  "start": 323.03,
+  "end": 333.08,
+  "en": {
+   "female": "/lessons/thattadavu-voice/28-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/28-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/28-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/28-hi-m.mp3"
+  }
+ },
+ {
+  "index": 29,
+  "start": 333.43,
+  "end": 340.3,
+  "en": {
+   "female": "/lessons/thattadavu-voice/29-en-f.mp3",
+   "male": "/lessons/thattadavu-voice/29-en-m.mp3"
+  },
+  "hi": {
+   "female": "/lessons/thattadavu-voice/29-hi-f.mp3",
+   "male": "/lessons/thattadavu-voice/29-hi-m.mp3"
+  }
+ }
+]
