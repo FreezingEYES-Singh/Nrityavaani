@@ -227,6 +227,7 @@ export default function NamasteFigure({
 
     let current: THREE.Object3D | null = null;
     let currentMesh: THREE.SkinnedMesh | null = null;
+    let currentClothes: THREE.SkinnedMesh[] = [];
     let bodyView: THREE.Group | null = null;
     let source: THREE.Group | null = null;
     let disposed = false;
@@ -263,13 +264,14 @@ export default function NamasteFigure({
         current.removeFromParent();
         disposeFigure(current);
       }
-      const { group, mesh } = makeFigure(source, which, FIGURE_HEIGHT);
+      const { group, mesh, clothes } = makeFigure(source, which, FIGURE_HEIGHT);
       const { clamped, initial, violations, amount } = applyNamaste(
         mesh, FIGURE_HEIGHT, which, liveOverrides,
       );
       turntable.add(group);
       current = group;
       currentMesh = mesh;
+      currentClothes = clothes;
       bodyKind = which;
       // A new figure arrives with a fresh material, so the ghost has to be
       // re-derived rather than carried over from the one just disposed.
@@ -309,11 +311,12 @@ export default function NamasteFigure({
     /*
      * Theme.
      *
-     * The body is translucent, so what sits behind it is half of its colour:
-     * the same 0.3 alpha that reads as warm amber over the dark page washes out
-     * to nothing over the light one. Lifting the alpha — and taking the white
-     * ambient down, which is what bleaches it — keeps the figure the same
-     * weight in both, exactly as the mudra hand is handled.
+     * The figure is opaque — skin and cloth both — so the page no longer shows
+     * through it and there is no alpha left to trade against the background.
+     * What is left is the lamps: near-white light piled onto a warm body over a
+     * pale page pushes the skin toward peach and flattens it against the paper,
+     * so both come down for the light theme and the figure holds its own
+     * colour and its edge in either.
      *
      * Read off <html> rather than a React ref: next-themes writes the class and
      * the observer fires with no guarantee React has re-rendered by then.
@@ -321,10 +324,7 @@ export default function NamasteFigure({
     const applyTheme = () => {
       const isLight = document.documentElement.classList.contains("light");
       ambient.intensity = isLight ? 0.2 : 0.42;
-      // The key is a near-white lamp: over a pale page it lifts the saffron
-      // toward peach, so it comes down and the alpha does the work instead.
       key.intensity = isLight ? 1.05 : 1.5;
-      if (solidMat) (solidMat as THREE.MeshStandardMaterial).opacity = isLight ? 0.5 : 0.3;
       boneMat.color.set(isLight ? 0xc2410c : 0xff9933);
     };
     const themeWatch = new MutationObserver(() => {
@@ -344,6 +344,9 @@ export default function NamasteFigure({
      */
     const setXray = (on: boolean) => {
       if (!currentMesh) return;
+      // The clothes are opaque, so they would hide exactly the joints the
+      // ghost is there to show. They step aside with it.
+      for (const c of currentClothes) c.visible = !on;
       if (!solidMat) return; // this model ships a single material
       if (on) {
         if (!ghostMat) {

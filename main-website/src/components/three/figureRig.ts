@@ -55,9 +55,15 @@ export function makeFigure(source: THREE.Group, sex: Sex, height = 1.75) {
 
   whole.updateMatrixWorld(true);
 
+  // The clothes are skinned meshes as well, bound to their figure's own skin
+  // (`studio/tools/blender/clothes.py`), so being skinned does not make a mesh
+  // a body. They carry `nvClothing` in their glTF extras, which the loader puts
+  // in `userData`.
   const skins: THREE.SkinnedMesh[] = [];
+  const clothes: THREE.SkinnedMesh[] = [];
   whole.traverse((o) => {
-    if ((o as THREE.SkinnedMesh).isSkinnedMesh) skins.push(o as THREE.SkinnedMesh);
+    const m = o as THREE.SkinnedMesh;
+    if (m.isSkinnedMesh) (m.userData.nvClothing ? clothes : skins).push(m);
   });
   // Sort by rest x so the pair is identified by position, as above.
   skins.sort((a, b) => {
@@ -71,14 +77,19 @@ export function makeFigure(source: THREE.Group, sex: Sex, height = 1.75) {
   // Drop the other figure's mesh, but keep every bone: the two skeletons are
   // siblings under one root and the surviving mesh's own bones must stay.
   for (const s of skins) if (s !== wanted) s.removeFromParent();
+  // A figure's clothes are the ones moved by its bones; the other's go with it.
+  const worn = clothes.filter((c) => c.skeleton.bones[0] === wanted.skeleton.bones[0]);
+  for (const c of clothes) if (!worn.includes(c)) c.removeFromParent();
 
   const group = new THREE.Group();
   group.add(whole);
 
   // Normalise: the figures stand about 1.75 units tall already, but the export
-  // is not guaranteed to, and the scene is framed on a known height.
+  // is not guaranteed to, and the scene is framed on a known height. Measured
+  // on the body alone, so the clothes cannot change the figure's size or where
+  // it stands, and every pose keyed against the undressed body still lands.
   group.updateWorldMatrix(true, true);
-  const box = new THREE.Box3().setFromObject(group);
+  const box = new THREE.Box3().setFromObject(wanted);
   const size = new THREE.Vector3();
   box.getSize(size);
   const scale = height / (size.y || 1);
@@ -86,7 +97,7 @@ export function makeFigure(source: THREE.Group, sex: Sex, height = 1.75) {
 
   // Re-measure after scaling and sit the figure on y = 0, centred on x/z.
   group.updateWorldMatrix(true, true);
-  const box2 = new THREE.Box3().setFromObject(group);
+  const box2 = new THREE.Box3().setFromObject(wanted);
   const centre = new THREE.Vector3();
   box2.getCenter(centre);
   whole.position.x -= centre.x;
@@ -98,34 +109,86 @@ export function makeFigure(source: THREE.Group, sex: Sex, height = 1.75) {
   repairLegs(wanted);
 
   dressFigure(wanted);
+  for (const c of worn) wearClothes(c);
 
-  return { group, mesh: wanted };
+  return { group, mesh: wanted, clothes: worn };
 }
 
 /**
- * Gives the figure the same translucent saffron skin the mudra hand wears.
+ * How much of its own colour a garment glows with. See `wearClothes`.
+ */
+const CLOTH_GLOW = 0.28;
+
+/**
+ * Readies one garment to be drawn on its figure.
+ *
+ * The look comes from the file — silk, zari and their colours are authored
+ * with the clothes. The material is cloned because `disposeFigure` frees
+ * whatever it finds and the loaded one is shared by every clone; and, like the
+ * body, the garment is never culled on its bind-pose bounds, which posed limbs
+ * leave.
+ *
+ * The lamps these figures stand under are set for a skin that lights itself
+ * from within (`dressFigure`), and opaque cloth under the same lamps renders
+ * a stop darker than its colour: measured off the canvas, the ivory dhoti's
+ * brightest lit face came out 201/176/144 — khaki — and the red silk maroon.
+ * A share of the cloth's own colour as emissive lifts it back toward what it
+ * is, the same way the skin's glow does, while the lamps still shade the
+ * pleats.
+ *
+ * The clothes stay opaque, and so is the skin under them (`dressFigure`), so
+ * the two are sorted by depth like any other solid pair: a sleeve hides the arm
+ * it covers and nothing shows through either.
+ */
+function wearClothes(mesh: THREE.SkinnedMesh) {
+  const own = (m: THREE.Material) => {
+    const copy = m.clone();
+    const cloth = copy as THREE.MeshStandardMaterial;
+    if (cloth.isMeshStandardMaterial) {
+      cloth.emissive.add(cloth.color.clone().multiplyScalar(CLOTH_GLOW));
+    }
+    return copy;
+  };
+  mesh.material = Array.isArray(mesh.material) ? mesh.material.map(own) : own(mesh.material);
+  mesh.frustumCulled = false;
+}
+
+/**
+ * The skin, and how much of its own colour it glows with. See `dressFigure`.
+ */
+const SKIN = "#b3764f";
+const SKIN_GLOW = 0.22;
+
+/**
+ * Gives the figure solid skin.
  *
  * The export ships a near-black (0.05 grey), doubleSided, untextured material,
- * which reads as a silhouette rather than a body. This replaces it with the
- * hand's material so the two models look like one family: lit saffron, mostly
- * see-through, with a low emissive floor so the surface still reads as a solid
- * volume where no light reaches it.
+ * which reads as a silhouette rather than a body.
+ *
+ * What replaced it was the mudra hand's own material — lit saffron, mostly
+ * see-through. That is right for a bare hand held in the dark, and wrong the
+ * moment the figure is dressed: cloth is opaque, so a translucent body showed
+ * the far wall of its own sleeve, the grid and the floor straight through the
+ * arm wearing it, and the two read as clothes with a ghost inside them rather
+ * than as a dressed dancer. Opaque skin is what puts a body *under* the cloth.
+ *
+ * Treated as a garment is, and for the same reason (`wearClothes`): a share of
+ * its own colour as emissive, because these lamps render an opaque surface a
+ * stop darker than its colour. It doubles as the floor that keeps the unlit
+ * side of the body off black.
  */
 function dressFigure(mesh: THREE.SkinnedMesh) {
+  const skin = new THREE.Color(SKIN);
   const material = new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#c96a2a"),
-    emissive: new THREE.Color("#ff7a1a"),
-    // Kept low, as on the hand: emissive ignores the lights and fills the
-    // surface evenly, which is what makes a translucent object read as solid.
-    emissiveIntensity: 0.16,
-    roughness: 0.34,
-    metalness: 0.12,
-    transparent: true,
-    opacity: 0.3,
-    depthWrite: false,
-    // Front faces only. The body is closed, so DoubleSide would draw its far
-    // wall behind the near one and the two alphas would compound — 0.3 twice
-    // over reads near 0.5, which is what makes a ghost look solid.
+    color: skin,
+    emissive: skin.clone().multiplyScalar(SKIN_GLOW),
+    roughness: 0.62,
+    // Skin is not metal. A trace of it keeps the highlight warm rather than
+    // white, which is what holds the figure in the same family as the bronze
+    // the rest of the site is cast in.
+    metalness: 0.08,
+    // Front faces only. The body is closed, so its far wall is never seen and
+    // DoubleSide would only pay to draw it.
     side: THREE.FrontSide,
     // The export's normals are already averaged across shared vertices, so the
     // shading is smooth; this only guarantees nothing turns it faceted.
