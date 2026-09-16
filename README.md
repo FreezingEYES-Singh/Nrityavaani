@@ -5,23 +5,23 @@
 
 ---
 
-## 🏛️ Overview
+## Overview
 
 **NrityaVaani** preserves and digitizes the heritage of Indian classical dance through modern web technologies and computer vision. Built with privacy-first principles, all live webcam video processing runs **100% on-device** directly in the browser—no video frames or camera streams ever leave your computer.
 
-### ✨ Key Features
+### Key Features
 
-* 📷 **Live Mudra Detection (`/live`)**: Real-time 21-point 3D hand tracking at 60 FPS identifying Asamyukta (single-hand) and Samyukta (double-hand) mudras.
-* 🎙️ **Targeted Practice Coach (`/practice/[slug]`)**: Real-time posture scoring against target gestures with bilingual voice coaching (English & Hindi) powered by the Web Speech API.
-* 💃 **Interactive 3D Lessons (`/learn`)**: 3D humanoid avatar demonstrating classical dance steps (e.g., *Namaskaram*, *Thattadavu*) synchronized with bilingual voice narration.
-* 📖 **Mudra Encyclopedia (`/library`)**: Comprehensive reference library covering 28 classical mudras with step-by-step instructions, viniyoga (usages), and common mistakes.
-* 🦴 **3D Motion Capture Lab (`/mocap`)**: In-browser full-body motion capture, bone jitter filtering, and real-time retargeting to 3D skinned models.
-* 🖼️ **Photograph Analysis (`/upload`)**: Single-image gesture analysis running client-side with instant accuracy feedback.
-* 🔒 **Private by Design (`/privacy`)**: WebAssembly & WebGL GPU acceleration ensure zero server video transmission.
+* **Live Mudra Detection (`/live`)**: Real-time 21-point 3D hand tracking at 60 FPS identifying Asamyukta (single-hand) and Samyukta (double-hand) mudras.
+* **Targeted Practice Coach (`/practice/[slug]`)**: Real-time posture scoring against target gestures with bilingual voice coaching (English & Hindi) powered by the Web Speech API.
+* **Interactive 3D Lessons (`/learn`)**: 3D humanoid avatar demonstrating classical dance steps (e.g., *Namaskaram*, *Thattadavu*) synchronized with bilingual voice narration.
+* **Mudra Encyclopedia (`/library`)**: Comprehensive reference library covering 28 classical mudras with step-by-step instructions, viniyoga (usages), and common mistakes.
+* **3D Motion Capture Lab (`/mocap`)**: In-browser full-body motion capture, bone jitter filtering, and real-time retargeting to 3D skinned models.
+* **Photograph Analysis (`/upload`)**: Single-image gesture analysis running client-side with instant accuracy feedback.
+* **Private by Design (`/privacy`)**: WebAssembly & WebGL GPU acceleration ensure zero server video transmission.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend (`/frontend`)
 * **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Server & Client Components)
@@ -40,7 +40,7 @@
 
 ---
 
-## 📁 Project Architecture
+## Project Architecture
 
 ```
 NrityaVaani/
@@ -68,7 +68,7 @@ NrityaVaani/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Run the Frontend (Web Application)
 
@@ -113,11 +113,11 @@ Access the interactive Swagger documentation at **[http://localhost:8000/docs](h
 
 ---
 
-## 👥 Team & Credits
+## Team & Credits
 
 Developed with ❤️ by **DivyCoders**:
+* **Mayank** — Team Lead
 * **Divyanand Pandey** — Team Lead
-* **Mayank** — Team Member
+* **Manthan** — Team Member
 * **Pranav Jithesh** — Team Member
 
-*Presented at Dron Tech Fest 2026 (3rd Place).*
