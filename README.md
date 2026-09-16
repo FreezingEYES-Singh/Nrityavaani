@@ -120,4 +120,3 @@ Developed with ❤️ by **DivyCoders**:
 * **Divyanand Pandey** — Team Lead
 * **Manthan** — Team Member
 * **Pranav Jithesh** — Team Member
-
