@@ -41,6 +41,14 @@ wheels/
 venv/
 ENV/
 
+# Large Model Weights (use Git LFS or download on deployment)
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.h5
+!backend/models/.gitkeep
+
 # Misc
 .DS_Store
 *.pem
