@@ -3,15 +3,18 @@ import { Github, Instagram, Twitter } from "lucide-react";
 
 const PLATFORM = [
   { href: "/live", label: "Live detection" },
+  { href: "/learn", label: "Interactive lessons" },
   { href: "/library", label: "Pose library" },
   { href: "/upload", label: "Upload analysis" },
+  { href: "/mocap", label: "Mocap studio" },
   { href: "/research", label: "Research" },
 ];
 
 const PROJECT = [
   { href: "/about", label: "About" },
-  { href: "mailto:support@nrityavaani.com", label: "support@nrityavaani.com" },
+  { href: "/dashboard", label: "My practice" },
   { href: "/privacy", label: "Privacy" },
+  { href: "mailto:support@nrityavaani.com", label: "Support" },
 ];
 
 const SOCIAL = [

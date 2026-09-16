@@ -23,8 +23,8 @@ const LINKS = [
   { name: "Live", href: "/live" },
   { name: "Upload", href: "/upload" },
   { name: "Library", href: "/library" },
+  { name: "Mocap", href: "/mocap" },
   { name: "Research", href: "/research" },
-  { name: "Pricing", href: "/#pricing" },
   { name: "Dashboard", href: "/dashboard" },
   { name: "About", href: "/about" },
 ];
@@ -114,10 +114,10 @@ export default function Navbar() {
               </div>
             ) : (
               <Link
-                href="/auth/login"
-                className="mono rounded-full bg-primary text-black px-5 py-2 text-[10px] uppercase tracking-[0.16em] hover:bg-primary/85 transition-colors"
+                href="/live"
+                className="mono rounded-full bg-primary text-black px-5 py-2 text-[10px] uppercase tracking-[0.16em] hover:bg-primary/85 transition-colors font-medium"
               >
-                Sign in
+                Try Live AI
               </Link>
             )}
           </div>
@@ -193,11 +193,11 @@ export default function Navbar() {
               </button>
             ) : (
               <Link
-                href="/auth/login"
+                href="/live"
                 onClick={() => setOpen(false)}
-                className="mono mt-8 block text-center rounded-full bg-primary text-black py-3 text-[11px] uppercase tracking-[0.16em]"
+                className="mono mt-8 block text-center rounded-full bg-primary text-black py-3 text-[11px] uppercase tracking-[0.16em] font-medium"
               >
-                Sign in
+                Try Live AI
               </Link>
             )}
           </motion.div>
