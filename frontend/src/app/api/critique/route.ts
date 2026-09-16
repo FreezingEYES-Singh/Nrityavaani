@@ -132,7 +132,7 @@ export async function POST(request: Request) {
   const envName = provider === "deepseek" ? "DEEPSEEK_API_KEY" : "ANTHROPIC_API_KEY";
   if (!key) {
     return NextResponse.json(
-      { error: `${envName} is not set. Add it to main-website/.env.local and restart the dev server.` },
+      { error: `${envName} is not set. Add it to frontend/.env.local and restart the dev server.` },
       { status: 501 },
     );
   }
