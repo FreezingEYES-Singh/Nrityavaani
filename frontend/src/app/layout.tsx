@@ -22,6 +22,14 @@ export const metadata: Metadata = {
   title: "NrityaVaani | Classical Dance Learning & Pose Detection",
   description:
     "Learn the classical dances of India with real-time pose detection — watch a master, mirror the pose on camera, and get joint-by-joint correction on your device.",
+  icons: {
+    icon: [
+      { url: "/logo.png", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: "/logo.png",
+    shortcut: "/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -99,6 +99,9 @@ export default function NamasteFigure({
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(host.clientWidth, host.clientHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.domElement.style.cssText = "width:100%;height:100%;display:block";
     host.appendChild(renderer.domElement);
 
@@ -110,20 +113,19 @@ export default function NamasteFigure({
     camera.position.set(0, 1.12, 4.2);
     camera.lookAt(0, 1.0, 0);
 
-    // Tuned for the figure's translucent saffron skin, not for the dark
-    // material the export shipped: a see-through surface picks up light from
-    // both of its walls, so the levels that made the old one merely visible
-    // now blow it out to white. Warm key, gold rim, saffron fill — the same
-    // three-light shape the mudra hand is lit with.
-    const ambient = new THREE.AmbientLight(0xffffff, 0.42);
+    // 4-Point Classical Temple Lighting:
+    // Warm key, divine gold rim, saffron fill, and floor bounce
+    const ambient = new THREE.AmbientLight(0xfff5ea, 0.45);
     scene.add(ambient);
-    const key = new THREE.DirectionalLight(0xffd9a8, 1.5);
+    const key = new THREE.DirectionalLight(0xfff4e6, 1.8);
     key.position.set(2.4, 3.4, 3.2);
-    const fill = new THREE.DirectionalLight(0xff9933, 0.9);
+    const fill = new THREE.DirectionalLight(0xff9933, 0.7);
     fill.position.set(-3, 1.2, 1.8);
-    const rim = new THREE.DirectionalLight(0xffd700, 1.2);
+    const rim = new THREE.DirectionalLight(0xffa726, 1.4);
     rim.position.set(-1.2, 2.2, -3);
-    scene.add(key, fill, rim);
+    const bounce = new THREE.DirectionalLight(0xffd2a0, 0.35);
+    bounce.position.set(0, -0.8, 1.5);
+    scene.add(key, fill, rim, bounce);
 
     // The figure hangs off a turntable so the slow rotation never touches the
     // pose, and so a swap is a single removeFromParent.

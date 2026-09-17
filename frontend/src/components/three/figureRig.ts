@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { applyPoseSafely, boneKey, type Pose } from "./figureConstraints";
+import { adornGuru } from "./guruAdornments";
 
 /**
  * The two rigged figures, and the namaste they are put into.
@@ -110,6 +111,7 @@ export function makeFigure(source: THREE.Group, sex: Sex, height = 1.75) {
 
   dressFigure(wanted);
   for (const c of worn) wearClothes(c);
+  adornGuru(wanted, sex);
 
   return { group, mesh: wanted, clothes: worn };
 }
@@ -122,30 +124,39 @@ const CLOTH_GLOW = 0.28;
 /**
  * Readies one garment to be drawn on its figure.
  *
- * The look comes from the file — silk, zari and their colours are authored
- * with the clothes. The material is cloned because `disposeFigure` frees
- * whatever it finds and the loaded one is shared by every clone; and, like the
- * body, the garment is never culled on its bind-pose bounds, which posed limbs
- * leave.
- *
- * The lamps these figures stand under are set for a skin that lights itself
- * from within (`dressFigure`), and opaque cloth under the same lamps renders
- * a stop darker than its colour: measured off the canvas, the ivory dhoti's
- * brightest lit face came out 201/176/144 — khaki — and the red silk maroon.
- * A share of the cloth's own colour as emissive lifts it back toward what it
- * is, the same way the skin's glow does, while the lamps still shade the
- * pleats.
- *
- * The clothes stay opaque, and so is the skin under them (`dressFigure`), so
- * the two are sorted by depth like any other solid pair: a sleeve hides the arm
- * it covers and nothing shows through either.
+ * Differentiates 24K gold zari brocade, lustrous royal silk, emerald blouse,
+ * and Kasavu cream dhoti with tuned PBR parameters.
  */
 function wearClothes(mesh: THREE.SkinnedMesh) {
   const own = (m: THREE.Material) => {
     const copy = m.clone();
     const cloth = copy as THREE.MeshStandardMaterial;
     if (cloth.isMeshStandardMaterial) {
-      cloth.emissive.add(cloth.color.clone().multiplyScalar(CLOTH_GLOW));
+      const name = (cloth.name || "").toLowerCase();
+      if (name.includes("zari")) {
+        // 24K Temple Gold Zari brocade with shimmering metallic reflection
+        cloth.color = new THREE.Color("#d4af37");
+        cloth.metalness = 0.82;
+        cloth.roughness = 0.28;
+        cloth.emissive = new THREE.Color("#352405");
+      } else if (name.includes("silk")) {
+        // Lustrous Royal Silk
+        cloth.metalness = 0.08;
+        cloth.roughness = 0.40;
+        cloth.emissive.add(cloth.color.clone().multiplyScalar(CLOTH_GLOW));
+      } else if (name.includes("blouse")) {
+        // Peacock emerald blouse
+        cloth.metalness = 0.06;
+        cloth.roughness = 0.42;
+        cloth.emissive.add(cloth.color.clone().multiplyScalar(CLOTH_GLOW));
+      } else if (name.includes("dhoti")) {
+        // Kerala Kasavu ivory cream dhoti
+        cloth.metalness = 0.02;
+        cloth.roughness = 0.48;
+        cloth.emissive.add(cloth.color.clone().multiplyScalar(CLOTH_GLOW));
+      } else {
+        cloth.emissive.add(cloth.color.clone().multiplyScalar(CLOTH_GLOW));
+      }
     }
     return copy;
   };
@@ -154,52 +165,27 @@ function wearClothes(mesh: THREE.SkinnedMesh) {
 }
 
 /**
- * The skin, and how much of its own colour it glows with. See `dressFigure`.
+ * The skin: warm honey-sandalwood complexion with subsurface scattering depth.
  */
-const SKIN = "#b3764f";
-const SKIN_GLOW = 0.22;
+const SKIN = "#b97950";
+const SKIN_GLOW = 0.16;
+const SSS_DERMAL_WARMTH = "#7a2612";
 
 /**
- * Gives the figure solid skin.
- *
- * The export ships a near-black (0.05 grey), doubleSided, untextured material,
- * which reads as a silhouette rather than a body.
- *
- * What replaced it was the mudra hand's own material — lit saffron, mostly
- * see-through. That is right for a bare hand held in the dark, and wrong the
- * moment the figure is dressed: cloth is opaque, so a translucent body showed
- * the far wall of its own sleeve, the grid and the floor straight through the
- * arm wearing it, and the two read as clothes with a ghost inside them rather
- * than as a dressed dancer. Opaque skin is what puts a body *under* the cloth.
- *
- * Treated as a garment is, and for the same reason (`wearClothes`): a share of
- * its own colour as emissive, because these lamps render an opaque surface a
- * stop darker than its colour. It doubles as the floor that keeps the unlit
- * side of the body off black.
+ * Gives the figure luminous, living skin with subsurface depth and tejas sheen.
  */
 function dressFigure(mesh: THREE.SkinnedMesh) {
   const skin = new THREE.Color(SKIN);
+  const sss = new THREE.Color(SSS_DERMAL_WARMTH).multiplyScalar(0.18);
   const material = new THREE.MeshStandardMaterial({
     color: skin,
-    emissive: skin.clone().multiplyScalar(SKIN_GLOW),
-    roughness: 0.62,
-    // Skin is not metal. A trace of it keeps the highlight warm rather than
-    // white, which is what holds the figure in the same family as the bronze
-    // the rest of the site is cast in.
-    metalness: 0.08,
-    // Front faces only. The body is closed, so its far wall is never seen and
-    // DoubleSide would only pay to draw it.
+    emissive: skin.clone().multiplyScalar(SKIN_GLOW).add(sss),
+    roughness: 0.46,
+    metalness: 0.04,
     side: THREE.FrontSide,
-    // The export's normals are already averaged across shared vertices, so the
-    // shading is smooth; this only guarantees nothing turns it faceted.
     flatShading: false,
   });
-  // Only swapped, never disposed: `SkeletonUtils.clone` copies materials by
-  // reference, so the material coming off this mesh is still the shared
-  // source scene's and every later clone's. It carries no textures anyway.
   mesh.material = material;
-  // A skinned mesh's bounds are its rest bounds; posed arms leave them, and the
-  // figure blinks out at the edge of frame if three culls on that.
   mesh.frustumCulled = false;
 }
 

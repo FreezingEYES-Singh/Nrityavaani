@@ -185,9 +185,12 @@ export default function SiteLoader() {
       >
         {/* The lockup. The mark lands first; the name comes out from under it. */}
         <div className="flex items-center" aria-hidden>
-          <span className="nv-mark relative z-10 grid place-items-center rounded-[22%] bg-primary text-black font-bold shadow-[0_0_60px_-12px_var(--primary-glow)] w-14 h-14 text-[2rem] sm:w-16 sm:h-16 sm:text-[2.3rem] font-outfit">
-            N
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt="NrityaVaani"
+            className="nv-mark relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-contain shadow-[0_0_50px_-8px_rgba(242,185,55,0.55)] border border-primary/20 shrink-0"
+          />
 
           {/*
             `grid-template-columns` animating 0fr → 1fr is the one way to run a
@@ -197,9 +200,9 @@ export default function SiteLoader() {
             the mark rather than merely transparent over it.
           */}
           <span className="nv-reveal grid">
-            <span className="overflow-hidden min-w-0">
-              <span className="nv-slide block pl-3 sm:pl-4">
-                <span className="nv-pop block whitespace-nowrap font-outfit font-semibold tracking-tight text-[2rem] sm:text-[2.3rem] leading-none">
+            <span className="overflow-hidden min-w-0 pr-3">
+              <span className="nv-slide block pl-3.5 sm:pl-4.5">
+                <span className="nv-pop block whitespace-nowrap font-outfit font-semibold tracking-tight text-[2rem] sm:text-[2.4rem] leading-none">
                   Nritya<span className="text-primary">Vaani</span>
                 </span>
               </span>

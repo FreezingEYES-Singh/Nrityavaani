@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { RotateCcw, Move, Orbit, ZoomIn, ZoomOut } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { boneKey, findViolations, type Violation } from "./figureConstraints";
 import { disposeFigure, loadFigures, makeFigure, type Sex } from "./figureRig";
 import { decodePose, encodePose } from "@/lib/motion/poseCodec";
@@ -9,6 +11,7 @@ import { JOINTS, JOINT_COUNT } from "@/lib/motion/skeleton";
 import { setSpreadAxis } from "@/lib/motion/critic";
 import { PoseSmoother } from "@/lib/motion/smooth";
 import { boneMap, retarget, type Frame, type Report } from "./retarget";
+import { createDanceStudioRoom } from "./DanceStudioRoom";
 
 const FIGURE_HEIGHT = 1.75;
 
@@ -240,6 +243,14 @@ export interface MocapApi {
    */
   capture: (yaws?: number[]) => string[];
   /**
+   * Resets the 3D camera to front-facing full body framing.
+   */
+  fitToScreen: () => void;
+  /**
+   * Smoothly animates camera to target a specific anatomical preset.
+   */
+  focusPreset: (preset: "full" | "face" | "mudras" | "feet") => void;
+  /**
    * Moves one hand by a world-space offset, approximately.
    *
    * "The hand is too high" is not a rotation of any single joint, so it cannot
@@ -309,9 +320,28 @@ export default function MocapFigure({
     readyRef.current = onReady;
   });
 
+  const [navMode, setNavMode] = useState<"orbit" | "pan">("orbit");
+  const [activePreset, setActivePreset] = useState<string>("full");
+  const navModeRef = useRef<"orbit" | "pan">("orbit");
+  navModeRef.current = navMode;
+
+  const fitToScreenRef = useRef<() => void>(() => {});
+  const focusPresetRef = useRef<(preset: "full" | "face" | "mudras" | "feet") => void>(() => {});
+  const zoomInRef = useRef<() => void>(() => {});
+  const zoomOutRef = useRef<() => void>(() => {});
+
   // Set by the build effect so the toggles below do not rebuild the scene.
   const visRef = useRef<((skeleton: boolean, body: boolean) => void) | null>(null);
   const swapRef = useRef<((s: Sex) => void) | null>(null);
+
+  useEffect(() => {
+    if (hostRef.current) {
+      const canvas = hostRef.current.querySelector("canvas");
+      if (canvas) {
+        canvas.style.cursor = navMode === "pan" ? "move" : "grab";
+      }
+    }
+  }, [navMode]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -328,25 +358,43 @@ export default function MocapFigure({
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(host.clientWidth, host.clientHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.domElement.style.cssText = "width:100%;height:100%;display:block";
     host.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, host.clientWidth / host.clientHeight, 0.1, 100);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    const key = new THREE.DirectionalLight(0xffd9a8, 1.4);
-    key.position.set(2, 3, 3);
-    scene.add(key);
-    const rim = new THREE.DirectionalLight(0xffd700, 0.9);
-    rim.position.set(-2, 2, -2);
-    scene.add(rim);
+    // Natya Shala Rehearsal Studio Lighting
+    // Ambient / Hemisphere fill (soft warm ceiling to polished teakwood floor)
+    const ambient = new THREE.HemisphereLight(0xfffaee, 0x382214, 0.85);
+    scene.add(ambient);
 
-    // A ground line, so a figure that sinks or floats is obvious at a glance.
-    const grid = new THREE.GridHelper(4, 8, 0xff9933, 0x333333);
-    (grid.material as THREE.Material).opacity = 0.18;
-    (grid.material as THREE.Material).transparent = true;
-    scene.add(grid);
+    // Natural morning sunlight streaming through the windows on the left wall
+    const windowSun = new THREE.DirectionalLight(0xfff6e8, 1.6);
+    windowSun.position.set(-3.8, 3.2, 0.5);
+    scene.add(windowSun);
+
+    // Studio ceiling spotlight (warm key illumination from upper front-right)
+    const studioKey = new THREE.DirectionalLight(0xffecd2, 1.4);
+    studioKey.position.set(2.2, 3.4, 2.5);
+    scene.add(studioKey);
+
+    // Rehearsal mirror rim light (silver-amber back rim tracing dancer silhouette)
+    const mirrorRim = new THREE.DirectionalLight(0xdbe8f5, 0.65);
+    mirrorRim.position.set(0, 2.4, -3.2);
+    scene.add(mirrorRim);
+
+    // Warm floor bounce light
+    const floorBounce = new THREE.DirectionalLight(0xffd2a0, 0.3);
+    floorBounce.position.set(0, -0.6, 1.2);
+    scene.add(floorBounce);
+
+    // Authentic 3D Dance Classroom (Teakwood floor, lotus mandala, mirror, barre, windows, ceiling)
+    const studio = createDanceStudioRoom();
+    scene.add(studio.group);
 
     const rig = new THREE.Group();
     scene.add(rig);
@@ -354,22 +402,137 @@ export default function MocapFigure({
     let mesh: THREE.SkinnedMesh | null = null;
     let group: THREE.Group | null = null;
     let helper: BoneOverlay | null = null;
+    let chestBone: THREE.Bone | null = null;
+    let chestBaseRot: THREE.Euler | null = null;
 
-    // Orbit, kept minimal: yaw/pitch/distance driven by drag and wheel.
+    // =========================================================================
+    // STUDIO CAMERA & ZOOM LIMITS (ADJUST THESE TO CONSTRAIN VIEWPORT & ROOM)
+    // =========================================================================
+    /** Minimum zoom distance (close-up on mudras/face) */
+    const MIN_ZOOM_DIST = 0.40;
+    /** Maximum zoom distance (prevents camera from passing behind studio walls/mirrors) */
+    const MAX_ZOOM_DIST = 3.35;
+    /** Default front-facing distance */
+    const DEFAULT_DIST = 3.20;
+
+    /** Safe inner room bounding box [min, max] preventing wall clipping */
+    const ROOM_BOUNDS = {
+      minX: -3.50, // Studio width is 8.0m (-4.0 to +4.0)
+      maxX: 3.50,
+      minY: 0.18,  // Floor is at 0.0m
+      maxY: 3.20,  // Ceiling is at 3.6m
+      minZ: -3.20, // Back wall screen is at -3.58m
+      maxZ: 3.20,  // Front rehearsal mirror is at +3.57m
+    };
+
+    /** Camera vertical pitch limits (radians): prevents flipping through floor or ceiling */
+    const MIN_PITCH = -0.14; // ~ -8 deg (looking slightly up)
+    const MAX_PITCH = 0.40;  // ~ 23 deg (looking down from above)
+
+    // Orbit & Pan: yaw/pitch/distance driven by drag, wheel, presets, and gestures.
     let yaw = 0;
-    let pitch = 0.02;
-    let dist = 3.6;
+    let pitch = 0.04;
+    let dist = DEFAULT_DIST;
     const target = new THREE.Vector3(0, 0.95, 0);
 
     const place = () => {
-      camera.position.set(
-        target.x + dist * Math.cos(pitch) * Math.sin(yaw),
-        target.y + dist * Math.sin(pitch),
-        target.z + dist * Math.cos(pitch) * Math.cos(yaw),
-      );
+      // 1. Calculate raw spherical camera coordinates
+      let cx = target.x + dist * Math.cos(pitch) * Math.sin(yaw);
+      let cy = target.y + dist * Math.sin(pitch);
+      let cz = target.z + dist * Math.cos(pitch) * Math.cos(yaw);
+
+      // 2. Hard clamp to safe room interior — camera NEVER penetrates walls or mirrors!
+      cx = THREE.MathUtils.clamp(cx, ROOM_BOUNDS.minX, ROOM_BOUNDS.maxX);
+      cy = THREE.MathUtils.clamp(cy, ROOM_BOUNDS.minY, ROOM_BOUNDS.maxY);
+      cz = THREE.MathUtils.clamp(cz, ROOM_BOUNDS.minZ, ROOM_BOUNDS.maxZ);
+
+      camera.position.set(cx, cy, cz);
       camera.lookAt(target);
     };
     place();
+
+    // Smooth Camera Animation Controller
+    const anim = {
+      active: false,
+      startTime: 0,
+      duration: 450,
+      startYaw: 0,
+      startPitch: 0,
+      startDist: 3.2,
+      startTarget: new THREE.Vector3(),
+      endYaw: 0,
+      endPitch: 0,
+      endDist: 3.2,
+      endTarget: new THREE.Vector3(),
+    };
+
+    const animateCameraTo = (
+      tYaw: number,
+      tPitch: number,
+      tDist: number,
+      tTarget: THREE.Vector3,
+      durationSec = 0.45
+    ) => {
+      anim.active = true;
+      anim.startTime = performance.now();
+      anim.duration = durationSec * 1000;
+      anim.startYaw = yaw;
+      anim.startPitch = pitch;
+      anim.startDist = dist;
+      anim.startTarget.copy(target);
+
+      // Shortest angular turn for yaw
+      let dy = (tYaw - yaw) % (Math.PI * 2);
+      if (dy > Math.PI) dy -= Math.PI * 2;
+      if (dy < -Math.PI) dy += Math.PI * 2;
+      anim.endYaw = yaw + dy;
+
+      anim.endPitch = THREE.MathUtils.clamp(tPitch, MIN_PITCH, MAX_PITCH);
+      anim.endDist = THREE.MathUtils.clamp(tDist, MIN_ZOOM_DIST, MAX_ZOOM_DIST);
+      anim.endTarget.copy(tTarget);
+      anim.endTarget.y = THREE.MathUtils.clamp(anim.endTarget.y, 0.15, 1.75);
+      anim.endTarget.x = THREE.MathUtils.clamp(anim.endTarget.x, -1.8, 1.8);
+      anim.endTarget.z = THREE.MathUtils.clamp(anim.endTarget.z, -1.5, 1.5);
+      dirty = true;
+    };
+
+    const fitToScreen = () => {
+      animateCameraTo(0, 0.04, DEFAULT_DIST, new THREE.Vector3(0, 0.95, 0), 0.45);
+      setActivePreset("full");
+    };
+    fitToScreenRef.current = fitToScreen;
+
+    const focusPreset = (preset: "full" | "face" | "mudras" | "feet") => {
+      setActivePreset(preset);
+      if (preset === "full") {
+        animateCameraTo(0, 0.04, DEFAULT_DIST, new THREE.Vector3(0, 0.95, 0), 0.45);
+      } else if (preset === "face") {
+        animateCameraTo(0, 0.02, 0.85, new THREE.Vector3(0, 1.52, 0), 0.45);
+      } else if (preset === "mudras") {
+        animateCameraTo(0, 0.05, 1.25, new THREE.Vector3(0, 1.15, 0), 0.45);
+      } else if (preset === "feet") {
+        animateCameraTo(0, 0.12, 1.10, new THREE.Vector3(0, 0.22, 0), 0.45);
+      }
+    };
+    focusPresetRef.current = focusPreset;
+
+    const zoomIn = () => {
+      anim.active = false;
+      setActivePreset("");
+      dist = THREE.MathUtils.clamp(dist * 0.78, MIN_ZOOM_DIST, MAX_ZOOM_DIST);
+      place();
+      dirty = true;
+    };
+    zoomInRef.current = zoomIn;
+
+    const zoomOut = () => {
+      anim.active = false;
+      setActivePreset("");
+      dist = THREE.MathUtils.clamp(dist * 1.28, MIN_ZOOM_DIST, MAX_ZOOM_DIST);
+      place();
+      dirty = true;
+    };
+    zoomOutRef.current = zoomOut;
 
     let dirty = true;
     const draw = () => {
@@ -378,47 +541,213 @@ export default function MocapFigure({
       renderer.render(scene, camera);
     };
 
-    // Render only when something changed. The figure is posed from the video's
-    // own loop, which may run slower than the display; spinning a rAF loop here
-    // would burn a GPU frame per tick to draw a pose that had not moved.
+    // Render only when something changed.
     let raf = 0;
+    const clock = new THREE.Clock();
+    let lastPoseTime = 0;
     const tick = () => {
       if (disposed) return;
+      const now = clock.getElapsedTime();
+
+      // Camera animation progression
+      if (anim.active) {
+        const elapsed = performance.now() - anim.startTime;
+        const p = Math.min(elapsed / anim.duration, 1);
+        // Cubic ease-out: 1 - (1 - p)^3
+        const ease = 1 - Math.pow(1 - p, 3);
+        yaw = anim.startYaw + (anim.endYaw - anim.startYaw) * ease;
+        pitch = anim.startPitch + (anim.endPitch - anim.startPitch) * ease;
+        dist = anim.startDist + (anim.endDist - anim.startDist) * ease;
+        target.lerpVectors(anim.startTarget, anim.endTarget, ease);
+        place();
+        dirty = true;
+        if (p >= 1) anim.active = false;
+      }
+
+      // Gentle micro-breathing when idle (>0.25s since last mocap frame) and not dragging
+      if (mesh && chestBone && chestBaseRot && now - lastPoseTime > 0.25 && !dragging && !anim.active) {
+        const breath = Math.sin(now * 1.6) * 0.016;
+        chestBone.rotation.x = chestBaseRot.x + breath;
+        mesh.skeleton.bones[0].updateMatrixWorld(true);
+        dirty = true;
+      }
       if (dirty) draw();
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
 
     let dragging = false;
+    let dragMode: "orbit" | "pan" = "orbit";
     let lastX = 0;
     let lastY = 0;
+    const pointers = new Map<number, { x: number; y: number }>();
+    let lastPinchDist = 0;
+    let lastPinchCenter = { x: 0, y: 0 };
+
     const onDown = (e: PointerEvent) => {
-      dragging = true;
-      lastX = e.clientX;
-      lastY = e.clientY;
-      renderer.domElement.setPointerCapture(e.pointerId);
-      renderer.domElement.style.cursor = "grabbing";
+      anim.active = false;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (pointers.size === 1) {
+        dragging = true;
+        const forcePan = e.button === 2 || e.button === 1 || e.shiftKey;
+        dragMode = forcePan || navModeRef.current === "pan" ? "pan" : "orbit";
+        lastX = e.clientX;
+        lastY = e.clientY;
+        renderer.domElement.setPointerCapture(e.pointerId);
+        renderer.domElement.style.cursor = dragMode === "pan" ? "move" : "grabbing";
+      } else if (pointers.size === 2) {
+        const pArray = Array.from(pointers.values());
+        lastPinchDist = Math.hypot(pArray[0].x - pArray[1].x, pArray[0].y - pArray[1].y);
+        lastPinchCenter = {
+          x: (pArray[0].x + pArray[1].x) / 2,
+          y: (pArray[0].y + pArray[1].y) / 2,
+        };
+        renderer.domElement.style.cursor = "move";
+      }
     };
+
     const onMove = (e: PointerEvent) => {
-      if (!dragging) return;
-      yaw -= (e.clientX - lastX) * 0.008;
-      pitch = THREE.MathUtils.clamp(pitch + (e.clientY - lastY) * 0.005, -1.1, 1.1);
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (pointers.size === 2) {
+        // Multi-touch pinch-to-zoom & two-finger pan
+        const pArray = Array.from(pointers.values());
+        const newPinchDist = Math.hypot(pArray[0].x - pArray[1].x, pArray[0].y - pArray[1].y);
+        const newCenter = {
+          x: (pArray[0].x + pArray[1].x) / 2,
+          y: (pArray[0].y + pArray[1].y) / 2,
+        };
+
+        if (lastPinchDist > 0 && newPinchDist > 0) {
+          const ratio = newPinchDist / lastPinchDist;
+          dist = THREE.MathUtils.clamp(dist / ratio, MIN_ZOOM_DIST, MAX_ZOOM_DIST);
+          setActivePreset("");
+        }
+
+        const pdx = newCenter.x - lastPinchCenter.x;
+        const pdy = newCenter.y - lastPinchCenter.y;
+        const panSpeed = dist * 0.0016;
+        const rightX = Math.cos(yaw);
+        const rightZ = -Math.sin(yaw);
+        target.x = THREE.MathUtils.clamp(target.x - pdx * panSpeed * rightX, -1.8, 1.8);
+        target.z = THREE.MathUtils.clamp(target.z - pdx * panSpeed * rightZ, -1.5, 1.5);
+        target.y = THREE.MathUtils.clamp(target.y + pdy * panSpeed, 0.15, 1.75);
+
+        lastPinchDist = newPinchDist;
+        lastPinchCenter = newCenter;
+        place();
+        dirty = true;
+        return;
+      }
+
+      if (!dragging || pointers.size !== 1) return;
+
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
       lastX = e.clientX;
       lastY = e.clientY;
+
+      if (dragMode === "pan") {
+        setActivePreset("");
+        const panSpeed = dist * 0.0016;
+        const rightX = Math.cos(yaw);
+        const rightZ = -Math.sin(yaw);
+        target.x = THREE.MathUtils.clamp(target.x - dx * panSpeed * rightX, -1.8, 1.8);
+        target.z = THREE.MathUtils.clamp(target.z - dx * panSpeed * rightZ, -1.5, 1.5);
+        target.y = THREE.MathUtils.clamp(target.y + dy * panSpeed, 0.15, 1.75);
+      } else {
+        yaw -= dx * 0.008;
+        pitch = THREE.MathUtils.clamp(pitch + dy * 0.005, MIN_PITCH, MAX_PITCH);
+      }
       place();
       dirty = true;
     };
+
     const onUp = (e: PointerEvent) => {
-      dragging = false;
-      renderer.domElement.releasePointerCapture?.(e.pointerId);
-      renderer.domElement.style.cursor = "grab";
+      pointers.delete(e.pointerId);
+      try {
+        renderer.domElement.releasePointerCapture?.(e.pointerId);
+      } catch {
+        // ignore
+      }
+      if (pointers.size === 0) {
+        dragging = false;
+        renderer.domElement.style.cursor = navModeRef.current === "pan" ? "move" : "grab";
+      } else if (pointers.size === 1) {
+        const remaining = Array.from(pointers.values())[0];
+        lastX = remaining.x;
+        lastY = remaining.y;
+      }
     };
+
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      dist = THREE.MathUtils.clamp(dist * (1 + Math.sign(e.deltaY) * 0.1), 0.8, 8);
-      place();
-      dirty = true;
+      anim.active = false;
+      setActivePreset("");
+
+      const rect = renderer.domElement.getBoundingClientRect();
+      const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const ndcY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      // Smooth geometric scaling
+      const zoomFactor = Math.pow(0.92, -e.deltaY * 0.015);
+      const oldDist = dist;
+      const newDist = THREE.MathUtils.clamp(oldDist * zoomFactor, MIN_ZOOM_DIST, MAX_ZOOM_DIST);
+
+      if (Math.abs(newDist - oldDist) > 1e-4) {
+        // Calculate point on target plane under cursor
+        const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+        const forward = new THREE.Vector3().subVectors(camera.position, target).normalize();
+        const up = new THREE.Vector3().crossVectors(right, forward.clone().negate()).normalize();
+
+        const fovRad = (camera.fov * Math.PI) / 180;
+        const halfH = oldDist * Math.tan(fovRad / 2);
+        const halfW = halfH * camera.aspect;
+
+        const cursorWorld = target.clone()
+          .addScaledVector(right, ndcX * halfW)
+          .addScaledVector(up, ndcY * halfH);
+
+        // Zoom toward cursor when zooming in (newDist < oldDist)
+        const shiftRate = 1 - (newDist / oldDist);
+        target.addScaledVector(new THREE.Vector3().subVectors(cursorWorld, target), shiftRate * 0.65);
+
+        target.y = THREE.MathUtils.clamp(target.y, 0.15, 1.75);
+        target.x = THREE.MathUtils.clamp(target.x, -1.8, 1.8);
+        target.z = THREE.MathUtils.clamp(target.z, -1.5, 1.5);
+
+        dist = newDist;
+        place();
+        dirty = true;
+      }
     };
+
+    const raycaster = new THREE.Raycaster();
+    const mouseNdc = new THREE.Vector2();
+
+    const onDblClick = (e: MouseEvent) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouseNdc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouseNdc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouseNdc, camera);
+
+      // Raycast against the figure meshes in the rig
+      const hits = group ? raycaster.intersectObjects(group.children, true) : [];
+      if (hits.length > 0) {
+        const hitPoint = hits[0].point;
+        setActivePreset("");
+        animateCameraTo(yaw, pitch, Math.max(dist * 0.55, 0.8), hitPoint, 0.40);
+      } else {
+        fitToScreen();
+      }
+    };
+
+    const onContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
     renderer.domElement.style.touchAction = "none";
     renderer.domElement.style.cursor = "grab";
     renderer.domElement.addEventListener("pointerdown", onDown);
@@ -426,6 +755,8 @@ export default function MocapFigure({
     renderer.domElement.addEventListener("pointerup", onUp);
     renderer.domElement.addEventListener("pointercancel", onUp);
     renderer.domElement.addEventListener("wheel", onWheel, { passive: false });
+    renderer.domElement.addEventListener("dblclick", onDblClick);
+    renderer.domElement.addEventListener("contextmenu", onContextMenu);
 
     const build = (which: Sex) => {
       if (group) {
@@ -439,6 +770,8 @@ export default function MocapFigure({
       const made = makeFigure(source!, which, FIGURE_HEIGHT);
       group = made.group;
       mesh = made.mesh;
+      chestBone = mesh.skeleton.bones.find((b) => /chest/i.test(b.name)) || null;
+      if (chestBone) chestBaseRot = chestBone.rotation.clone();
       // Once per figure, before anything is posed: which knuckle axis
       // abducts is a fact about this export, not about anatomy.
       calibrateSpread(mesh);
@@ -509,6 +842,8 @@ export default function MocapFigure({
       source = s;
       build(sex);
       readyRef.current?.({
+        fitToScreen,
+        focusPreset,
         pose: (frame: Frame, t?: number) => {
           if (!mesh) {
             return {
@@ -547,6 +882,7 @@ export default function MocapFigure({
             mesh.skeleton.bones[0].updateMatrixWorld(true);
           }
 
+          lastPoseTime = clock.getElapsedTime();
           ground();
           helper?.userData.update(report.driven);
           dirty = true;
@@ -554,6 +890,7 @@ export default function MocapFigure({
         },
         clear: () => {
           if (mesh) retarget(mesh, { pose: null, poseScreen: null, left: null, right: null });
+          if (chestBone && chestBaseRot) chestBone.rotation.copy(chestBaseRot);
           helper?.userData.update(new Set());
           dirty = true;
         },
@@ -561,6 +898,7 @@ export default function MocapFigure({
         resettle: () => smootherRef.current?.reset(),
         show: (pose) => {
           if (!mesh) return;
+          lastPoseTime = clock.getElapsedTime();
           decodePose(pose, mesh);
           ground();
           // The overlay has to follow the clip as well, or a tutorial played
@@ -667,6 +1005,9 @@ export default function MocapFigure({
       renderer.domElement.removeEventListener("pointerup", onUp);
       renderer.domElement.removeEventListener("pointercancel", onUp);
       renderer.domElement.removeEventListener("wheel", onWheel);
+      renderer.domElement.removeEventListener("dblclick", onDblClick);
+      renderer.domElement.removeEventListener("contextmenu", onContextMenu);
+      studio.dispose();
       if (group) disposeFigure(group);
       helper?.userData.dispose();
       renderer.dispose();
@@ -684,5 +1025,117 @@ export default function MocapFigure({
     swapRef.current?.(sex);
   }, [sex]);
 
-  return <div ref={hostRef} className={className} />;
+  return (
+    <div className={cn("relative group overflow-hidden select-none", className)}>
+      <div ref={hostRef} className="h-full w-full" />
+
+      {/* Floating Viewport Controls */}
+      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5 pointer-events-auto">
+        {/* Primary Fit to Screen (Front Facing) Button */}
+        <button
+          type="button"
+          onClick={() => fitToScreenRef.current()}
+          className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-black/80 px-3 py-1.5 text-xs font-medium text-amber-200 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:border-amber-400 hover:bg-black/95 hover:text-amber-100 active:scale-95"
+          title="Reset 3D camera to front-facing view (Fit to Screen)"
+        >
+          <RotateCcw className="h-3.5 w-3.5 text-amber-400" />
+          <span>Fit Front View</span>
+        </button>
+
+        {/* Anatomical Presets & Navigation Controls Pill */}
+        <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/70 p-1 text-[11px] shadow-md backdrop-blur-md">
+          <button
+            type="button"
+            onClick={() => focusPresetRef.current("full")}
+            className={cn(
+              "rounded-full px-2 py-0.5 transition-colors",
+              activePreset === "full"
+                ? "bg-primary text-primary-foreground font-semibold"
+                : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+            )}
+            title="Full figure framing"
+          >
+            Full
+          </button>
+          <button
+            type="button"
+            onClick={() => focusPresetRef.current("face")}
+            className={cn(
+              "rounded-full px-2 py-0.5 transition-colors",
+              activePreset === "face"
+                ? "bg-primary text-primary-foreground font-semibold"
+                : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+            )}
+            title="Zoom to Guru's face and expressions"
+          >
+            Face
+          </button>
+          <button
+            type="button"
+            onClick={() => focusPresetRef.current("mudras")}
+            className={cn(
+              "rounded-full px-2 py-0.5 transition-colors",
+              activePreset === "mudras"
+                ? "bg-primary text-primary-foreground font-semibold"
+                : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+            )}
+            title="Zoom to hand mudras and gestures"
+          >
+            Mudras
+          </button>
+          <button
+            type="button"
+            onClick={() => focusPresetRef.current("feet")}
+            className={cn(
+              "rounded-full px-2 py-0.5 transition-colors",
+              activePreset === "feet"
+                ? "bg-primary text-primary-foreground font-semibold"
+                : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+            )}
+            title="Zoom to feet and ghungroos"
+          >
+            Feet
+          </button>
+
+          <span className="mx-0.5 h-3 w-px bg-white/20" />
+
+          {/* Mode toggle: Orbit vs Pan */}
+          <button
+            type="button"
+            onClick={() => setNavMode((m) => (m === "orbit" ? "pan" : "orbit"))}
+            className={cn(
+              "flex items-center gap-1 rounded-full px-2 py-0.5 transition-colors",
+              navMode === "pan"
+                ? "bg-amber-400/25 text-amber-300 font-medium"
+                : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+            )}
+            title={navMode === "pan" ? "Current: Pan (click for Orbit)" : "Current: Orbit (click for Pan)"}
+          >
+            {navMode === "pan" ? <Move className="h-3 w-3 text-amber-300" /> : <Orbit className="h-3 w-3" />}
+            <span className="capitalize">{navMode}</span>
+          </button>
+
+          <span className="mx-0.5 h-3 w-px bg-white/20" />
+
+          {/* Quick Zoom Buttons */}
+          <button
+            type="button"
+            onClick={() => zoomInRef.current()}
+            className="rounded-full p-1 text-foreground/70 transition-colors hover:bg-white/10 hover:text-foreground"
+            title="Zoom In (+)"
+          >
+            <ZoomIn className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => zoomOutRef.current()}
+            className="rounded-full p-1 text-foreground/70 transition-colors hover:bg-white/10 hover:text-foreground"
+            title="Zoom Out (-)"
+          >
+            <ZoomOut className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -63,10 +63,13 @@ export default function Navbar() {
       )}
     >
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-6">
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <span className="w-8 h-8 bg-primary rounded-sm grid place-items-center text-black font-bold text-[17px]">
-            N
-          </span>
+        <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt="NrityaVaani Logo"
+            className="w-8 h-8 rounded-lg object-contain shadow-sm border border-foreground/10 group-hover:scale-105 transition-transform"
+          />
           <span className="text-[1.1rem] font-semibold tracking-tight font-outfit">
             Nritya<span className="text-primary">Vaani</span>
           </span>

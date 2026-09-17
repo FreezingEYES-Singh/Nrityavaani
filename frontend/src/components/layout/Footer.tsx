@@ -30,10 +30,13 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto">
         <div className="grid gap-12 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2.5">
-              <span className="w-7 h-7 bg-primary rounded-sm grid place-items-center text-black font-bold text-[15px]">
-                N
-              </span>
+            <Link href="/" className="inline-flex items-center gap-2.5 group">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.png"
+                alt="NrityaVaani"
+                className="w-7 h-7 rounded-lg object-contain shadow-sm border border-foreground/10 group-hover:scale-105 transition-transform"
+              />
               <span className="text-[1.05rem] font-semibold tracking-tight font-outfit">
                 Nritya<span className="text-primary">Vaani</span>
               </span>

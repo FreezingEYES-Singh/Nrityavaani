@@ -541,6 +541,15 @@ export default function LessonPlayer({
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
+                  onClick={() => apiRef.current?.fitToScreen()}
+                  className={`${chip} ${chipOff}`}
+                  title="Reset 3D camera to front-facing view (Fit to Screen)"
+                >
+                  <RotateCcw className="mr-1.5 inline h-3 w-3 text-primary" />
+                  Fit view
+                </button>
+                <button
+                  type="button"
                   onClick={() => seek(current?.start ?? 0)}
                   className={`${chip} ${chipOff}`}
                 >
