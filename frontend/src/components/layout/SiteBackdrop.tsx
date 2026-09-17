@@ -19,11 +19,22 @@ const NatarajaShadow = dynamic(() => import("@/components/three/NatarajaShadow")
  */
 export default function SiteBackdrop() {
   const pathname = usePathname();
-  if (pathname === "/") return null;
+  // Don't render behind the landing page (which runs NatarajaStage)
+  // or behind 3D lesson players and practice coaches (which run their own 3D studios)
+  if (
+    pathname === "/" ||
+    pathname.startsWith("/learn/") ||
+    pathname.startsWith("/practice") ||
+    pathname.startsWith("/live") ||
+    pathname.startsWith("/mocap") ||
+    pathname === "/lesson"
+  ) {
+    return null;
+  }
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full lg:w-[62%] -z-0 pointer-events-none overflow-hidden">
-      <NatarajaShadow className="absolute inset-0 translate-x-[18%] scale-125 opacity-90" />
+    <div className="fixed inset-y-0 right-0 w-full lg:w-[62%] -z-0 pointer-events-none overflow-hidden opacity-30 dark:opacity-75 transition-opacity">
+      <NatarajaShadow className="absolute inset-0 translate-x-[18%] scale-125" />
     </div>
   );
 }

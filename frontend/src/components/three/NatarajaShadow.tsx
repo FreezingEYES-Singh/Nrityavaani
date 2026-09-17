@@ -54,8 +54,9 @@ export default function NatarajaShadow({ className = "" }: { className?: string 
     const camera = new THREE.PerspectiveCamera(34, host.clientWidth / host.clientHeight, 0.1, 100);
     camera.position.set(0, 0, 6);
 
+    const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
     const material = new THREE.MeshBasicMaterial({
-      color: SHADE.dark,
+      color: isDark ? SHADE.dark : SHADE.light,
       transparent: true,
       opacity: 0,
     });
@@ -106,9 +107,8 @@ export default function NatarajaShadow({ className = "" }: { className?: string 
     const FADE_MS = 900;
 
     const applyTheme = () => {
-      material.color.set(
-        document.documentElement.classList.contains("light") ? SHADE.light : SHADE.dark,
-      );
+      const isDark = document.documentElement.classList.contains("dark");
+      material.color.set(isDark ? SHADE.dark : SHADE.light);
     };
 
     let raf = 0;

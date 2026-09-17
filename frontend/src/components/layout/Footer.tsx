@@ -26,7 +26,7 @@ const SOCIAL = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-foreground/12 px-6 pt-16 pb-10">
+    <footer className="relative z-10 border-t border-foreground/12 bg-background/95 backdrop-blur-md px-6 pt-16 pb-10">
       <div className="max-w-6xl mx-auto">
         <div className="grid gap-12 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div>
