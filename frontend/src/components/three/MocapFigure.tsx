@@ -357,11 +357,11 @@ export default function MocapFigure({
       preserveDrawingBuffer: true,
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(host.clientWidth, host.clientHeight);
+    renderer.setSize(host.clientWidth, host.clientHeight, false);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.domElement.style.cssText = "width:100%;height:100%;display:block";
+    renderer.domElement.style.cssText = "width:100% !important;height:100% !important;display:block;touch-action:pan-y;";
     host.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
@@ -411,9 +411,17 @@ export default function MocapFigure({
     /** Minimum zoom distance (close-up on mudras/face) */
     const MIN_ZOOM_DIST = 0.40;
     /** Maximum zoom distance (prevents camera from passing behind studio walls/mirrors) */
-    const MAX_ZOOM_DIST = 3.35;
-    /** Default front-facing distance */
+    const MAX_ZOOM_DIST = 3.90;
+    /** Default front-facing distance on desktop landscape */
     const DEFAULT_DIST = 3.20;
+
+    /** Computes optimal camera distance: adjusts for mobile portrait mode so dancer's full height & arm span are framed perfectly */
+    const getDefaultDist = () => {
+      const aspect = camera.aspect || (host.clientWidth / (host.clientHeight || 1));
+      if (aspect < 0.60) return 3.75;
+      if (aspect < 0.85) return 3.55;
+      return DEFAULT_DIST;
+    };
 
     /** Safe inner room bounding box [min, max] preventing wall clipping */
     const ROOM_BOUNDS = {
@@ -432,7 +440,7 @@ export default function MocapFigure({
     // Orbit & Pan: yaw/pitch/distance driven by drag, wheel, presets, and gestures.
     let yaw = 0;
     let pitch = 0.04;
-    let dist = DEFAULT_DIST;
+    let dist = getDefaultDist();
     const target = new THREE.Vector3(0, 0.95, 0);
 
     const place = () => {
@@ -497,7 +505,7 @@ export default function MocapFigure({
     };
 
     const fitToScreen = () => {
-      animateCameraTo(0, 0.04, DEFAULT_DIST, new THREE.Vector3(0, 0.95, 0), 0.45);
+      animateCameraTo(0, 0.04, getDefaultDist(), new THREE.Vector3(0, 0.95, 0), 0.45);
       setActivePreset("full");
     };
     fitToScreenRef.current = fitToScreen;
@@ -505,7 +513,7 @@ export default function MocapFigure({
     const focusPreset = (preset: "full" | "face" | "mudras" | "feet") => {
       setActivePreset(preset);
       if (preset === "full") {
-        animateCameraTo(0, 0.04, DEFAULT_DIST, new THREE.Vector3(0, 0.95, 0), 0.45);
+        animateCameraTo(0, 0.04, getDefaultDist(), new THREE.Vector3(0, 0.95, 0), 0.45);
       } else if (preset === "face") {
         animateCameraTo(0, 0.02, 0.85, new THREE.Vector3(0, 1.52, 0), 0.45);
       } else if (preset === "mudras") {
@@ -989,7 +997,7 @@ export default function MocapFigure({
 
     const ro = new ResizeObserver(() => {
       if (!host.clientWidth) return;
-      renderer.setSize(host.clientWidth, host.clientHeight);
+      renderer.setSize(host.clientWidth, host.clientHeight, false);
       camera.aspect = host.clientWidth / host.clientHeight;
       camera.updateProjectionMatrix();
       dirty = true;
@@ -1025,116 +1033,131 @@ export default function MocapFigure({
     swapRef.current?.(sex);
   }, [sex]);
 
-  return (
-    <div className={cn("relative group overflow-hidden select-none", className)}>
-      <div ref={hostRef} className="h-full w-full" />
+  const renderControlPill = (isMobile = false) => (
+    <div
+      className={cn(
+        "flex items-center gap-1 rounded-full border border-white/15 bg-black/80 p-1 text-[11px] shadow-xl backdrop-blur-md transition-all",
+        isMobile && "max-w-full overflow-x-auto scrollbar-none px-1.5"
+      )}
+    >
+      <button
+        type="button"
+        onClick={() => focusPresetRef.current("full")}
+        className={cn(
+          "rounded-full px-2 py-0.5 whitespace-nowrap transition-colors",
+          activePreset === "full"
+            ? "bg-primary text-primary-foreground font-semibold"
+            : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+        )}
+        title="Full figure framing"
+      >
+        Full
+      </button>
+      <button
+        type="button"
+        onClick={() => focusPresetRef.current("face")}
+        className={cn(
+          "rounded-full px-2 py-0.5 whitespace-nowrap transition-colors",
+          activePreset === "face"
+            ? "bg-primary text-primary-foreground font-semibold"
+            : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+        )}
+        title="Zoom to Guru's face and expressions"
+      >
+        Face
+      </button>
+      <button
+        type="button"
+        onClick={() => focusPresetRef.current("mudras")}
+        className={cn(
+          "rounded-full px-2 py-0.5 whitespace-nowrap transition-colors",
+          activePreset === "mudras"
+            ? "bg-primary text-primary-foreground font-semibold"
+            : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+        )}
+        title="Zoom to hand mudras and gestures"
+      >
+        Mudras
+      </button>
+      <button
+        type="button"
+        onClick={() => focusPresetRef.current("feet")}
+        className={cn(
+          "rounded-full px-2 py-0.5 whitespace-nowrap transition-colors",
+          activePreset === "feet"
+            ? "bg-primary text-primary-foreground font-semibold"
+            : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+        )}
+        title="Zoom to feet and ghungroos"
+      >
+        Feet
+      </button>
 
-      {/* Floating Viewport Controls */}
-      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5 pointer-events-auto">
-        {/* Primary Fit to Screen (Front Facing) Button */}
+      <span className="mx-0.5 h-3 w-px bg-white/20 shrink-0" />
+
+      {/* Mode toggle: Orbit vs Pan */}
+      <button
+        type="button"
+        onClick={() => setNavMode((m) => (m === "orbit" ? "pan" : "orbit"))}
+        className={cn(
+          "flex items-center gap-1 rounded-full px-2 py-0.5 whitespace-nowrap transition-colors",
+          navMode === "pan"
+            ? "bg-amber-400/25 text-amber-300 font-medium"
+            : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+        )}
+        title={navMode === "pan" ? "Current: Pan (click for Orbit)" : "Current: Orbit (click for Pan)"}
+      >
+        {navMode === "pan" ? <Move className="h-3 w-3 text-amber-300" /> : <Orbit className="h-3 w-3" />}
+        <span className="capitalize">{navMode}</span>
+      </button>
+
+      <span className="mx-0.5 h-3 w-px bg-white/20 shrink-0" />
+
+      {/* Quick Zoom Buttons */}
+      <button
+        type="button"
+        onClick={() => zoomInRef.current()}
+        className="rounded-full p-1 text-foreground/70 transition-colors hover:bg-white/10 hover:text-foreground shrink-0"
+        title="Zoom In (+)"
+      >
+        <ZoomIn className="h-3.5 w-3.5" />
+      </button>
+      <button
+        type="button"
+        onClick={() => zoomOutRef.current()}
+        className="rounded-full p-1 text-foreground/70 transition-colors hover:bg-white/10 hover:text-foreground shrink-0"
+        title="Zoom Out (-)"
+      >
+        <ZoomOut className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+
+  return (
+    <div className={cn("relative group overflow-hidden select-none w-full h-full min-w-0", className)}>
+      <div ref={hostRef} className="h-full w-full min-w-0" />
+
+      {/* Top-Right: Fit Front View Button (and Desktop Presets Pill) */}
+      <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 flex flex-col items-end gap-1.5 pointer-events-auto">
         <button
           type="button"
           onClick={() => fitToScreenRef.current()}
-          className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-black/80 px-3 py-1.5 text-xs font-medium text-amber-200 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:border-amber-400 hover:bg-black/95 hover:text-amber-100 active:scale-95"
+          className="hidden sm:flex items-center gap-1 sm:gap-1.5 rounded-full border border-amber-500/40 bg-black/80 px-2.5 py-1 text-[11px] sm:px-3 sm:py-1.5 sm:text-xs font-medium text-amber-200 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:border-amber-400 hover:bg-black/95 hover:text-amber-100 active:scale-95"
           title="Reset 3D camera to front-facing view (Fit to Screen)"
         >
-          <RotateCcw className="h-3.5 w-3.5 text-amber-400" />
+          <RotateCcw className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-400" />
           <span>Fit Front View</span>
         </button>
 
-        {/* Anatomical Presets & Navigation Controls Pill */}
-        <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/70 p-1 text-[11px] shadow-md backdrop-blur-md">
-          <button
-            type="button"
-            onClick={() => focusPresetRef.current("full")}
-            className={cn(
-              "rounded-full px-2 py-0.5 transition-colors",
-              activePreset === "full"
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
-            )}
-            title="Full figure framing"
-          >
-            Full
-          </button>
-          <button
-            type="button"
-            onClick={() => focusPresetRef.current("face")}
-            className={cn(
-              "rounded-full px-2 py-0.5 transition-colors",
-              activePreset === "face"
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
-            )}
-            title="Zoom to Guru's face and expressions"
-          >
-            Face
-          </button>
-          <button
-            type="button"
-            onClick={() => focusPresetRef.current("mudras")}
-            className={cn(
-              "rounded-full px-2 py-0.5 transition-colors",
-              activePreset === "mudras"
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
-            )}
-            title="Zoom to hand mudras and gestures"
-          >
-            Mudras
-          </button>
-          <button
-            type="button"
-            onClick={() => focusPresetRef.current("feet")}
-            className={cn(
-              "rounded-full px-2 py-0.5 transition-colors",
-              activePreset === "feet"
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
-            )}
-            title="Zoom to feet and ghungroos"
-          >
-            Feet
-          </button>
-
-          <span className="mx-0.5 h-3 w-px bg-white/20" />
-
-          {/* Mode toggle: Orbit vs Pan */}
-          <button
-            type="button"
-            onClick={() => setNavMode((m) => (m === "orbit" ? "pan" : "orbit"))}
-            className={cn(
-              "flex items-center gap-1 rounded-full px-2 py-0.5 transition-colors",
-              navMode === "pan"
-                ? "bg-amber-400/25 text-amber-300 font-medium"
-                : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
-            )}
-            title={navMode === "pan" ? "Current: Pan (click for Orbit)" : "Current: Orbit (click for Pan)"}
-          >
-            {navMode === "pan" ? <Move className="h-3 w-3 text-amber-300" /> : <Orbit className="h-3 w-3" />}
-            <span className="capitalize">{navMode}</span>
-          </button>
-
-          <span className="mx-0.5 h-3 w-px bg-white/20" />
-
-          {/* Quick Zoom Buttons */}
-          <button
-            type="button"
-            onClick={() => zoomInRef.current()}
-            className="rounded-full p-1 text-foreground/70 transition-colors hover:bg-white/10 hover:text-foreground"
-            title="Zoom In (+)"
-          >
-            <ZoomIn className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => zoomOutRef.current()}
-            className="rounded-full p-1 text-foreground/70 transition-colors hover:bg-white/10 hover:text-foreground"
-            title="Zoom Out (-)"
-          >
-            <ZoomOut className="h-3.5 w-3.5" />
-          </button>
+        {/* Desktop placement: docked neatly beneath Fit Front View */}
+        <div className="hidden sm:block">
+          {renderControlPill(false)}
         </div>
+      </div>
+
+      {/* Mobile placement: floats at bottom center, leaving Guru's head, face & mudras 100% unobstructed */}
+      <div className="sm:hidden absolute bottom-2.5 left-1/2 -translate-x-1/2 z-10 pointer-events-auto max-w-[calc(100%-1rem)] w-max">
+        {renderControlPill(true)}
       </div>
     </div>
   );

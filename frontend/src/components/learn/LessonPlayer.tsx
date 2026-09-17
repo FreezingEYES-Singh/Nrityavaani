@@ -50,7 +50,7 @@ function clock(t: number) {
 }
 
 const chip =
-  "mono rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.16em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60";
+  "mono rounded-full border px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] uppercase tracking-[0.14em] sm:tracking-[0.16em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60";
 const chipOn = "border-primary/70 bg-primary/10 text-primary";
 const chipOff =
   "border-foreground/20 text-foreground/60 hover:border-primary/50 hover:text-primary";
@@ -424,16 +424,25 @@ export default function LessonPlayer({
   const current = manifest?.steps[step];
 
   return (
-    <div className="min-h-screen px-6 pt-32 pb-24">
-      <div className="mx-auto max-w-6xl">
-        <Link
-          href={backHref}
-          className="mono inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/50 transition-colors hover:text-primary"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> {dance?.name ?? "All dances"}
-        </Link>
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden px-3 pt-18 pb-20 sm:px-6 sm:pt-32 sm:pb-24">
+      <div className="mx-auto w-full max-w-6xl min-w-0">
+        {/* Navigation Breadcrumb / Top Bar */}
+        <div className="flex items-center justify-between gap-2">
+          <Link
+            href={backHref}
+            className="mono inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/50 transition-colors hover:text-primary"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> {dance?.name ?? "All dances"}
+          </Link>
+          {dance && part && (
+            <span className="mono text-[10px] uppercase tracking-[0.18em] text-primary sm:hidden">
+              {dance.name} · Part {part}
+            </span>
+          )}
+        </div>
 
-        <div className="mt-8">
+        {/* Desktop Header: shown on sm+ screens */}
+        <div className="hidden sm:block mt-8">
           <Eyebrow tone="primary">
             {dance && part ? `${dance.name} · Part ${part}` : "lesson"}
           </Eyebrow>
@@ -445,11 +454,12 @@ export default function LessonPlayer({
           </p>
         </div>
 
-        <Rule className="mt-8" />
+        <Rule className="hidden sm:block mt-8" />
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-          <div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-card-border bg-card sm:aspect-video">
+        <div className="mt-3 sm:mt-8 grid w-full min-w-0 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="w-full min-w-0">
+            {/* 3D Studio Canvas: Portrait almost full screen on mobile (h-[68vh] sm:h-auto sm:aspect-video) */}
+            <div className="relative h-[68vh] sm:h-auto sm:aspect-video w-full min-w-0 overflow-hidden rounded-2xl border border-card-border bg-card shadow-lg">
               <MocapFigure
                 sex={sex}
                 showBody
@@ -460,15 +470,13 @@ export default function LessonPlayer({
                   setReady(true);
                 }}
               />
-              {/* What you are looking at, on the figure itself. The step list
-                  is off to one side and easy to lose track of once you are
-                  watching the body rather than the page. */}
+              {/* Step label on canvas */}
               {current && (
-                <div className="pointer-events-none absolute top-4 left-4">
+                <div className="pointer-events-none absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
                   <p className="mono text-[10px] uppercase tracking-[0.22em] text-primary">
                     Step {step + 1} of {manifest?.steps.length}
                   </p>
-                  <p className="serif mt-1 text-[1.15rem] leading-tight text-foreground/90">
+                  <p className="serif mt-0.5 sm:mt-1 text-[1.05rem] sm:text-[1.15rem] leading-tight text-foreground/90">
                     {current.name}
                   </p>
                 </div>
@@ -480,65 +488,106 @@ export default function LessonPlayer({
               )}
             </div>
 
-            {/* Her words, on the clip's clock. Holds its height so the panel
-                below does not jump every time she pauses for breath. */}
-            <p className="serif mt-4 min-h-[3.25rem] text-[1.05rem] leading-[1.55] text-foreground/80">
+            {/* Mobile Header: below 3D studio on phone devices */}
+            <div className="sm:hidden mt-4 min-w-0">
+              <Eyebrow tone="primary">
+                {dance && part ? `${dance.name} · Part ${part}` : "lesson"}
+              </Eyebrow>
+              <h1 className="serif mt-1 text-[1.85rem] leading-[1.1] break-words">
+                {manifest?.title ?? " "}
+              </h1>
+              <p className="serif mt-1 text-[0.95rem] leading-[1.5] text-foreground/60 break-words">
+                {manifest?.subtitle ?? "Loading the take…"}
+              </p>
+            </div>
+
+            {/* Her words narration */}
+            <p className="serif mt-3 sm:mt-4 min-h-[3rem] text-[0.95rem] sm:text-[1.05rem] leading-[1.55] text-foreground/80 break-words">
               {line ? lineText(line, lang) : ""}
             </p>
 
-            <div className="mt-2 rounded-2xl border border-card-border bg-card p-4">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => (playing ? pause() : play())}
-                  disabled={!manifest || !ready}
-                  aria-label={playing ? "Pause" : "Play"}
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-black transition-opacity hover:opacity-85 disabled:opacity-30"
-                >
-                  {playing ? (
-                    <Pause className="h-4 w-4" />
-                  ) : (
-                    <Play className="ml-0.5 h-4 w-4" />
-                  )}
-                </button>
+            {/* Player controls */}
+            <div className="mt-2 w-full min-w-0 rounded-2xl border border-card-border bg-card p-3 sm:p-4 shadow-sm">
+              <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-3">
+                {/* Row 1 on mobile: Play Button + mobile quick chips */}
+                <div className="flex items-center justify-between sm:justify-start gap-3">
+                  <button
+                    type="button"
+                    onClick={() => (playing ? pause() : play())}
+                    disabled={!manifest || !ready}
+                    aria-label={playing ? "Pause" : "Play"}
+                    className="grid h-12 w-12 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-full bg-primary text-black shadow-md transition-transform active:scale-95 hover:opacity-85 disabled:opacity-30"
+                  >
+                    {playing ? (
+                      <Pause className="h-5 w-5 sm:h-4 sm:w-4" />
+                    ) : (
+                      <Play className="ml-0.5 h-5 w-5 sm:h-4 sm:w-4" />
+                    )}
+                  </button>
 
-                <span
-                  ref={clockRef}
-                  className="mono w-10 shrink-0 text-[11px] text-foreground/60"
-                >
-                  0:00
-                </span>
-
-                <div className="relative flex-1">
-                  <input
-                    ref={scrubRef}
-                    type="range"
-                    min={0}
-                    max={manifest?.duration ?? 1}
-                    step={0.01}
-                    defaultValue={0}
-                    disabled={!manifest}
-                    aria-label="Position in the lesson"
-                    onChange={(e) => seek(Number(e.target.value))}
-                    className="w-full accent-primary"
-                  />
-                  {/* Where one step becomes the next. */}
-                  {manifest?.steps.slice(1).map((s) => (
-                    <span
-                      key={s.start}
-                      aria-hidden
-                      className="pointer-events-none absolute top-0 h-1.5 w-px bg-foreground/25"
-                      style={{ left: `${(s.start / manifest.duration) * 100}%` }}
-                    />
-                  ))}
+                  <div className="flex sm:hidden items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => seek(current?.start ?? 0)}
+                      className={`${chip} ${chipOff}`}
+                      title="Restart current step"
+                    >
+                      <RotateCcw className="mr-1 inline h-3 w-3" />
+                      Restart
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLoop((v) => !v)}
+                      aria-pressed={loop}
+                      className={`${chip} ${loop ? chipOn : chipOff}`}
+                      title="Loop step"
+                    >
+                      <Repeat className="mr-1 inline h-3 w-3" />
+                      Loop
+                    </button>
+                  </div>
                 </div>
 
-                <span className="mono w-10 shrink-0 text-right text-[11px] text-foreground/40">
-                  {clock(manifest?.duration ?? 0)}
-                </span>
+                {/* Scrubber slider: ON ITS OWN NEXT LINE on mobile for full width! */}
+                <div className="flex flex-1 items-center gap-2 w-full min-w-0">
+                  <span
+                    ref={clockRef}
+                    className="mono w-9 shrink-0 text-[11px] text-foreground/60"
+                  >
+                    0:00
+                  </span>
+
+                  <div className="relative flex-1 min-w-0">
+                    <input
+                      ref={scrubRef}
+                      type="range"
+                      min={0}
+                      max={manifest?.duration ?? 1}
+                      step={0.01}
+                      defaultValue={0}
+                      disabled={!manifest}
+                      aria-label="Position in the lesson"
+                      onChange={(e) => seek(Number(e.target.value))}
+                      className="w-full h-2 accent-primary cursor-pointer"
+                    />
+                    {/* Where one step becomes the next. */}
+                    {manifest?.steps.slice(1).map((s) => (
+                      <span
+                        key={s.start}
+                        aria-hidden
+                        className="pointer-events-none absolute top-0 h-2 w-px bg-foreground/30"
+                        style={{ left: `${(s.start / manifest.duration) * 100}%` }}
+                      />
+                    ))}
+                  </div>
+
+                  <span className="mono w-9 shrink-0 text-right text-[11px] text-foreground/40">
+                    {clock(manifest?.duration ?? 0)}
+                  </span>
+                </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-2">
+              <div className="mt-4 flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => apiRef.current?.fitToScreen()}
