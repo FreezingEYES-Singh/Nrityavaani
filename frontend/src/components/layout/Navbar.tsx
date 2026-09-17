@@ -20,10 +20,9 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
 const LINKS = [
   { name: "Learn", href: "/learn" },
+  { name: "Practice", href: "/practice" },
   { name: "Live", href: "/live" },
-  { name: "Upload", href: "/upload" },
   { name: "Library", href: "/library" },
-  { name: "Mocap", href: "/mocap" },
   { name: "Research", href: "/research" },
   { name: "Dashboard", href: "/dashboard" },
   { name: "About", href: "/about" },

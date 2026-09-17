@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
 import { Camera } from 'lucide-react';
-import { classifyMudra, getSpecificMudraScore, type Point } from '@/lib/mediapipe/classification';
+import { classifyMudra, classifySamyuktaMudra, getSpecificMudraScore, type Point } from '@/lib/mediapipe/classification';
 import type { FrameHandler, HandReading } from '@/lib/mediapipe/types';
 
 interface CameraFeedProps {
@@ -179,6 +179,21 @@ const CameraFeed = ({
           }
         }
       });
+
+      // Double-hand (Samyukta) mudra evaluation
+      if (results.landmarks.length >= 2) {
+        const samyukta = classifySamyuktaMudra(results.landmarks[0], results.landmarks[1]);
+        if (samyukta) {
+          const isTargetMatch = targetMudra ? samyukta.name.toLowerCase() === targetMudra.toLowerCase() : false;
+          detectedMudras.unshift({
+            handedness: 'Both Hands',
+            name: samyukta.name,
+            confidence: samyukta.confidence,
+            feedback: samyukta.feedback,
+            isTarget: isTargetMatch || undefined,
+          });
+        }
+      }
     }
 
     if (results.landmarks) {

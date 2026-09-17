@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Github, Instagram, Twitter } from "lucide-react";
 
 const PLATFORM = [
+  { href: "/practice", label: "Practice coach" },
   { href: "/live", label: "Live detection" },
   { href: "/learn", label: "Interactive lessons" },
   { href: "/library", label: "Pose library" },

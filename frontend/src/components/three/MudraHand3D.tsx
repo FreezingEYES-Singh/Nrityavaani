@@ -73,10 +73,12 @@ export type MudraHandHandle = {
 export default function MudraHand3D({
   onPoseChange,
   handleRef,
+  staticPose,
   className = "",
 }: {
   onPoseChange?: (index: number) => void;
   handleRef?: React.RefObject<MudraHandHandle | null>;
+  staticPose?: number;
   className?: string;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -86,6 +88,11 @@ export default function MudraHand3D({
   const poseCbRef = useRef(onPoseChange);
   useEffect(() => {
     poseCbRef.current = onPoseChange;
+  });
+
+  const staticPoseRef = useRef(staticPose);
+  useEffect(() => {
+    staticPoseRef.current = staticPose;
   });
 
   useEffect(() => {
@@ -334,7 +341,14 @@ export default function MudraHand3D({
       // Which mudra, and how far into the morph toward the next one.
       let index = 0;
       let landmarks: Landmarks;
-      if (reduceMotion) {
+      const targetPose = staticPoseRef.current;
+      if (targetPose !== undefined && targetPose >= 0 && targetPose < MUDRAS.length) {
+        landmarks = MUDRAS[targetPose].landmarks;
+        if (targetPose !== lastEmitted) {
+          lastEmitted = targetPose;
+          poseCbRef.current?.(targetPose);
+        }
+      } else if (reduceMotion) {
         landmarks = MUDRAS[0].landmarks;
       } else {
         const step = Math.floor(elapsed / CYCLE_MS);

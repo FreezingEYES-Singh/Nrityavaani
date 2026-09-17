@@ -2,33 +2,41 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const handler = NextAuth({
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
-    CredentialsProvider({
-      name: "Demo Account",
-      credentials: {
-        email: { label: "Email", type: "email", placeholder: "demo@example.com" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        if (credentials?.email === "demo@example.com" && credentials?.password === "demo123") {
-          return { 
-            id: "1", 
-            name: "Demo User", 
-            email: "demo@example.com",
-            image: "https://api.dicebear.com/9.x/micah/svg?seed=DemoUser&backgroundColor=ffb86c"
-          };
-        }
-        return null;
+const providers: (ReturnType<typeof GoogleProvider> | ReturnType<typeof CredentialsProvider>)[] = [
+  CredentialsProvider({
+    name: "Demo Account",
+    credentials: {
+      email: { label: "Email", type: "email", placeholder: "demo@example.com" },
+      password: { label: "Password", type: "password" }
+    },
+    async authorize(credentials) {
+      if (credentials?.email === "demo@example.com" && credentials?.password === "demo123") {
+        return { 
+          id: "1", 
+          name: "Demo User", 
+          email: "demo@example.com",
+          image: "https://api.dicebear.com/9.x/micah/svg?seed=DemoUser&backgroundColor=ffb86c"
+        };
       }
+      return null;
+    }
+  })
+];
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  providers.unshift(
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     })
-  ],
+  );
+}
+
+const handler = NextAuth({
+  providers,
   pages: {
     signIn: "/auth/login",
+    error: "/auth/login",
   },
   callbacks: {
     async jwt({ token, user }) {

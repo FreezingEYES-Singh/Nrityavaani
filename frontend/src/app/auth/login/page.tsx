@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2 } from "lucide-react";
@@ -15,13 +15,29 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const authError = params.get("error");
+      if (authError === "Configuration") {
+        setError("Google Sign-In is not configured in this environment. Use the Demo Account (demo@example.com / demo123) below.");
+      } else if (authError) {
+        setError("Authentication could not be completed. Please sign in with the Demo Account.");
+      }
+    }
+  }, []);
+
   const withGoogle = async () => {
     setPending("google");
     setError("");
     try {
-      await signIn("google", { callbackUrl: "/" });
+      const res = await signIn("google", { callbackUrl: "/", redirect: false });
+      if (res?.error) {
+        setError("Google Sign-In is not configured in this environment. Use the Demo Account (demo@example.com / demo123) below.");
+        setPending(null);
+      }
     } catch {
-      setError("Could not reach Google. Try again.");
+      setError("Google Sign-In is not configured. Use the Demo Account below.");
       setPending(null);
     }
   };
