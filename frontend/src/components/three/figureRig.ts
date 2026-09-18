@@ -135,20 +135,27 @@ function wearClothes(mesh: THREE.SkinnedMesh) {
       const name = (cloth.name || "").toLowerCase();
       if (name.includes("zari")) {
         // 24K Temple Gold Zari brocade with shimmering metallic reflection
-        cloth.color = new THREE.Color("#d4af37");
-        cloth.metalness = 0.82;
-        cloth.roughness = 0.28;
-        cloth.emissive = new THREE.Color("#352405");
+        cloth.color = new THREE.Color("#e2b43b");
+        cloth.metalness = 0.88;
+        cloth.roughness = 0.22;
+        cloth.emissive = new THREE.Color("#3d2c05");
+      } else if (name.includes("silk") && name.includes("female")) {
+        // Royal Peacock Teal-Blue Silk body with rich crimson depth
+        cloth.color = new THREE.Color("#095b70");
+        cloth.metalness = 0.08;
+        cloth.roughness = 0.38;
+        cloth.emissive = new THREE.Color("#021f28");
       } else if (name.includes("silk")) {
-        // Lustrous Royal Silk
+        // Male Lustrous Royal Silk
         cloth.metalness = 0.08;
         cloth.roughness = 0.40;
         cloth.emissive.add(cloth.color.clone().multiplyScalar(CLOTH_GLOW));
       } else if (name.includes("blouse")) {
-        // Peacock emerald blouse
-        cloth.metalness = 0.06;
-        cloth.roughness = 0.42;
-        cloth.emissive.add(cloth.color.clone().multiplyScalar(CLOTH_GLOW));
+        // Royal Peacock Teal-Blue Silk Blouse matching the classical Bharatanatyam costume
+        cloth.color = new THREE.Color("#00627a");
+        cloth.metalness = 0.10;
+        cloth.roughness = 0.36;
+        cloth.emissive = new THREE.Color("#012028");
       } else if (name.includes("dhoti")) {
         // Kerala Kasavu ivory cream dhoti
         cloth.metalness = 0.02;
