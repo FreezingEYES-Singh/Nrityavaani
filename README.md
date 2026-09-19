@@ -49,6 +49,7 @@
 NrityaVaani/
 ├── main.py                       # Root ASGI entrypoint (uvicorn main:app --reload --port 8000)
 ├── requirements.txt              # Root Python dependencies
+├── render.yaml                   # Render.com Blueprint configuration (Free Web Service)
 ├── netlify.toml                  # Netlify deployment & proxy configuration
 │
 ├── netlify/
@@ -133,7 +134,44 @@ Open your browser at **[http://localhost:3000](http://localhost:3000)**.
 
 ---
 
-### 3. Running with Netlify
+### 3. Deploying the Backend to Render.com (Free Web Service)
+
+NrityaVaani is fully configured for automated deployment on **Render.com** via the included [`render.yaml`](render.yaml) blueprint:
+
+#### Option A: One-Click Blueprint Deployment
+1. Log in to [render.com](https://render.com) with your GitHub account.
+2. Click **New +** → **Blueprint**.
+3. Select the **`divycoders/NrityaVaani`** repository.
+4. Render automatically detects [`render.yaml`](render.yaml) and configures:
+   - **Name**: `nrityavaani-backend`
+   - **Runtime**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - **Health Check**: `/`
+   - **Plan**: **Free** ($0/month)
+5. Click **Apply**. Once built, your backend is live with an HTTPS URL (e.g. `https://nrityavaani-backend.onrender.com`).
+
+#### Option B: Manual Web Service Setup
+1. On Render, click **New +** → **Web Service**.
+2. Connect your repository `divycoders/NrityaVaani`.
+3. Set:
+   - **Name**: `nrityavaani-backend`
+   - **Runtime**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - **Instance Type**: **Free**
+4. Click **Create Web Service**.
+
+#### Connecting Render Backend with Netlify Frontend
+In your **Netlify Site Configuration** → **Environment variables**, set:
+- **`BACKEND_URL`**: `https://nrityavaani-backend.onrender.com`
+- **`NEXT_PUBLIC_BACKEND_URL`**: `https://nrityavaani-backend.onrender.com`
+
+Netlify and Next.js will automatically proxy all `/api/tts/*` and `/predict` requests to your hosted FastAPI backend, enabling real-time Goonj voice synthesis and gesture predictions!
+
+---
+
+### 4. Running with Netlify
 
 NrityaVaani includes full configuration for Netlify deployment and local development via `netlify.toml`:
 

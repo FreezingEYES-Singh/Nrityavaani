@@ -12,8 +12,23 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-CACHE_DIR = Path(__file__).resolve().parent.parent / "cache" / "audio"
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
+import tempfile
+
+cache_dir_env = os.environ.get("AUDIO_CACHE_DIR")
+if cache_dir_env:
+    CACHE_DIR = Path(cache_dir_env)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+else:
+    local_dir = Path(__file__).resolve().parent.parent / "cache" / "audio"
+    try:
+        local_dir.mkdir(parents=True, exist_ok=True)
+        test_file = local_dir / ".write_test"
+        test_file.touch()
+        test_file.unlink()
+        CACHE_DIR = local_dir
+    except (PermissionError, OSError):
+        CACHE_DIR = Path(tempfile.gettempdir()) / "nrityavaani_cache" / "audio"
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 # 15 Goonj Persona Voicepacks & Configurations
 GOONJ_PERSONAS = [
