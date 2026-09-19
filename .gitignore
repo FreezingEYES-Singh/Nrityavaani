@@ -18,10 +18,12 @@ dist/
 
 # Python
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+.pytest_cache/
 env/
 build/
 develop-eggs/
@@ -52,8 +54,12 @@ ENV/
 # Audio & runtime cache
 backend/cache/
 
-# Misc
+# Misc & OS
 .DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 *.pem
 *.log
 .vercel

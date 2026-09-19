@@ -52,6 +52,10 @@ NrityaVaani/
 ├── render.yaml                   # Render.com Blueprint configuration (Free Web Service)
 ├── netlify.toml                  # Netlify deployment & proxy configuration
 │
+├── docs/                         # Project presentations & academic research materials
+│   ├── presentation/             # NrityaVaani slide deck (.pptx)
+│   └── research/                 # Academic references & benchmarking tables (.html)
+│
 ├── netlify/
 │   └── functions/
 │       └── api.py                # Serverless Mangum handler for FastAPI on Netlify
@@ -212,6 +216,14 @@ NrityaVaani incorporates 15 distinct Guru voices with tailored pedagogy and acou
 | **Guru Shivani** | Female | Vibrant Hindi (`hi`) | Bright & Inspiring | Navarasa, facial abhinaya & eye glances |
 | **Guru Ravi** | Male | Dynamic Hindi (`hi`) | Bold & Motivating | Tandava drills, stamina & vigorous form |
 | **Guru Parampara** | Female | Vedic Sanskrit (`sa`) | Sacred Vedic Intonation | Pure Natyashastra shlokas, invocations & mantras |
+
+---
+
+## 📚 Documentation & Research
+
+* **Project Presentation**: Comprehensive slide deck in [`docs/presentation/NrityaVaani_Presentation.pptx`](docs/presentation/NrityaVaani_Presentation.pptx).
+* **Research Citations**: Interactive academic literature catalog in [`docs/research/research_references.html`](docs/research/research_references.html).
+* **Methodology & Accuracy Matrix**: Classification benchmarking table in [`docs/research/research_references_table.html`](docs/research/research_references_table.html).
 
 ---
 
