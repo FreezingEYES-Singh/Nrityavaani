@@ -41,6 +41,13 @@ export class GuruAudioEngine {
     this.rate = options.rate ?? 1.0;
     this.onSpeakingChange = options.onSpeakingChange;
     this.onLoadingChange = options.onLoadingChange;
+
+    console.log(
+      `%c[Goonj Audio Engine]%c Initialized | Backend: %c${API_BASE || "(Next.js /api/tts/speak proxy)"}`,
+      "background: #f59e0b; color: #000; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
+      "color: #888;",
+      "color: #38bdf8; font-weight: bold;"
+    );
   }
 
   public setPersona(personaId: string) {
@@ -158,6 +165,7 @@ export class GuruAudioEngine {
 
     // 1. Instant Playback from in-memory cache (0ms latency)
     if (this.audioCache.has(cacheKey)) {
+      console.log(`[Goonj Audio] ⚡ Cache HIT (0ms) | ${this.persona.name} (${this.lang}): "${text.slice(0, 35)}..."`);
       const url = this.audioCache.get(cacheKey)!;
       this.playAudioUrl(url, offsetSeconds, lineStart, lineDuration);
       return;
@@ -167,6 +175,8 @@ export class GuruAudioEngine {
     const controller = new AbortController();
     this.activeAbortController = controller;
     this.setLoading(true);
+
+    console.log(`[Goonj Audio] 🚀 Fetching from Backend: ${API_BASE || ""}/api/tts/speak | Persona: ${this.persona.name} (${this.persona.id}) | Lang: ${this.lang}`);
 
     try {
       const res = await fetch(`${API_BASE}/api/tts/speak`, {
@@ -191,13 +201,14 @@ export class GuruAudioEngine {
 
       if (res.ok && res.headers.get("content-type")?.includes("audio")) {
         const blob = await res.blob();
+        console.log(`[Goonj Audio] ✅ Speech received from Backend: ${(blob.size / 1024).toFixed(1)} KB (Status ${res.status})`);
         const objectUrl = URL.createObjectURL(blob);
         this.audioCache.set(cacheKey, objectUrl);
         this.playAudioUrl(objectUrl, offsetSeconds, lineStart, lineDuration);
         return;
       } else {
         const errText = await res.text();
-        console.warn(`[GuruAudioEngine] Backend returned non-audio response:`, errText);
+        console.warn(`[Goonj Audio] ⚠️ Backend returned non-audio response:`, errText);
       }
     } catch (err: any) {
       if (err?.name === "AbortError" || this.activeLineStart !== lineStart) {
@@ -205,6 +216,7 @@ export class GuruAudioEngine {
       }
       this.activeAbortController = null;
       this.setLoading(false);
+      console.error(`[Goonj Audio] ❌ Backend fetch failed at ${API_BASE || ""}/api/tts/speak:`, err);
     }
 
     // 3. Fallback to Web Speech only if backend server is completely unavailable
@@ -288,6 +300,7 @@ export class GuruAudioEngine {
   public preloadLanguage(lines: SpokenLine[]) {
     const lang = this.lang;
     const personaId = this.persona.id;
+    console.log(`[Goonj Audio] 🔄 Preloading ${lines.length} cues for ${this.persona.name} (${lang}) via ${API_BASE || "(proxy)"}`);
     for (const l of lines) {
       const text = lineText(l, lang);
       if (!text || !text.trim()) continue;
