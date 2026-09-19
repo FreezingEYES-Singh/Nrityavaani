@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RESEARCH AND REFERENCES — NrityaVaani</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    .font-classical {
+      font-family: 'Cinzel', serif;
+    }
+    
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .temple-bg {
+      background: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.12), transparent 70%),
+                  radial-gradient(circle at 100% 100%, rgba(239, 68, 68, 0.08), transparent 60%),
+                  #0c0a0f;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.035);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(245, 158, 11, 0.18);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(245, 158, 11, 0.45);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -8px rgba(245, 158, 11, 0.12);
+    }
+  </style>
+</head>
+<body class="temple-bg text-slate-100 min-h-screen p-4 sm:p-8 flex items-center justify-center">
+
+  <div class="w-full max-w-6xl mx-auto">
+    
+    <!-- Slide Header Area -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono tracking-widest uppercase mb-3">
+        <span>📚</span> Academic Rigor & Pedagogical Ground Truth
+      </div>
+      
+      <h1 class="font-classical text-3xl sm:text-5xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-orange-400 drop-shadow-sm">
+        RESEARCH AND REFERENCES
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto mt-2">
+        Bridging ancient canonical dance treatises with state-of-the-art computer vision and signal processing research.
+      </p>
+    </div>
+
+    <!-- 4-Card Structured Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+      
+      <!-- 01. Computer Vision & Landmark Tracking -->
+      <div class="glass-card p-5 sm:p-6 rounded-2xl border-l-4 border-l-amber-500 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-mono font-bold text-amber-400 px-2 py-0.5 rounded bg-amber-950/60 border border-amber-800/40">
+              01 • COMPUTER VISION & POSE AI
+            </span>
+            <span class="text-xs text-slate-500 font-mono">Google Research</span>
+          </div>
+
+          <h2 class="text-base sm:text-lg font-bold text-white mb-2 flex items-center gap-2">
+            <span>👁️</span> Real-Time 3D Landmark Tracking
+          </h2>
+
+          <ul class="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <li class="flex items-start gap-2">
+              <span class="text-amber-400 mt-0.5">▸</span>
+              <div>
+                <strong class="text-slate-100">MediaPipe Hands:</strong> Zhang et al. (2020) — <em>"MediaPipe Hands: On-device Real-time Hand Tracking"</em>.
+                <div class="text-xs text-slate-400 mt-0.5 font-mono">
+                  arXiv:2006.10214 [cs.CV] • Real-time 21 3D joint landmark topology.
+                </div>
+              </div>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-amber-400 mt-0.5">▸</span>
+              <div>
+                <strong class="text-slate-100">BlazePose:</strong> Bazarevsky et al. (2020) — <em>"BlazePose: On-device Real-time Body Pose tracking"</em>.
+                <div class="text-xs text-slate-400 mt-0.5 font-mono">
+                  arXiv:2006.10204 [cs.CV] • 33-point body tracking for Adavu alignment.
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span class="text-slate-400">Implementation:</span>
+          <span class="text-amber-300 font-mono">MediaPipe Tasks-Vision WASM/WebGL</span>
+        </div>
+      </div>
+
+      <!-- 02. Signal Processing & Kinematics -->
+      <div class="glass-card p-5 sm:p-6 rounded-2xl border-l-4 border-l-orange-500 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-mono font-bold text-orange-400 px-2 py-0.5 rounded bg-orange-950/60 border border-orange-800/40">
+              02 • SIGNAL SMOOTHING & KINEMATICS
+            </span>
+            <span class="text-xs text-slate-500 font-mono">ACM CHI / SIGGRAPH</span>
+          </div>
+
+          <h2 class="text-base sm:text-lg font-bold text-white mb-2 flex items-center gap-2">
+            <span>⚙️</span> Biomechanical Filtering & Retargeting
+          </h2>
+
+          <ul class="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <li class="flex items-start gap-2">
+              <span class="text-orange-400 mt-0.5">▸</span>
+              <div>
+                <strong class="text-slate-100">1 € (One Euro) Filter:</strong> Casiez, Roussel, & Vogel (ACM CHI 2012) — <em>"A Simple Speed-based Low-pass Filter for Noisy Input"</em>.
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Eliminates webcam sensor jitter on held mudras while ensuring zero lag on fast dance strikes.
+                </div>
+              </div>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-orange-400 mt-0.5">▸</span>
+              <div>
+                <strong class="text-slate-100">Quaternion Slerp:</strong> Shoemake, K. (ACM SIGGRAPH) — <em>"Animating Rotation with Quaternion Curves"</em>.
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Gimbal-lock-free spherical linear interpolation across 3D joint rotations.
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span class="text-slate-400">Implementation:</span>
+          <span class="text-orange-300 font-mono">smooth.ts & custom kinematics solver</span>
+        </div>
+      </div>
+
+      <!-- 03. Codified Classical Literature -->
+      <div class="glass-card p-5 sm:p-6 rounded-2xl border-l-4 border-l-red-500 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-mono font-bold text-red-400 px-2 py-0.5 rounded bg-red-950/60 border border-red-800/40">
+              03 • CANONICAL SANSKRIT TREATISES
+            </span>
+            <span class="text-xs text-slate-500 font-mono">Natyashastra Heritage</span>
+          </div>
+
+          <h2 class="text-base sm:text-lg font-bold text-white mb-2 flex items-center gap-2">
+            <span>🕉️</span> Codified Ground-Truth Pedagogy
+          </h2>
+
+          <ul class="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <li class="flex items-start gap-2">
+              <span class="text-red-400 mt-0.5">▸</span>
+              <div>
+                <strong class="text-slate-100">Abhinaya Darpana (Nandikeshvara):</strong> Trans. Coomaraswamy & Duggirala — <em>"The Mirror of Gesture"</em>.
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Standard rules for 28 Asamyukta Hastas (single hand), 24 Samyukta Hastas (double hand), and codified Viniyoga usages.
+                </div>
+              </div>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-400 mt-0.5">▸</span>
+              <div>
+                <strong class="text-slate-100">Natya Shastra (Bharata Muni):</strong> Chapters IV, VIII, & IX (Trans. M. Ghosh, Asiatic Society).
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Body posture geometry: Angas, Upangas, Sthanakas, and Aramandi half-sit alignment.
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span class="text-slate-400">Implementation:</span>
+          <span class="text-red-300 font-mono">28-Mudra Encyclopedia & /library</span>
+        </div>
+      </div>
+
+      <!-- 04. Web Standards & Client Performance -->
+      <div class="glass-card p-5 sm:p-6 rounded-2xl border-l-4 border-l-blue-500 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-mono font-bold text-blue-400 px-2 py-0.5 rounded bg-blue-950/60 border border-blue-800/40">
+              04 • WEB ENGINEERING & OPEN STANDARDS
+            </span>
+            <span class="text-xs text-slate-500 font-mono">W3C & Khronos</span>
+          </div>
+
+          <h2 class="text-base sm:text-lg font-bold text-white mb-2 flex items-center gap-2">
+            <span>🌐</span> Client-Side Zero-Cloud Stack
+          </h2>
+
+          <ul class="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <li class="flex items-start gap-2">
+              <span class="text-blue-400 mt-0.5">▸</span>
+              <div>
+                <strong class="text-slate-100">W3C WebAssembly (WASM SIMD 128):</strong>
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Hardware-accelerated CPU vectorization enabling near-zero inference latency (&lt;16ms) directly inside consumer browsers.
+                </div>
+              </div>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-blue-400 mt-0.5">▸</span>
+              <div>
+                <strong class="text-slate-100">W3C Web Speech API & Khronos glTF:</strong>
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Synthesizes real-time bilingual voice coaching (English/Hindi) while Three.js renders 3D skinned models via WebGL 2.0.
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span class="text-slate-400">Implementation:</span>
+          <span class="text-blue-300 font-mono">100% On-Device Zero-Cloud Privacy</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Highlights Callout -->
+    <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-300 border border-amber-500/30 bg-amber-950/20">
+      <div class="flex items-center gap-2 text-center sm:text-left">
+        <span class="text-lg">💡</span>
+        <span>
+          <strong class="text-amber-300">Evaluation Takeaway:</strong> Built upon verified mathematical treatises and peer-reviewed computer vision algorithms — ensuring 100% cultural authenticity and privacy-first engineering.
+        </span>
+      </div>
+      <div class="flex items-center gap-2 font-mono text-[11px] text-amber-400/90 whitespace-nowrap">
+        <span>DivyCoders</span> • <span>Smart India Hackathon</span>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

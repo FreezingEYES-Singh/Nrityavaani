@@ -121,14 +121,14 @@ export default function MudraHand3D({
     camera.position.set(0, 0, 4.7);
 
     // ---- lighting -------------------------------------------------------
-    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+    const ambient = new THREE.AmbientLight(0xffffff, 0.35);
     const key = new THREE.PointLight(0xff9933, 26, 18, 2);
     key.position.set(-2.2, 2.4, 3);
     const rim = new THREE.PointLight(0xffd700, 18, 16, 2);
     rim.position.set(2.6, 0.4, 1.6);
     const back = new THREE.PointLight(0x8b5cf6, 22, 16, 2);
     back.position.set(0.4, -1.4, -2.6);
-    scene.add(key, rim, back);
+    scene.add(ambient, key, rim, back);
 
     // ---- hand group -----------------------------------------------------
     const hand = new THREE.Group();
@@ -168,25 +168,33 @@ export default function MudraHand3D({
     let rigged: RiggedHand | null = null;
     let disposed = false;
 
-    // Per-joint colour ramp: saffron at the knuckle, gold at the fingertip.
+    // Per-joint colour ramp: saffron-to-gold in dark mode; deep bronze-terracotta to rich saffron in light mode.
     const rampColor = new THREE.Color();
-    for (let i = 0; i < 21; i++) {
-      const depth = i === 0 ? 0 : ((i - 1) % 4) / 3;
-      rampColor.copy(SAFFRON).lerp(GOLD, depth);
-      jointMesh.setColorAt(i, rampColor);
-    }
-    jointMesh.instanceColor!.needsUpdate = true;
+    const updateJointColors = (light: boolean) => {
+      const startCol = light ? new THREE.Color("#9a3412") : SAFFRON;
+      const endCol = light ? new THREE.Color("#ea580c") : GOLD;
+      for (let i = 0; i < 21; i++) {
+        const depth = i === 0 ? 0 : ((i - 1) % 4) / 3;
+        rampColor.copy(startCol).lerp(endCol, depth);
+        jointMesh.setColorAt(i, rampColor);
+      }
+      jointMesh.instanceColor!.needsUpdate = true;
+    };
+    updateJointColors(false);
 
-    // ---- additive bloom on every joint ----------------------------------
-    const glowTex = radialTexture("rgba(255,225,170,0.95)", "rgba(255,153,51,0.35)");
+    // ---- joint bloom ----------------------------------------------------
+    const glowTexDark = radialTexture("rgba(255,225,170,0.95)", "rgba(255,153,51,0.35)");
+    const glowTexLight = radialTexture("rgba(234,88,12,0.65)", "rgba(194,65,12,0.15)");
+    disposables.push(glowTexDark, glowTexLight);
+
     const glowMat = new THREE.SpriteMaterial({
-      map: glowTex,
+      map: glowTexDark,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       transparent: true,
       toneMapped: false,
     });
-    disposables.push(glowTex, glowMat);
+    disposables.push(glowMat);
     const glows = joints.map((_, i) => {
       const s = new THREE.Sprite(glowMat);
       const isTip = TIPS.includes(i);
@@ -197,9 +205,12 @@ export default function MudraHand3D({
     });
 
     // A wide soft aura so the hand reads against the page background.
-    const auraTex = radialTexture("rgba(255,153,51,0.5)", "rgba(255,122,26,0.14)");
+    const auraTexDark = radialTexture("rgba(255,153,51,0.5)", "rgba(255,122,26,0.14)");
+    const auraTexLight = radialTexture("rgba(251,146,60,0.22)", "rgba(234,88,12,0.06)");
+    disposables.push(auraTexDark, auraTexLight);
+
     const auraMat = new THREE.SpriteMaterial({
-      map: auraTex,
+      map: auraTexDark,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       transparent: true,
@@ -210,14 +221,17 @@ export default function MudraHand3D({
     aura.scale.setScalar(5);
     aura.position.set(0, 0.05, -1.9);
     scene.add(aura);
-    disposables.push(auraTex, auraMat);
+    disposables.push(auraMat);
 
     // ---- mandala --------------------------------------------------------
     const mandalaGeo = mandalaGeometry();
-    const mandalaTex = radialTexture("rgba(255,215,0,0.9)", "rgba(255,153,51,0.3)");
+    const mandalaTexDark = radialTexture("rgba(255,215,0,0.9)", "rgba(255,153,51,0.3)");
+    const mandalaTexLight = radialTexture("rgba(194,65,12,0.85)", "rgba(234,88,12,0.25)");
+    disposables.push(mandalaGeo, mandalaTexDark, mandalaTexLight);
+
     const mandalaMat = new THREE.PointsMaterial({
       size: 0.055,
-      map: mandalaTex,
+      map: mandalaTexDark,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       transparent: true,
@@ -227,22 +241,40 @@ export default function MudraHand3D({
     });
     const mandala = new THREE.Points(mandalaGeo, mandalaMat);
     scene.add(mandala);
-    disposables.push(mandalaGeo, mandalaTex, mandalaMat);
+    disposables.push(mandalaMat);
 
     // ---- theme ----------------------------------------------------------
     // Read the class off <html> rather than the React ref: next-themes writes
-    // the attribute and the MutationObserver fires immediately, with no
-    // guarantee React has re-rendered and refreshed the ref by then.
+    // the attribute and the MutationObserver fires immediately.
     let isLight = document.documentElement.classList.contains("light");
     const applyTheme = () => {
       isLight = document.documentElement.classList.contains("light");
-      boneMat.color.set(isLight ? 0x6b4423 : 0x2a1b10);
-      boneMat.emissiveIntensity = isLight ? 0.12 : 0.22;
-      mandalaMat.opacity = isLight ? 0.4 : 0.62;
-      auraMat.opacity = isLight ? 0.34 : 0.75;
-      glowMat.opacity = isLight ? 0.55 : 1;
-      // The hand sits over a pale ground in light mode, so lift its opacity.
-      rigged?.setOpacity(isLight ? 0.42 : 0.3);
+
+      updateJointColors(isLight);
+
+      glowMat.map = isLight ? glowTexLight : glowTexDark;
+      glowMat.blending = isLight ? THREE.NormalBlending : THREE.AdditiveBlending;
+      glowMat.opacity = isLight ? 0.75 : 1;
+      glowMat.needsUpdate = true;
+
+      auraMat.map = isLight ? auraTexLight : auraTexDark;
+      auraMat.blending = isLight ? THREE.NormalBlending : THREE.AdditiveBlending;
+      auraMat.opacity = isLight ? 0.75 : 0.75;
+      auraMat.needsUpdate = true;
+
+      mandalaMat.map = isLight ? mandalaTexLight : mandalaTexDark;
+      mandalaMat.blending = isLight ? THREE.NormalBlending : THREE.AdditiveBlending;
+      mandalaMat.opacity = isLight ? 0.55 : 0.62;
+      mandalaMat.needsUpdate = true;
+
+      boneMat.color.set(isLight ? 0x1c1917 : 0x2a1b10);
+      boneMat.emissive.set(isLight ? 0xea580c : 0xff7a1a);
+      boneMat.emissiveIntensity = isLight ? 0.08 : 0.22;
+
+      ambient.intensity = isLight ? 0.75 : 0.35;
+      key.intensity = isLight ? 20 : 26;
+
+      rigged?.setTheme?.(isLight);
     };
     applyTheme();
 
@@ -382,7 +414,7 @@ export default function MudraHand3D({
         hand.rotation.x = -0.05 + pointer.y * 0.2;
         hand.position.y = HAND_Y + Math.sin(t * 0.6) * 0.022;
         mandala.rotation.z = -t * 0.035;
-        mandala.material.opacity = (isLight ? 0.4 : 0.62) + Math.sin(t * 0.9) * 0.06;
+        mandala.material.opacity = (isLight ? 0.55 : 0.62) + Math.sin(t * 0.9) * 0.05;
         const pulse = 1 + Math.sin(t * 1.7) * 0.08;
         for (const g of glows) g.scale.setScalar(g.userData.base * pulse);
         aura.scale.setScalar(5 + Math.sin(t * 0.5) * 0.2);

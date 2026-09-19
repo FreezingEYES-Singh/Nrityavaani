@@ -53,6 +53,7 @@ export type RiggedHand = {
   /** Poses the skeleton, then writes the resulting joint positions into `out`. */
   pose: (landmarks: Landmarks, out: THREE.Vector3[]) => void;
   setOpacity: (v: number) => void;
+  setTheme?: (isLight: boolean) => void;
   dispose: () => void;
 };
 
@@ -249,6 +250,12 @@ export async function loadRiggedHand(url: string, fit: Landmarks): Promise<Rigge
     pose,
     setOpacity: (v: number) => {
       material.opacity = v;
+    },
+    setTheme: (isLight: boolean) => {
+      material.color.set(isLight ? 0xb45309 : 0xc96a2a);
+      material.emissive.set(isLight ? 0x9a3412 : 0xff7a1a);
+      material.emissiveIntensity = isLight ? 0.08 : 0.16;
+      material.opacity = isLight ? 0.36 : 0.26;
     },
     dispose: () => {
       mesh.geometry.dispose();

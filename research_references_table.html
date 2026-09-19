@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research & References Table — NrityaVaani</title>
+  <!-- Tailwind CSS via official gstatic CDN -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    .font-classical {
+      font-family: 'Cinzel', serif;
+    }
+    
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .temple-bg {
+      background: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.12), transparent 70%),
+                  radial-gradient(circle at 100% 100%, rgba(239, 68, 68, 0.08), transparent 60%),
+                  #0c0a0f;
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.035);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    tr {
+      transition: background-color 0.18s ease;
+    }
+
+    tr:hover {
+      background-color: rgba(245, 158, 11, 0.07);
+    }
+  </style>
+</head>
+<body class="temple-bg text-slate-100 min-h-screen p-4 sm:p-8 flex items-center justify-center">
+
+  <div class="w-full max-w-7xl mx-auto">
+    
+    <!-- Title & Subtitle -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-amber-900/40 pb-5">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono tracking-widest uppercase mb-2">
+          <span>📑</span> Reference Matrix & Citations
+        </div>
+        <h1 class="font-classical text-2xl sm:text-4xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-orange-400">
+          RESEARCH AND REFERENCES
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Complete academic papers, classical treatises, and technical standards underpinning NrityaVaani.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono px-3 py-1.5 rounded-lg bg-amber-950/60 border border-amber-700/40 text-amber-300">
+          Total References: 8
+        </span>
+      </div>
+    </div>
+
+    <!-- Table Card Container -->
+    <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl shadow-black/60">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          
+          <!-- Table Header -->
+          <thead>
+            <tr class="border-b border-amber-500/30 bg-black/40 text-amber-300 font-mono uppercase tracking-wider text-[11px] sm:text-xs">
+              <th class="py-4 px-4 sm:px-6 font-bold w-36">Category</th>
+              <th class="py-4 px-4 sm:px-6 font-bold">Reference / Paper Title</th>
+              <th class="py-4 px-4 sm:px-6 font-bold">Authors / Source</th>
+              <th class="py-4 px-4 sm:px-6 font-bold">Relevance to NrityaVaani</th>
+              <th class="py-4 px-4 sm:px-6 font-bold text-center w-36">Direct Link</th>
+            </tr>
+          </thead>
+
+          <!-- Table Body -->
+          <tbody class="divide-y divide-slate-800/80 text-slate-300">
+            
+            <!-- Row 1: Hand Tracking AI -->
+            <tr>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <span class="inline-block px-2.5 py-1 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono text-[11px] font-semibold">
+                  Hand Tracking AI
+                </span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <div class="font-bold text-white text-sm">MediaPipe Hands: On-device Real-time Hand Tracking</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-0.5">arXiv:2006.10214 [cs.CV] (2020)</div>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300">
+                F. Zhang, V. Bazarevsky, et al.<br>
+                <span class="text-slate-400 text-xs font-mono">Google Research</span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300 leading-relaxed">
+                Foundation for on-device 21 3D joint landmark extraction and real-time hand boundary regression at 60 FPS.
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-center">
+                <a href="https://arxiv.org/abs/2006.10214" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500 hover:text-black transition-colors border border-amber-500/30 text-amber-300 text-xs font-semibold">
+                  <span>arXiv</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Row 2: Pose Tracking AI -->
+            <tr>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <span class="inline-block px-2.5 py-1 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono text-[11px] font-semibold">
+                  Pose Tracking AI
+                </span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <div class="font-bold text-white text-sm">BlazePose: On-device Real-time Body Pose tracking</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-0.5">arXiv:2006.10204 [cs.CV] / CVPR (2020)</div>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300">
+                V. Bazarevsky, I. Grishchenko, et al.<br>
+                <span class="text-slate-400 text-xs font-mono">Google Research</span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300 leading-relaxed">
+                Powers markerless in-browser full-body motion capture and Adavu stance alignment (Aramandi).
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-center">
+                <a href="https://arxiv.org/abs/2006.10204" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500 hover:text-black transition-colors border border-amber-500/30 text-amber-300 text-xs font-semibold">
+                  <span>arXiv</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Row 3: Jitter Filtering -->
+            <tr>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <span class="inline-block px-2.5 py-1 rounded-md bg-orange-500/15 border border-orange-500/30 text-orange-300 font-mono text-[11px] font-semibold">
+                  Signal Filtering
+                </span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <div class="font-bold text-white text-sm">1 € Filter: A Simple Speed-based Low-pass Filter for Noisy Input</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-0.5">ACM CHI Conference (2012)</div>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300">
+                Géry Casiez, Nicolas Roussel, Daniel Vogel<br>
+                <span class="text-slate-400 text-xs font-mono">Inria / Univ. Lille</span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300 leading-relaxed">
+                Implemented in <code class="text-amber-400 font-mono bg-black/40 px-1 py-0.5 rounded">smooth.ts</code> to eliminate webcam jitter on held mudras without lagging behind fast strikes.
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-center">
+                <a href="https://hal.inria.fr/hal-00670496/document" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-orange-500/10 hover:bg-orange-500 hover:text-black transition-colors border border-orange-500/30 text-orange-300 text-xs font-semibold">
+                  <span>Paper PDF</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Row 4: Dance Pedagogy -->
+            <tr>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <span class="inline-block px-2.5 py-1 rounded-md bg-red-500/15 border border-red-500/30 text-red-300 font-mono text-[11px] font-semibold">
+                  Dance Pedagogy
+                </span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <div class="font-bold text-white text-sm">The Mirror of Gesture (Abhinaya Darpana)</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-0.5">Harvard University Press / Transl. Edition</div>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300">
+                Nandikeshvara<br>
+                <span class="text-slate-400 text-xs font-mono">Transl. Coomaraswamy & Duggirala</span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300 leading-relaxed">
+                Canonical ground-truth for 28 Asamyukta Hastas (single hand), 24 Samyukta Hastas (double hand), and codified Viniyoga usages.
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-center">
+                <a href="https://archive.org/details/mirrorofgestureb00nandrich" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-red-500/10 hover:bg-red-500 hover:text-black transition-colors border border-red-500/30 text-red-300 text-xs font-semibold">
+                  <span>Archive</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Row 5: Classical Treatise -->
+            <tr>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <span class="inline-block px-2.5 py-1 rounded-md bg-red-500/15 border border-red-500/30 text-red-300 font-mono text-[11px] font-semibold">
+                  Classical Treatise
+                </span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <div class="font-bold text-white text-sm">The Natyashastra of Bharata Muni</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-0.5">Chapters IV, VIII, & IX (Asiatic Society)</div>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300">
+                Bharata Muni<br>
+                <span class="text-slate-400 text-xs font-mono">Transl. Manomohan Ghosh</span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300 leading-relaxed">
+                Foundational rules of body geometry: Angas, Upangas, Sthanakas, and foundational footwork sequences (Adavus).
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-center">
+                <a href="https://archive.org/details/NatyaShastra" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-red-500/10 hover:bg-red-500 hover:text-black transition-colors border border-red-500/30 text-red-300 text-xs font-semibold">
+                  <span>Archive</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Row 6: 3D Kinematics -->
+            <tr>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <span class="inline-block px-2.5 py-1 rounded-md bg-blue-500/15 border border-blue-500/30 text-blue-300 font-mono text-[11px] font-semibold">
+                  3D Kinematics
+                </span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <div class="font-bold text-white text-sm">Animating Rotation with Quaternion Curves</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-0.5">ACM SIGGRAPH Computer Graphics</div>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300">
+                Ken Shoemake<br>
+                <span class="text-slate-400 text-xs font-mono">ACM SIGGRAPH</span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300 leading-relaxed">
+                Quaternion spherical linear interpolation (Slerp) utilized in Three.js skeletal retargeting to prevent gimbal lock during rapid dance spins.
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-center">
+                <a href="https://dl.acm.org/doi/10.1145/325334.325242" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500 hover:text-black transition-colors border border-blue-500/30 text-blue-300 text-xs font-semibold">
+                  <span>ACM DL</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Row 7: Client Audio API -->
+            <tr>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <span class="inline-block px-2.5 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-mono text-[11px] font-semibold">
+                  Audio Coach
+                </span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <div class="font-bold text-white text-sm">W3C Web Speech API Specification</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-0.5">W3C Community Group Report</div>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300">
+                W3C Speech API Community Group<br>
+                <span class="text-slate-400 text-xs font-mono">World Wide Web Consortium</span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300 leading-relaxed">
+                Enables hands-free bilingual audio instruction (English and Hindi) completely on-device without incurring external cloud TTS costs.
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-center">
+                <a href="https://wicg.github.io/speech-api/" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 hover:text-black transition-colors border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+                  <span>W3C Spec</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Row 8: Client GPU/WASM -->
+            <tr>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <span class="inline-block px-2.5 py-1 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 font-mono text-[11px] font-semibold">
+                  Web Standards
+                </span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top">
+                <div class="font-bold text-white text-sm">WebAssembly Core Specification & SIMD</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-0.5">W3C Recommendation & Khronos WebGL 2.0</div>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300">
+                W3C WASM Working Group<br>
+                <span class="text-slate-400 text-xs font-mono">Khronos Group</span>
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-slate-300 leading-relaxed">
+                Facilitates 100% on-device client processing with hardware-accelerated vectorization, guaranteeing zero cloud video transmission.
+              </td>
+              <td class="py-4 px-4 sm:px-6 align-top text-center">
+                <a href="https://www.w3.org/TR/wasm-core-1/" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500 hover:text-black transition-colors border border-purple-500/30 text-purple-300 text-xs font-semibold">
+                  <span>W3C Spec</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bottom Footer Info -->
+    <div class="mt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 px-2 gap-2">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span>All references verified for Smart India Hackathon (SIH) submission</span>
+      </div>
+      <div class="font-mono text-amber-400/80">
+        NrityaVaani • DivyCoders
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

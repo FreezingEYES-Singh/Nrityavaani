@@ -44,7 +44,7 @@ export function Eyebrow({
  */
 export function Mark({ children }: { children: ReactNode }) {
   return (
-    <mark className="bg-primary text-black px-2 py-0.5 box-decoration-clone rounded-[2px]">
+    <mark className="bg-primary text-white dark:text-black px-2 py-0.5 box-decoration-clone rounded-[2px] font-normal">
       {children}
     </mark>
   );
@@ -161,7 +161,7 @@ export function Pill({
     "mono inline-flex items-center gap-2 rounded-full px-6 py-3 text-[11px] uppercase tracking-[0.16em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
   const look =
     variant === "solid"
-      ? "bg-primary text-black hover:bg-primary/85"
+      ? "bg-primary text-white dark:text-black hover:bg-primary/85"
       : "border border-foreground/25 text-foreground/80 hover:border-primary/60 hover:text-primary";
   return (
     <Link href={href} className={`${base} ${look} ${className}`}>

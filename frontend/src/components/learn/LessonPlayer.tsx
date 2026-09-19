@@ -14,10 +14,22 @@
  * speed it was danced whatever the display is doing.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ArrowLeft, Pause, Play, Repeat, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  Globe,
+  Mic,
+  Pause,
+  Play,
+  Repeat,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import type { MocapApi } from "@/components/three/MocapFigure";
 import type { Sex } from "@/components/three/figureRig";
 import { decodeClip, samplePose, type Clip } from "@/lib/motion/clip";
@@ -34,7 +46,16 @@ import {
   type Language,
   type LessonManifest,
   type SpokenLine,
+  SUPPORTED_LANGUAGES,
 } from "@/lib/lesson/manifest";
+import {
+  getBestPersonaForLanguage,
+  getVoiceModelsForLanguage,
+  getPersona,
+  type GuruPersona,
+  type GuruVoiceModelOption,
+} from "@/lib/voice/guruPersonas";
+import { GuruAudioEngine } from "@/lib/voice/guruAudioEngine";
 import { Eyebrow, Rule } from "@/components/ui/editorial";
 
 const MocapFigure = dynamic(() => import("@/components/three/MocapFigure"), {
@@ -81,6 +102,44 @@ export default function LessonPlayer({
   const [lang, setLang] = useState<Language>("en");
   const [skeleton, setSkeleton] = useState(false);
 
+  // 3D Guru Voice Persona automatically calibrated to the selected language
+  const [persona, setPersona] = useState<GuruPersona>(() => getBestPersonaForLanguage("en", "female"));
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  const [showGuruMenu, setShowGuruMenu] = useState(false);
+  const [activePreset, setActivePreset] = useState<"full" | "face" | "mudras" | "feet">("full");
+  const voiceModels = useMemo(() => getVoiceModelsForLanguage(lang), [lang]);
+
+  // Voice narration — pre-loaded Audio elements, one per spoken line.
+  const [volume, setVolume] = useState(0.8);
+  const [muted, setMuted] = useState(false);
+
+  const audioEngineRef = useRef<GuruAudioEngine | null>(null);
+  if (!audioEngineRef.current) {
+    audioEngineRef.current = new GuruAudioEngine(persona.id, lang, {
+      volume,
+      muted,
+      rate: speed,
+      onSpeakingChange: (val) => setIsSpeaking(val),
+      onLoadingChange: (val) => setIsLoadingAudio(val),
+    });
+  }
+
+  useEffect(() => {
+    audioEngineRef.current?.setPersona(persona.id);
+  }, [persona]);
+
+  useEffect(() => {
+    audioEngineRef.current?.setLanguage(lang);
+  }, [lang]);
+
+  useEffect(() => {
+    audioEngineRef.current?.setVolume(volume);
+    audioEngineRef.current?.setMuted(muted);
+    audioEngineRef.current?.setRate(speed);
+  }, [volume, muted, speed]);
+
   // The pose on screen changes sixty times a second; the step and her words
   // change eleven and nineteen times in the whole lesson. So the scrubber and
   // the clock are written straight to the DOM, and only the things that
@@ -110,26 +169,10 @@ export default function LessonPlayer({
   sexRef.current = sex;
   langRef.current = lang;
 
-  // Voice narration — pre-loaded Audio elements, one per spoken line.
-  const [volume, setVolume] = useState(0.8);
-  const [muted, setMuted] = useState(false);
-  const voiceRef = useRef<
-    {
-      start: number;
-      end: number;
-      en?: { female: HTMLAudioElement; male: HTMLAudioElement };
-      hi: { female: HTMLAudioElement; male: HTMLAudioElement };
-    }[]
-  >([]);
   const volumeRef = useRef(0.8);
   const mutedRef = useRef(false);
-  // The clip currently speaking, so a frame can spot the line or voice changing.
-  const activeVoiceRef = useRef<{
-    start: number;
-    lang: Language;
-    sex: Sex;
-    audio: HTMLAudioElement;
-  } | null>(null);
+  // Active line tracker to eliminate 60fps object allocations and enable 0ms fast-path
+  const activeLineTrackRef = useRef<{ start: number; lang: Language } | null>(null);
   volumeRef.current = volume;
   mutedRef.current = muted;
 
@@ -164,78 +207,51 @@ export default function LessonPlayer({
 
   /** Retire whatever line is speaking. */
   const stopVoice = useCallback(() => {
-    activeVoiceRef.current?.audio.pause();
-    activeVoiceRef.current = null;
+    activeLineTrackRef.current = null;
+    audioEngineRef.current?.stop();
+    setIsSpeaking(false);
+    setIsLoadingAudio(false);
   }, []);
 
   /**
-   * Keep the narration on the clock. One clip plays at a time: the line whose
-   * `start` has most recently passed. Clips are fitted (at build time) to end
-   * before the next line begins, so a line is never cut off mid-sentence — it
-   * simply plays out and the next one takes over on its own `start`.
+   * Keep the narration on the clock.
+   * Single-source audio via GuruAudioEngine: prevents double voice playback, cracking, and dropped frames.
    */
   const syncVoice = useCallback(
     (t: number) => {
-      const clips = voiceRef.current;
-      if (!clips.length) return;
+      const man = manRef.current;
+      if (!man) return;
 
-      let idx = -1;
-      for (let i = 0; i < clips.length; i++) {
-        if (clips[i].start <= t) idx = i;
-        else break;
-      }
-      const clip = idx >= 0 ? clips[idx] : null;
-
-      const cur = activeVoiceRef.current;
-      if (!clip) {
-        if (cur) stopVoice();
+      const l = lineAt(man.lines, t);
+      if (!l) {
+        if (activeLineTrackRef.current) stopVoice();
         return;
       }
 
-      // The reading that matches the learner's language and the figure on screen.
-      const reading = readingFor(clip, langRef.current);
-      const audio = reading[sexRef.current];
-      audio.volume = mutedRef.current ? 0 : volumeRef.current;
-      audio.playbackRate = speedRef.current;
-
+      // Fast path: Zero allocations and 0ms cost when continuing the active line
       if (
-        !cur ||
-        cur.start !== clip.start ||
-        cur.lang !== langRef.current ||
-        cur.sex !== sexRef.current
-      ) {
-        // A new line, or the language or figure has been swapped: start the
-        // right clip from where the clock has reached.
-        cur?.audio.pause();
-        const off = Math.max(0, t - clip.start);
-        if (!Number.isFinite(audio.duration) || off < audio.duration - 0.05) {
-          audio.currentTime = off;
-          void audio.play().catch(() => {});
-        }
-        activeVoiceRef.current = {
-          start: clip.start,
-          lang: langRef.current,
-          sex: sexRef.current,
-          audio,
-        };
-        return;
-      }
-
-      // Same line, same voice. If it has already run its course (a short clip
-      // followed by a pause before the next line), leave it silent — restarting
-      // from the top would make her repeat herself.
-      if (
-        audio.ended ||
-        (Number.isFinite(audio.duration) && audio.currentTime >= audio.duration - 0.05)
+        activeLineTrackRef.current &&
+        activeLineTrackRef.current.start === l.start &&
+        activeLineTrackRef.current.lang === langRef.current
       ) {
         return;
       }
-      if (audio.paused) {
-        audio.currentTime = Math.max(0, t - clip.start);
-        void audio.play().catch(() => {});
-      } else if (Math.abs(audio.currentTime - (t - clip.start)) > 0.15) {
-        audio.currentTime = t - clip.start;
-      }
+
+      activeLineTrackRef.current = {
+        start: l.start,
+        lang: langRef.current,
+      };
+
+      const textToSpeak = lineText(l, langRef.current);
+      const lineDuration = l.end - l.start;
+
+      // Delegate all playback lifecycle exclusively to Goonj GuruAudioEngine
+      void audioEngineRef.current?.syncLine(
+        l.start,
+        lineDuration,
+        textToSpeak,
+        t
+      );
     },
     [stopVoice],
   );
@@ -297,6 +313,40 @@ export default function LessonPlayer({
     [applyTime, stopVoice],
   );
 
+  const handleSelectLanguage = useCallback((newLang: Language) => {
+    setLang(newLang);
+    langRef.current = newLang;
+    const best = getBestPersonaForLanguage(newLang, sexRef.current);
+    setPersona(best);
+    setShowLangMenu(false);
+    const man = manRef.current;
+    if (man) {
+      audioEngineRef.current?.preloadLanguage(man.lines);
+      const curLine = lineAt(man.lines, tRef.current);
+      if (curLine) {
+        seek(curLine.start);
+      }
+    }
+  }, [seek]);
+
+  const handleSelectVoiceModel = useCallback((model: GuruVoiceModelOption) => {
+    const p = getPersona(model.id);
+    setPersona(p);
+    if (model.sex !== sexRef.current) {
+      setSex(model.sex);
+      sexRef.current = model.sex;
+    }
+    setShowGuruMenu(false);
+    const man = manRef.current;
+    if (man) {
+      audioEngineRef.current?.preloadLanguage(man.lines);
+      const curLine = lineAt(man.lines, tRef.current);
+      if (curLine) {
+        seek(curLine.start);
+      }
+    }
+  }, [seek]);
+
   // Load the lesson and its clips together — neither is any use alone.
   useEffect(() => {
     const abort = new AbortController();
@@ -321,25 +371,10 @@ export default function LessonPlayer({
           clips.set(paths[i], await decodeClip(await res.blob()));
         }
 
-        // Narration is optional; preload it so playback never waits on the net.
-        const voice = man.voice ? await loadVoice(man.voice, abort.signal) : [];
         if (dead) return;
         manRef.current = man;
         clipsRef.current = clips;
-        voiceRef.current = voice.map((c) => {
-          const audio = (file: string) => {
-            const a = new Audio(file);
-            a.preload = "auto";
-            a.volume = mutedRef.current ? 0 : volumeRef.current;
-            return a;
-          };
-          return {
-            start: c.start,
-            end: c.end,
-            en: c.en ? { female: audio(c.en.female), male: audio(c.en.male) } : undefined,
-            hi: { female: audio(c.hi.female), male: audio(c.hi.male) },
-          };
-        });
+        audioEngineRef.current?.preloadLanguage(man.lines);
         setManifest(man);
       } catch (err) {
         if (dead || abort.signal.aborted) return;
@@ -365,12 +400,7 @@ export default function LessonPlayer({
   useEffect(
     () => () => {
       cancelAnimationFrame(rafRef.current);
-      voiceRef.current.forEach((c) => {
-        c.en?.female.pause();
-        c.en?.male.pause();
-        c.hi.female.pause();
-        c.hi.male.pause();
-      });
+      audioEngineRef.current?.stop();
     },
     [],
   );
@@ -464,6 +494,7 @@ export default function LessonPlayer({
                 sex={sex}
                 showBody
                 showSkeleton={skeleton}
+                showOverlayControls={false}
                 className="h-full w-full"
                 onReady={(api) => {
                   apiRef.current = api;
@@ -481,6 +512,37 @@ export default function LessonPlayer({
                   </p>
                 </div>
               )}
+              {/* Guru Voice Persona & Live Speaking / Loading indicator */}
+              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex items-center gap-2 pointer-events-auto">
+                {isLoadingAudio && (
+                  <div className="flex items-center gap-1.5 rounded-full bg-primary/20 backdrop-blur-md px-2.5 py-1 border border-primary/40 shadow-sm animate-pulse">
+                    <span className="h-2 w-2 rounded-full bg-primary animate-ping"></span>
+                    <span className="mono text-[9px] uppercase tracking-[0.16em] text-primary font-semibold">
+                      Generating Voice...
+                    </span>
+                  </div>
+                )}
+                {isSpeaking && !isLoadingAudio && (
+                  <div className="flex items-center gap-1.5 rounded-full bg-primary/25 backdrop-blur-md px-2.5 py-1 border border-primary/50 shadow-md animate-pulse">
+                    <span className="flex h-2 w-2 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    </span>
+                    <span className="mono text-[9px] uppercase tracking-[0.16em] text-primary font-semibold">
+                      {persona.name} Speaking
+                    </span>
+                  </div>
+                )}
+                <div
+                  className="mono inline-flex items-center gap-1.5 rounded-full bg-background/85 backdrop-blur-md px-3 py-1 border border-foreground/20 text-[10px] uppercase tracking-[0.14em] text-foreground/90 shadow-md"
+                  title={`Instruction Language: ${SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.native ?? "English"} (${persona.name})`}
+                >
+                  <Globe className="h-3 w-3 text-primary" />
+                  <span>{SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.native ?? "English"}</span>
+                  <span className="opacity-40">·</span>
+                  <span className="text-primary font-medium">{persona.name}</span>
+                </div>
+              </div>
               {!manifest && (
                 <div className="mono absolute inset-0 grid place-items-center text-[11px] uppercase tracking-[0.16em] text-foreground/40">
                   Loading the lesson&hellip;
@@ -588,15 +650,57 @@ export default function LessonPlayer({
               </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                <button
-                  type="button"
-                  onClick={() => apiRef.current?.fitToScreen()}
-                  className={`${chip} ${chipOff}`}
-                  title="Reset 3D camera to front-facing view (Fit to Screen)"
-                >
-                  <RotateCcw className="mr-1.5 inline h-3 w-3 text-primary" />
-                  Fit view
-                </button>
+                {/* 1. Camera View Framing Controls (repositioned cleanly outside 3D learning canvas) */}
+                <div className="flex items-center gap-1 rounded-full border border-foreground/15 bg-background/50 p-0.5">
+                  <span className="mono text-[9px] uppercase tracking-[0.14em] text-foreground/50 px-2 select-none">
+                    View:
+                  </span>
+                  {(["full", "face", "mudras", "feet"] as const).map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        setActivePreset(preset);
+                        apiRef.current?.focusPreset(preset);
+                      }}
+                      className={`rounded-full px-2.5 py-1 text-[10px] uppercase font-mono tracking-wider transition-colors ${
+                        activePreset === preset
+                          ? "bg-primary text-black font-semibold shadow-sm"
+                          : "text-foreground/70 hover:bg-white/10 hover:text-foreground"
+                      }`}
+                      title={
+                        preset === "full"
+                          ? "Full body framing"
+                          : preset === "face"
+                          ? "Zoom to face & abhinaya"
+                          : preset === "mudras"
+                          ? "Zoom to hands & mudras"
+                          : "Zoom to feet & footwork"
+                      }
+                    >
+                      {preset === "full" && "Full"}
+                      {preset === "face" && "Face"}
+                      {preset === "mudras" && "Mudras"}
+                      {preset === "feet" && "Feet"}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActivePreset("full");
+                      apiRef.current?.fitToScreen();
+                    }}
+                    className="rounded-full px-2 py-1 text-[10px] uppercase font-mono tracking-wider text-amber-400 hover:bg-amber-400/10 hover:text-amber-300 transition-colors inline-flex items-center gap-1"
+                    title="Reset 3D camera to front view (Fit to screen)"
+                  >
+                    <RotateCcw className="h-2.5 w-2.5" />
+                    <span>Fit</span>
+                  </button>
+                </div>
+
+                <span aria-hidden className="mx-1 h-4 w-px bg-foreground/15" />
+
+                {/* 2. Playback & Speeds */}
                 <button
                   type="button"
                   onClick={() => seek(current?.start ?? 0)}
@@ -625,29 +729,143 @@ export default function LessonPlayer({
                     {s}&times;
                   </button>
                 ))}
+
                 <span aria-hidden className="mx-1 h-4 w-px bg-foreground/15" />
-                {(["en", "hi"] as const).map((l) => (
+
+                {/* 3. Multi-Language Dropdown Selector */}
+                <div className="relative inline-block">
                   <button
-                    key={l}
                     type="button"
-                    onClick={() => setLang(l)}
-                    aria-pressed={lang === l}
-                    title={
-                      l === "en"
-                        ? "Narration and captions in English"
-                        : "नैरेशन और कैप्शन हिंदी में"
-                    }
-                    className={`${chip} ${lang === l ? chipOn : chipOff}`}
+                    onClick={() => {
+                      setShowLangMenu((v) => !v);
+                      setShowGuruMenu(false);
+                    }}
+                    className={`${chip} ${lang !== "en" ? chipOn : chipOff} inline-flex items-center gap-1.5`}
+                    title="Change Guru Language & Vernacular"
                   >
-                    {l === "en" ? "English" : "हिंदी"}
+                    <Globe className="h-3 w-3 text-primary" />
+                    <span>{SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.native ?? "English"}</span>
+                    <ChevronDown className="h-3 w-3 opacity-60 shrink-0" />
                   </button>
-                ))}
+
+                  {showLangMenu && (
+                    <div className="absolute left-0 bottom-full mb-2 z-50 w-64 max-h-72 overflow-y-auto rounded-xl border border-card-border bg-card/95 backdrop-blur-md p-1.5 shadow-xl">
+                      <p className="mono px-2 py-1 text-[9px] uppercase tracking-[0.18em] text-foreground/40 border-b border-foreground/10 mb-1">
+                        Select Language (भाषा)
+                      </p>
+                      {SUPPORTED_LANGUAGES.map((l) => (
+                        <button
+                          key={l.code}
+                          type="button"
+                          onClick={() => handleSelectLanguage(l.code)}
+                          className={`w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition-colors ${
+                            lang === l.code
+                              ? "bg-primary/15 text-primary font-medium"
+                              : "text-foreground/75 hover:bg-foreground/5 hover:text-foreground"
+                          }`}
+                        >
+                          <div>
+                            <div className="font-medium leading-tight">{l.native}</div>
+                            <div className="mono text-[9px] text-foreground/50">{l.label} · {l.region}</div>
+                          </div>
+                          {lang === l.code && <Check className="h-3.5 w-3.5 text-primary" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 4. Guru Voice Model Dropdown Selector (with specific strengths and best-for guidance) */}
+                <div className="relative inline-block">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowGuruMenu((v) => !v);
+                      setShowLangMenu(false);
+                    }}
+                    className={`${chip} ${showGuruMenu ? chipOn : chipOff} inline-flex items-center gap-1.5`}
+                    title="Select Guru Voice Model for this language"
+                  >
+                    <Mic className="h-3 w-3 text-primary shrink-0" />
+                    <span className="font-medium">{persona.name}</span>
+                    <span className="hidden sm:inline opacity-60 text-[9px]">({persona.badge})</span>
+                    <ChevronDown className="h-3 w-3 opacity-60 shrink-0" />
+                  </button>
+
+                  {showGuruMenu && (
+                    <div className="absolute left-0 bottom-full mb-2 z-50 w-72 sm:w-84 max-h-80 overflow-y-auto rounded-xl border border-card-border bg-card/95 backdrop-blur-md p-2 shadow-2xl">
+                      <div className="px-2 py-1 border-b border-foreground/10 mb-1.5 flex items-center justify-between">
+                        <p className="mono text-[9px] uppercase tracking-[0.18em] text-foreground/50">
+                          Guru Voice Models ({voiceModels.length})
+                        </p>
+                        <span className="mono text-[8px] uppercase tracking-wider text-primary font-medium">
+                          {SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.label ?? lang}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {voiceModels.map((vm) => {
+                          const isSelected = persona.id === vm.id;
+                          return (
+                            <button
+                              key={vm.id}
+                              type="button"
+                              onClick={() => handleSelectVoiceModel(vm)}
+                              className={`w-full flex flex-col items-start rounded-lg p-2 text-left transition-colors ${
+                                isSelected
+                                  ? "bg-primary/15 border border-primary/40 shadow-sm"
+                                  : "text-foreground/80 hover:bg-foreground/5 hover:text-foreground border border-transparent"
+                              }`}
+                            >
+                              <div className="w-full flex items-center justify-between gap-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`text-xs font-semibold ${isSelected ? "text-primary" : "text-foreground"}`}>
+                                    {vm.name}
+                                  </span>
+                                  <span className="mono text-[9px] px-1.5 py-0.5 rounded-full bg-foreground/10 text-foreground/70">
+                                    {vm.badge}
+                                  </span>
+                                  <span className="mono text-[9px] text-foreground/50">
+                                    {vm.sex === "female" ? "♀" : "♂"}
+                                  </span>
+                                </div>
+                                {isSelected && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
+                              </div>
+                              <p className="text-[11px] leading-tight text-foreground/80 mt-1">
+                                <span className="text-primary font-medium">Best for: </span>
+                                {vm.bestFor}
+                              </p>
+                              <p className="text-[10px] text-foreground/50 leading-tight mt-0.5 italic">
+                                {vm.tone}
+                              </p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <span aria-hidden className="mx-1 h-4 w-px bg-foreground/15" />
+
+                {/* 5. Figure Sex & Display toggles */}
                 {(["female", "male"] as const).map((s) => (
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setSex(s)}
+                    onClick={() => {
+                      setSex(s);
+                      sexRef.current = s;
+                      const best = getBestPersonaForLanguage(langRef.current, s);
+                      setPersona(best);
+
+                      const man = manRef.current;
+                      if (man) {
+                        const curLine = lineAt(man.lines, tRef.current);
+                        if (curLine) {
+                          seek(curLine.start);
+                        }
+                      }
+                    }}
                     aria-pressed={sex === s}
                     className={`${chip} ${sex === s ? chipOn : chipOff}`}
                   >
@@ -662,7 +880,10 @@ export default function LessonPlayer({
                 >
                   Bones
                 </button>
+
                 <span aria-hidden className="mx-1 h-4 w-px bg-foreground/15" />
+
+                {/* 6. Voice Narration Mute & Volume */}
                 <button
                   type="button"
                   onClick={() => setMuted((v) => !v)}

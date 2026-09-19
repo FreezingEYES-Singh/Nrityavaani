@@ -29,8 +29,27 @@ export interface LessonStep {
   cues: string[];
 }
 
-/** The two languages a lesson can be read in. */
-export type Language = "en" | "hi";
+/** The classical and regional languages a lesson can be read and spoken in. */
+export type Language = "en" | "hi" | "hing" | "ta" | "te" | "ml" | "sa" | "kn" | "bn";
+
+export interface LanguageOption {
+  code: Language;
+  label: string;
+  native: string;
+  region: string;
+}
+
+export const SUPPORTED_LANGUAGES: LanguageOption[] = [
+  { code: "en", label: "English (Indian)", native: "English", region: "Pan-India" },
+  { code: "hi", label: "Hindi", native: "हिन्दी", region: "North / Kathak" },
+  { code: "hing", label: "Hinglish", native: "Hinglish", region: "Urban Classical" },
+  { code: "ta", label: "Tamil", native: "தமிழ்", region: "Tamil Nadu / Bharatanatyam" },
+  { code: "te", label: "Telugu", native: "తెలుగు", region: "Andhra / Kuchipudi" },
+  { code: "ml", label: "Malayalam", native: "മലയാളം", region: "Kerala / Kathakali & Mohiniyattam" },
+  { code: "sa", label: "Sanskrit", native: "संस्कृतम्", region: "Natyashastra / Shlokas" },
+  { code: "kn", label: "Kannada", native: "ಕನ್ನಡ", region: "Karnataka / Classical" },
+  { code: "bn", label: "Bengali", native: "বাংলা", region: "Bengal / Classical" },
+];
 
 /** One thing she says, on the clip's clock. */
 export interface SpokenLine {
@@ -40,6 +59,20 @@ export interface SpokenLine {
   text: string;
   /** The Hindi text, shown when the learner switches language. */
   textHi?: string;
+  /** Hinglish code-switched text. */
+  textHing?: string;
+  /** Tamil translation (essential for Bharatanatyam). */
+  textTa?: string;
+  /** Telugu translation (essential for Kuchipudi). */
+  textTe?: string;
+  /** Malayalam translation (essential for Kathakali / Mohiniyattam). */
+  textMl?: string;
+  /** Sanskrit text. */
+  textSa?: string;
+  /** Kannada translation. */
+  textKn?: string;
+  /** Bengali translation. */
+  textBn?: string;
 }
 
 /** One reading — the same line in a female and a male voice. */
@@ -118,7 +151,27 @@ export interface LessonSummary {
 
 /** The text to show for a line, in the learner's language. */
 export function lineText(line: SpokenLine, lang: Language): string {
-  return lang === "hi" ? (line.textHi ?? line.text) : line.text;
+  switch (lang) {
+    case "hi":
+      return line.textHi ?? line.text;
+    case "hing":
+      return line.textHing ?? line.textHi ?? line.text;
+    case "ta":
+      return line.textTa ?? line.text;
+    case "te":
+      return line.textTe ?? line.text;
+    case "ml":
+      return line.textMl ?? line.text;
+    case "sa":
+      return line.textSa ?? line.textHi ?? line.text;
+    case "kn":
+      return line.textKn ?? line.text;
+    case "bn":
+      return line.textBn ?? line.text;
+    case "en":
+    default:
+      return line.text;
+  }
 }
 
 /** The take to play on a figure: its own when the lesson has one, the lesson's clip otherwise. */
@@ -127,8 +180,11 @@ export function clipFor(manifest: Pick<LessonManifest, "clip" | "clips">, sex: "
 }
 
 /** The reading to play for a clip, in the learner's language. */
-export function readingFor<R>(clip: { en?: R; hi: R }, lang: Language): R {
-  return lang === "hi" ? clip.hi : (clip.en ?? clip.hi);
+export function readingFor<R>(clip: { en?: R; hi: R; [key: string]: any }, lang: Language): R {
+  if (lang === "hi" || lang === "sa") return clip.hi;
+  if (lang === "hing") return clip.hi ?? clip.en ?? clip.hi;
+  if (clip[lang]) return clip[lang];
+  return clip.en ?? clip.hi;
 }
 
 /**

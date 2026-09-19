@@ -286,6 +286,7 @@ export default function MocapFigure({
   showSkeleton = true,
   showBody = true,
   steady = true,
+  showOverlayControls = true,
   onReady,
   className = "",
 }: {
@@ -294,6 +295,8 @@ export default function MocapFigure({
   showBody?: boolean;
   /** Filter the solved rotations before drawing them. See `lib/motion/smooth`. */
   steady?: boolean;
+  /** Show floating camera presets and controls directly inside 3D frame */
+  showOverlayControls?: boolean;
   onReady?: (api: MocapApi) => void;
   className?: string;
 }) {
@@ -1137,28 +1140,32 @@ export default function MocapFigure({
     <div className={cn("relative group overflow-hidden select-none w-full h-full min-w-0", className)}>
       <div ref={hostRef} className="h-full w-full min-w-0" />
 
-      {/* Top-Right: Fit Front View Button (and Desktop Presets Pill) */}
-      <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 flex flex-col items-end gap-1.5 pointer-events-auto">
-        <button
-          type="button"
-          onClick={() => fitToScreenRef.current()}
-          className="hidden sm:flex items-center gap-1 sm:gap-1.5 rounded-full border border-amber-500/40 bg-black/80 px-2.5 py-1 text-[11px] sm:px-3 sm:py-1.5 sm:text-xs font-medium text-amber-200 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:border-amber-400 hover:bg-black/95 hover:text-amber-100 active:scale-95"
-          title="Reset 3D camera to front-facing view (Fit to Screen)"
-        >
-          <RotateCcw className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-400" />
-          <span>Fit Front View</span>
-        </button>
+      {showOverlayControls && (
+        <>
+          {/* Top-Right: Fit Front View Button (and Desktop Presets Pill) */}
+          <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 flex flex-col items-end gap-1.5 pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => fitToScreenRef.current()}
+              className="hidden sm:flex items-center gap-1 sm:gap-1.5 rounded-full border border-amber-500/40 bg-black/80 px-2.5 py-1 text-[11px] sm:px-3 sm:py-1.5 sm:text-xs font-medium text-amber-200 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:border-amber-400 hover:bg-black/95 hover:text-amber-100 active:scale-95"
+              title="Reset 3D camera to front-facing view (Fit to Screen)"
+            >
+              <RotateCcw className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-400" />
+              <span>Fit Front View</span>
+            </button>
 
-        {/* Desktop placement: docked neatly beneath Fit Front View */}
-        <div className="hidden sm:block">
-          {renderControlPill(false)}
-        </div>
-      </div>
+            {/* Desktop placement: docked neatly beneath Fit Front View */}
+            <div className="hidden sm:block">
+              {renderControlPill(false)}
+            </div>
+          </div>
 
-      {/* Mobile placement: floats at bottom center, leaving Guru's head, face & mudras 100% unobstructed */}
-      <div className="sm:hidden absolute bottom-2.5 left-1/2 -translate-x-1/2 z-10 pointer-events-auto max-w-[calc(100%-1rem)] w-max">
-        {renderControlPill(true)}
-      </div>
+          {/* Mobile placement: floats at bottom center, leaving Guru's head, face & mudras 100% unobstructed */}
+          <div className="sm:hidden absolute bottom-2.5 left-1/2 -translate-x-1/2 z-10 pointer-events-auto max-w-[calc(100%-1rem)] w-max">
+            {renderControlPill(true)}
+          </div>
+        </>
+      )}
     </div>
   );
 }

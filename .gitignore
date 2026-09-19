@@ -49,6 +49,9 @@ ENV/
 *.h5
 !backend/models/.gitkeep
 
+# Audio & runtime cache
+backend/cache/
+
 # Misc
 .DS_Store
 *.pem

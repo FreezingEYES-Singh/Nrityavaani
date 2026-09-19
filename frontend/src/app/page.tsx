@@ -82,6 +82,38 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ---------------------------------------------------------------- the hands */}
+      <Section id="hands" className="relative z-10 bg-background border-t border-foreground/12">
+        <div className="grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] gap-12 lg:gap-16 items-center">
+          <div>
+            <Eyebrow tone="primary">the hands</Eyebrow>
+            <Headline className="mt-5">
+              A language of the hands, <Mark>formed in three dimensions</Mark>.
+            </Headline>
+            <Prose className="mt-8">
+              <p>
+                Bharatanatyam tells its stories through hasta mudras — a flag, a peacock, a
+                blooming lotus. The hand here forms eight of them in turn: pick a name to see it
+                again, or move your pointer to turn the hand.
+              </p>
+              <p>
+                <strong>All twenty-eight are in the library</strong>, each with its meaning and how
+                it is held. When you are ready, hold one up to your camera and live detection
+                names the gesture it sees.
+              </p>
+            </Prose>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <Pill href="/library" variant="solid">
+                Hand pose library
+              </Pill>
+              <Pill href="/live">Live hand gesture detection</Pill>
+            </div>
+          </div>
+
+          <HandsShowcase className="max-w-[34rem] mx-auto lg:mx-0 lg:justify-self-end" />
+        </div>
+      </Section>
+
       {/* ---------------------------------------------------------------- the lineage */}
       {/*
         No `overflow-hidden` here: an ancestor with overflow other than visible
@@ -170,38 +202,6 @@ export default function LandingPage() {
 
       {/* ---------------------------------------------------------------- the forms */}
       <DancesIndex />
-
-      {/* ---------------------------------------------------------------- the hands */}
-      <Section ruled className="z-10 bg-background">
-        <div className="grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] gap-12 lg:gap-16 items-center">
-          <div>
-            <Eyebrow tone="primary">the hands</Eyebrow>
-            <Headline className="mt-5">
-              A language of the hands, <Mark>formed in three dimensions</Mark>.
-            </Headline>
-            <Prose className="mt-8">
-              <p>
-                Bharatanatyam tells its stories through hasta mudras — a flag, a peacock, a
-                blooming lotus. The hand here forms eight of them in turn: pick a name to see it
-                again, or move your pointer to turn the hand.
-              </p>
-              <p>
-                <strong>All twenty-eight are in the library</strong>, each with its meaning and how
-                it is held. When you are ready, hold one up to your camera and live detection
-                names the gesture it sees.
-              </p>
-            </Prose>
-            <div className="mt-10 flex flex-wrap gap-3">
-              <Pill href="/library" variant="solid">
-                Hand pose library
-              </Pill>
-              <Pill href="/live">Live hand gesture detection</Pill>
-            </div>
-          </div>
-
-          <HandsShowcase className="max-w-[34rem] mx-auto lg:mx-0 lg:justify-self-end" />
-        </div>
-      </Section>
 
       {/* ---------------------------------------------------------------- how it works */}
       <Section ruled className="z-10 bg-background">

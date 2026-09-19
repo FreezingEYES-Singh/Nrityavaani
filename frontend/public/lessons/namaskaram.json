@@ -125,115 +125,192 @@
    "start": 0.75,
    "end": 8.83,
    "text": "Guru Brahma, Guru Vishnu, Guru Devo Maheshwaraha, Guru Saakshar Parabrahma, Tasmai Shri Gurave Namaha.",
-   "textHi": "गुरुर्ब्रह्मा गुरुर्विष्णुर्गुरुर्देवो महेश्वरः। गुरुः साक्षात्परब्रह्म तस्मै श्रीगुरवे नमः॥"
+   "textHi": "गुरुर्ब्रह्मा गुरुर्विष्णुर्गुरुर्देवो महेश्वरः। गुरुः साक्षात्परब्रह्म तस्मै श्रीगुरवे नमः॥",
+   "textSa": "गुरुर्ब्रह्मा गुरुर्विष्णुर्गुरुर्देवो महेश्वरः। गुरुः साक्षात्परब्रह्म तस्मै श्रीगुरवे नमः॥",
+   "textTa": "குரு பிரம்மா குரு விஷ்ணு குரு தேவோ மஹேஸ்வரஹ, குரு சாக்ஷாத் பரப்ரம்ம தஸ்மை ஸ்ரீ குரவே நமஹ.",
+   "textTe": "గురుర్బ్రహ్మ గురుర్విష్ణుః గురుర్దేవో మహేశ్వరః, గురుః సాక్షాత్పరబ్రహ్మ తస్మై శ్రీగురవే నమః.",
+   "textMl": "ഗുരുർബ്രഹ്മാ ഗുരുർവിഷ്ണുഃ ഗുരുർദേവോ മഹേശ്വരഃ, ഗുരുഃ സാക്ഷാത്പരബ്രഹ്മ തസ്മൈ ശ്രീഗുരവേ നമഃ.",
+   "textHing": "Guru Brahma, Guru Vishnu, Guru Devo Maheshwara, Guru Sakshat Parabrahma, Tasmai Shri Gurave Namah."
   },
   {
    "start": 9.27,
    "end": 19.07,
    "text": "Namaste. Today we will be learning the first and foremost thing that is performed before beginning any classical dance and that is the bhumi pranam or namaskar.",
-   "textHi": "नमस्ते। आज हम वह पहली और सबसे महत्वपूर्ण चीज़ सीखेंगे जो किसी भी शास्त्रीय नृत्य को शुरू करने से पहले की जाती है, और वह है भूमि प्रणाम या नमस्कार।"
+   "textHi": "नमस्ते। आज हम वह पहली और सबसे महत्वपूर्ण चीज़ सीखेंगे जो किसी भी शास्त्रीय नृत्य को शुरू करने से पहले की जाती है, और वह है भूमि प्रणाम या नमस्कार।",
+   "textTa": "வணக்கம். பரதநாட்டியம் தொடங்கும் முன் செய்யப்படும் முதல் மற்றும் முதன்மையான பூமி பிரணாமம் அல்லது நமஸ்காரம் கற்போம்.",
+   "textTe": "నమస్కారం. శాస్త్రీయ నృత్యం ప్రారంభించే ముందు చేసే మొదటి మరియు అతి ముఖ్యమైన భూమి ప్రణామం లేదా నమస్కారం నేర్చుకుందాం.",
+   "textMl": "നമസ്കാരം. ശാസ്ത്രീയ നൃത്തം ആരംഭിക്കുന്നതിനു മുൻപ് ചെയ്യുന്ന ആദ്യത്തെയും ഏറ്റവും പ്രധാനപ്പെട്ടതുമായ ഭൂമി പ്രണാമം പഠിക്കാം.",
+   "textHing": "Namaste. Aaj hum classical dance start karne se pehle bhumi pranam ya namaskar seekhenge."
   },
   {
    "start": 19.69,
    "end": 28.11,
    "text": "So without much ado, we will get into it. Any pose in Bharatanatyam is started in the position samapadha, that is the feet are together.",
-   "textHi": "तो बिना देर किए, हम शुरू करते हैं। भरतनाट्यम में कोई भी मुद्रा समपद स्थिति से शुरू होती है, यानी पैर आपस में जुड़े होते हैं।"
+   "textHi": "तो बिना देर किए, हम शुरू करते हैं। भरतनाट्यम में कोई भी मुद्रा समपद स्थिति से शुरू होती है, यानी पैर आपस में जुड़े होते हैं।",
+   "textTa": "பரதநாட்டியத்தின் எந்த நிலையும் சமபாதம் என்ற கால்கள் சேர்ந்த நிலையிலேயே தொடங்கும்.",
+   "textTe": "భరతనాట్యంలో ఏ భంగిమ అయినా సమపద స్థితితో మొదలవుతుంది, అంటే పాదాలు కలిసి ఉంటాయి.",
+   "textMl": "ഭരതനാട്യത്തിലെ ഏത് ഭംഗിയും സമപാദ അവസ്ഥയിൽ നിന്നാണ് ആരംഭിക്കുന്നത്, പാദങ്ങൾ ഒരുമിച്ച് ചേർത്തു വയ്ക്കുക.",
+   "textHing": "Bina der kiye shuru karte hain. Bharatanatyam ka har pose samapada position se shuru hota hai, feet saath mein."
   },
   {
    "start": 29.01,
    "end": 37.19,
    "text": "The hand gesture will be katakamukha in which we will be joining the two fingers with the thumb and we will keep both of the hands away from our chest.",
-   "textHi": "हाथ की मुद्रा कटकामुख होगी, जिसमें हम दो उंगलियों को अंगूठे से मिलाते हैं और दोनों हाथों को छाती से दूर रखते हैं।"
+   "textHi": "हाथ की मुद्रा कटकामुख होगी, जिसमें हम दो उंगलियों को अंगूठे से मिलाते हैं और दोनों हाथों को छाती से दूर रखते हैं।",
+   "textTa": "கை முத்திரை கடகாமுகம், இரண்டு விரல்களை கட்டைவிரலுடன் சேர்த்து மார்பிலிருந்து தள்ளி வைக்க வேண்டும்.",
+   "textTe": "చేతి ముద్ర కటకాముఖం, బొటనవేలుతో రెండు వేళ్లను కలిపి ఛాతీకి దూరంగా ఉంచాలి.",
+   "textMl": "കൈമുദ്ര കടകാമുഖം, രണ്ടു വിരലുകൾ തള്ളവിരലോട് ചേർത്ത് നെഞ്ചിൽ നിന്ന് അകറ്റി വയ്ക്കുക.",
+   "textHing": "Hand gesture katakamukha hoga jismein do fingers thumb se milakar hands chest se door rakhenge."
   },
   {
    "start": 37.51,
    "end": 40.63,
    "text": "And then we will take the next position that is aramandi.",
-   "textHi": "और फिर हम अगली स्थिति लेंगे, जो है अरैमंडी।"
+   "textHi": "और फिर हम अगली स्थिति लेंगे, जो है अरैमंडी।",
+   "textTa": "அடுத்து நாம் அரைமண்டி நிலையை எடுப்போம்.",
+   "textTe": "తరువాత మనం అరైమండి స్థితిని తీసుకుంటాము.",
+   "textMl": "തുടർന്ന് നാം അരൈമണ്ടി നിലയിലേക്ക് വരുന്നു.",
+   "textHing": "Aur fir hum next position lenge jo hai aramandi."
   },
   {
    "start": 41.09,
    "end": 47.83,
    "text": "In aramandi, the feet are in V shape and there is a bit of a space between both of the feet and the knees are bent.",
-   "textHi": "अरैमंडी में पैर वी आकार में होते हैं, दोनों पैरों के बीच थोड़ी जगह होती है और घुटने मुड़े होते हैं।"
+   "textHi": "अरैमंडी में पैर वी आकार में होते हैं, दोनों पैरों के बीच थोड़ी जगह होती है और घुटने मुड़े होते हैं।",
+   "textTa": "அரைமண்டியில் பாதங்கள் V வடிவில் இருக்கும், கால்களுக்கு இடையே சிறிது இடைவெளி விட்டு முழங்கால்கள் பக்கவாட்டில் வளைந்திருக்கும்.",
+   "textTe": "అరైమండిలో పాదాలు V ఆకారంలో ఉంటాయి, కాళ్ళ మధ్య కాస్త ఖాళీ ఉండి మోకాళ్లు వంగి ఉంటాయి.",
+   "textMl": "അരൈമണ്ടിയിൽ പാദങ്ങൾ V ആകൃതിയിൽ ആയിരിക്കും, കാൽമുട്ടുകൾ പുറത്തേക്ക് വളഞ്ഞിരിക്കും.",
+   "textHing": "Aramandi mein feet V shape mein hote hain, feet ke beech space aur knees bent hoti hain."
   },
   {
    "start": 48.29,
    "end": 49.69,
    "text": "Remember to keep your core tight.",
-   "textHi": "अपना कोर कस कर रखें।"
+   "textHi": "अपना कोर कस कर रखें।",
+   "textTa": "வயிற்றுப் பகுதியை உறுதியாக வைத்திருக்க நினைவில் கொள்ளுங்கள்.",
+   "textTe": "మీ కోర్ బిగించి ఉంచాలని గుర్తుంచుకోండి.",
+   "textMl": "വയർ മുറുക്കി നിർത്താൻ ഓർക്കുക.",
+   "textHing": "Apna core tight rakhna yaad rakhein."
   },
   {
    "start": 50.39,
    "end": 57.43,
    "text": "We will take the aramandi position, the hands are away from the chest and then we will tap the right foot first and then lift.",
-   "textHi": "हम अरैमंडी स्थिति लेंगे, हाथ छाती से दूर होंगे, और फिर हम पहले दाएँ पैर को थपथपाएँगे और फिर उठाएँगे।"
+   "textHi": "हम अरैमंडी स्थिति लेंगे, हाथ छाती से दूर होंगे, और फिर हम पहले दाएँ पैर को थपथपाएँगे और फिर उठाएँगे।",
+   "textTa": "அரைமண்டியில் கைகளை மார்பிலிருந்து தள்ளி வைத்து முதலில் வலது காலை தட்டி தூக்குவோம்.",
+   "textTe": "అరైమండిలో చేతులు ఛాతీకి దూరంగా ఉంచి కుడి కాలును ముందుగా తట్టి పైకి లేపాలి.",
+   "textMl": "അരൈമണ്ടിയിൽ കൈകൾ നെഞ്ചിൽ നിന്ന് അകറ്റി ആദ്യം വലതു കാൽ തട്ടി ഉയർത്തുക.",
+   "textHing": "Aramandi position lenge, hands chest se door aur pehle right foot tap karke lift karenge."
   },
   {
    "start": 58.11,
    "end": 60.07,
    "text": "Right and left.",
-   "textHi": "दाएँ और बाएँ।"
+   "textHi": "दाएँ और बाएँ।",
+   "textTa": "வலது, பின் இடது.",
+   "textTe": "కుడి మరియు ఎడమ.",
+   "textMl": "വലത്തും ഇടത്തും.",
+   "textHing": "Right aur left."
   },
   {
    "start": 60.55,
    "end": 63.55,
    "text": "Then we will take a jump and the hands will be like this.",
-   "textHi": "फिर हम एक छलांग लेंगे और हाथ ऐसे होंगे।"
+   "textHi": "फिर हम एक छलांग लेंगे और हाथ ऐसे होंगे।",
+   "textTa": "பின் குதிப்போம், கைகள் இவ்வாறு வைக்கப்படும்.",
+   "textTe": "తరువాత గెంతుతాము, చేతులు ఇలా ఉంటాయి.",
+   "textMl": "തുടർന്ന് ചാടുക, കൈകൾ ഇങ്ങനെ വയ്ക്കുക.",
+   "textHing": "Fir jump lenge aur hands aise rahenge."
   },
   {
    "start": 63.95,
    "end": 65.25,
    "text": "Shikhara. Jump.",
-   "textHi": "शिखर, छलांग।"
+   "textHi": "शिखर, छलांग।",
+   "textTa": "சிகரம். குதி.",
+   "textTe": "శిఖరం. దూకు.",
+   "textMl": "ശിഖരം. ചാടുക.",
+   "textHing": "Shikhara. Jump."
   },
   {
    "start": 65.95,
    "end": 68.67,
    "text": "Then we will bring the hands together at the front.",
-   "textHi": "फिर हम हाथों को सामने एक साथ लाएँगे।"
+   "textHi": "फिर हम हाथों को सामने एक साथ लाएँगे।",
+   "textTa": "கைகளை முன்புறமாக ஒன்றாக இணைப்போம்.",
+   "textTe": "చేతులను ముందుకి కలిపి ఉంచాలి.",
+   "textMl": "കൈകൾ മുന്നിൽ ഒരുമിച്ച് കൊണ്ടുവരിക.",
+   "textHing": "Fir hands ko front mein ek saath layenge."
   },
   {
    "start": 68.67,
    "end": 71.93,
    "text": "We are saluting all things around us.",
-   "textHi": "हम अपने चारों ओर की सभी चीज़ों को प्रणाम कर रहे हैं।"
+   "textHi": "हम अपने चारों ओर की सभी चीज़ों को प्रणाम कर रहे हैं।",
+   "textTa": "நம்மைச் சுற்றியுள்ள அனைத்தையும் வணங்குகிறோம்.",
+   "textTe": "మన చుట్టూ ఉన్న సమస్త సృష్టికి నమస్కరిస్తున్నాము.",
+   "textMl": "നമുക്ക് ചുറ്റുമുള്ള എല്ലാറ്റിനെയും വണങ്ങുന്നു.",
+   "textHing": "Hum apne aas paas sabhi cheezon ko pranam kar rahe hain."
   },
   {
    "start": 72.11,
    "end": 74.73,
    "text": "And then we will sit and offer it to the ground.",
-   "textHi": "और फिर हम बैठेंगे और इसे भूमि को अर्पित करेंगे।"
+   "textHi": "और फिर हम बैठेंगे और इसे भूमि को अर्पित करेंगे।",
+   "textTa": "கீழே அமர்ந்து பூமாதேவிக்கு சமர்ப்பிப்போம்.",
+   "textTe": "కూర్చుని భూదేవికి సమర్పిస్తాము.",
+   "textMl": "ഭൂമിയിൽ ഇരുന്നു സമർപ്പിക്കുക.",
+   "textHing": "Aur fir baith kar bhumi ko arpan karenge."
   },
   {
    "start": 75.55,
    "end": 77.65,
    "text": "Touch the ground. Touch the ground.",
-   "textHi": "भूमि छुइए, भूमि छुइए।"
+   "textHi": "भूमि छुइए, भूमि छुइए।",
+   "textTa": "பூமியைத் தொடுங்கள். பூமியைத் தொடுங்கள்.",
+   "textTe": "భూమిని తాకండి. భూమిని తాకండి.",
+   "textMl": "ഭൂമി തൊടുക. ഭൂമി തൊടുക.",
+   "textHing": "Bhumi touch kijiye. Bhumi touch kijiye."
   },
   {
    "start": 78.07,
    "end": 80.53,
    "text": "Touch the eyes. Touch the eyes.",
-   "textHi": "आँखें छुइए, आँखें छुइए।"
+   "textHi": "आँखें छुइए, आँखें छुइए।",
+   "textTa": "கண்களைத் தொடுங்கள். கண்களைத் தொடுங்கள்.",
+   "textTe": "కళ్లను తాకండి. కళ్లను తాకండి.",
+   "textMl": "കണ്ണുകൾ തൊടുക. കണ്ണുകൾ തൊടുക.",
+   "textHing": "Aankhein touch kijiye. Aankhein touch kijiye."
   },
   {
    "start": 80.53,
    "end": 83.23,
    "text": "And then we will gradually stand up.",
-   "textHi": "और फिर हम धीरे-धीरे खड़े होंगे।"
+   "textHi": "और फिर हम धीरे-धीरे खड़े होंगे।",
+   "textTa": "மெதுவாக எழுந்து நிற்போம்.",
+   "textTe": "నెమ్మదిగా పైకి లేవండి.",
+   "textMl": "പതുക്കെ എഴുന്നേറ്റു നിൽക്കുക.",
+   "textHing": "Aur fir gradually stand up honge."
   },
   {
    "start": 83.23,
    "end": 88.27,
    "text": "We are saluting the God, the Guru and the audience.",
-   "textHi": "हम भगवान, गुरु और दर्शकों को प्रणाम कर रहे हैं।"
+   "textHi": "हम भगवान, गुरु और दर्शकों को प्रणाम कर रहे हैं।",
+   "textTa": "இறைவன், குரு மற்றும் சபையை வணங்குகிறோம்.",
+   "textTe": "దైవానికి, గురువుకి మరియు సభకి నమస్కరిస్తున్నాము.",
+   "textMl": "ദൈവത്തെയും ഗുരുവിനെയും സദസ്സിനെയും വണങ്ങുന്നു.",
+   "textHing": "Hum Ishwar, Guru aur sabha ko pranam kar rahe hain."
   },
   {
    "start": 89.01,
    "end": 90.57,
    "text": "Let's give it a try again.",
-   "textHi": "चलिए इसे फिर से आज़माते हैं।"
+   "textHi": "चलिए इसे फिर से आज़माते हैं।",
+   "textTa": "மீண்டும் ஒரு முறை செய்து பார்ப்போம்.",
+   "textTe": "మరోసారి సాధన చేద్దాం.",
+   "textMl": "ഒരിക്കൽ കൂടി നമുക്കിത് ചെയ്യാം.",
+   "textHing": "Chaliye ek baar fir try karte hain."
   }
  ],
  "voice": "/lessons/namaskaram-voice.json"
