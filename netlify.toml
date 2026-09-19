@@ -1,5 +1,5 @@
-# Netlify configuration for monorepo structure
-# The delivery site is in 'frontend'; 'studio' is the authoring tool.
+# Netlify configuration for NrityaVaani
+# Hosts Next.js frontend with optional Netlify Functions or proxy for FastAPI backend
 
 [build]
   base = "frontend"
@@ -9,3 +9,28 @@
 # Essential Next.js plugin for Netlify
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Serverless Python functions (FastAPI via Mangum)
+[functions]
+  directory = "netlify/functions"
+
+# Local development with Netlify CLI ('netlify dev')
+[dev]
+  framework = "#custom"
+  command = "npm run dev"
+  port = 3000
+  targetPort = 3000
+
+# Backend routing: forwards TTS and inference requests to Netlify serverless functions
+# or to an external backend if BACKEND_URL is set.
+[[redirects]]
+  from = "/api/tts/*"
+  to = "/.netlify/functions/api/api/tts/:splat"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/predict"
+  to = "/.netlify/functions/api/predict"
+  status = 200
+  force = false

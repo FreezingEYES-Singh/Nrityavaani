@@ -1,42 +1,45 @@
 # NrityaVaani (नृत्यवाणी)
 
-> **AI-Powered Indian Classical Dance & Mudra Learning Assistant**  
-> On-device computer vision, real-time 3D skeletal rigging, bilingual audio coaching, and interactive pedagogy for Bharatanatyam.
+> **AI-Powered Indian Classical Dance, Mudra Recognition & 3D Guru Assistant**  
+> On-device computer vision, real-time 3D skeletal kinematics, Goonj-powered multilingual voice coaching, and interactive pedagogy for Bharatanatyam.
 
 ---
 
 ## Overview
 
-**NrityaVaani** preserves and digitizes the heritage of Indian classical dance through modern web technologies and computer vision. Built with privacy-first principles, all live webcam video processing runs **100% on-device** directly in the browser—no video frames or camera streams ever leave your computer.
+**NrityaVaani** preserves, digitizes, and democratizes the heritage of Indian classical dance through modern web technologies, 3D kinematics, and neural voice synthesis. Built with privacy-first principles, all live webcam gesture recognition runs **100% on-device** directly in the browser—no video frames or camera streams ever leave your computer.
 
 ### Key Features
 
-* **Live Mudra Detection (`/live`)**: Real-time 21-point 3D hand tracking at 60 FPS identifying Asamyukta (single-hand) and Samyukta (double-hand) mudras.
-* **Targeted Practice Coach (`/practice/[slug]`)**: Real-time posture scoring against target gestures with bilingual voice coaching (English & Hindi) powered by the Web Speech API.
-* **Interactive 3D Lessons (`/learn`)**: 3D humanoid avatar demonstrating classical dance steps (e.g., *Namaskaram*, *Thattadavu*) synchronized with bilingual voice narration.
-* **Mudra Encyclopedia (`/library`)**: Comprehensive reference library covering 28 classical mudras with step-by-step instructions, viniyoga (usages), and common mistakes.
+* **Goonj 3D Guru Voice Coaching (`/learn`)**: High-fidelity neural voice synthesis featuring 15 distinct Guru personas across 12 Indian languages (English, Hindi, Hinglish, Sanskrit, Tamil, Telugu, Malayalam, Kannada, Bengali, Odia, Marathi, Gujarati) with dynamic tempo synchronization.
+* **Specialized Guru Voice Models**: Select from classical master archetypes tailored to pedagogical goals—from Natyacharyas commanding adavu footwork and tala, to lyrical preceptors guiding subtle abhinaya and sacred Sanskrit shlokas.
+* **Distraction-Free 3D Natya Shala**: Pure, unobstructed 3D stage canvas with dual-gender rigs (male Natyacharya and female dancer), customizable camera presets (`Full Body`, `Face / Abhinaya`, `Mudras`, `Feet`), and instant frame fitting.
+* **Live Mudra Detection (`/live`)**: Real-time 21-point 3D hand tracking at 60 FPS identifying Asamyukta (single-hand) and Samyukta (double-hand) classical mudras.
+* **Targeted Practice Coach (`/practice/[slug]`)**: Real-time posture scoring against target gestures with interactive feedback.
+* **Mudra Encyclopedia (`/library`)**: Interactive 3D reference library covering 28 classical mudras with step-by-step instructions, viniyoga (usages), and common mistake corrections.
 * **3D Motion Capture Lab (`/mocap`)**: In-browser full-body motion capture, bone jitter filtering, and real-time retargeting to 3D skinned models.
 * **Photograph Analysis (`/upload`)**: Single-image gesture analysis running client-side with instant accuracy feedback.
-* **Private by Design (`/privacy`)**: WebAssembly & WebGL GPU acceleration ensure zero server video transmission.
+* **Private by Design (`/privacy`)**: WebAssembly & WebGL GPU acceleration ensure zero camera feed transmission.
 
 ---
 
 ## Tech Stack
 
 ### Frontend (`/frontend`)
-* **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Server & Client Components)
+* **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Turbopack, Server & Client Components)
 * **Core Library**: [React 19](https://react.dev/) & [TypeScript](https://www.typescriptlang.org/)
 * **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) & [Framer Motion](https://www.framer.com/motion/)
 * **Computer Vision AI**: [Google MediaPipe Tasks-Vision](https://developers.google.com/mediapipe/solutions/vision/hand_landmarker) (Client-side WASM & WebGL)
 * **3D Graphics & Kinematics**: [Three.js](https://threejs.org/) (GLTF/GLB models, custom hand kinematics, skeletal retargeting)
-* **Audio**: HTML5 Audio (synchronized bilingual clips) & Web Speech Synthesis API
+* **Audio Engine**: `GuruAudioEngine` with dynamic tempo sync, speech rate calibration, and memory/disk audio caching
 * **Icons**: [Lucide React](https://lucide.dev/)
 
 ### Backend (`/backend`)
 * **Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Python 3.10+)
-* **Server**: [Uvicorn](https://www.uvicorn.org/)
+* **Server**: [Uvicorn](https://www.uvicorn.org/) (ASGI)
+* **Speech Synthesis Engine**: Neural TTS & Goonj acoustic modulation (Edge Neural TTS + Goonj-1-82M / Kokoro pipeline)
+* **Serverless Bridge**: [Mangum](https://mangum.io/) for Netlify & AWS Lambda serverless execution
 * **Validation**: [Pydantic v2](https://docs.pydantic.dev/)
-* **Model Slot**: Configured to host custom deep learning models (`/backend/models`) for offline training and external API consumers.
 
 ---
 
@@ -44,72 +47,133 @@
 
 ```
 NrityaVaani/
+├── main.py                       # Root ASGI entrypoint (uvicorn main:app --reload --port 8000)
+├── requirements.txt              # Root Python dependencies
+├── netlify.toml                  # Netlify deployment & proxy configuration
+│
+├── netlify/
+│   └── functions/
+│       └── api.py                # Serverless Mangum handler for FastAPI on Netlify
+│
 ├── frontend/                     # Next.js 16 + React 19 + Three.js application
+│   ├── next.config.ts            # API rewrites & backend proxy routing
 │   ├── public/
-│   │   ├── images/               # Dance and mudra reference photography
+│   │   ├── images/               # Dance photography & Legends gallery
 │   │   ├── lessons/              # Baked .nvclip motion data and voice audio
 │   │   └── models/               # 3D GLB models (figures.glb, hand.glb, natraj.glb)
 │   ├── scripts/
 │   │   └── build-mudra-poses.mjs # Offline kinematic solver generating mudraPoses.json
 │   └── src/
 │       ├── app/                  # Next.js App Router pages (live, learn, library, mocap, etc.)
-│       ├── components/           # UI, layout, Three.js stages, and live HUD overlays
-│       └── lib/                  # MediaPipe classification engine, motion codecs, stores
+│       ├── components/           # UI, layout, Three.js stages, and 3D Lesson Player
+│       └── lib/
+│           ├── lesson/           # Lesson manifests & multilingual translation dictionaries
+│           ├── motion/           # MediaPipe classification engine & motion codecs
+│           └── voice/            # Goonj Audio Engine & 15 Guru Personas
 │
-├── backend/                      # Python FastAPI inference microservice
-│   ├── core/
-│   │   └── classification.py     # Baseline mathematical heuristic classifier
-│   ├── models/                   # Dedicated directory for trained model weights (*.pt, *.onnx)
-│   ├── main.py                   # FastAPI application & /predict endpoint
-│   └── requirements.txt          # Python dependencies
-│
-└── netlify.toml                  # Deployment configuration for the frontend
+└── backend/                      # Python FastAPI inference & Goonj TTS microservice
+    ├── core/
+    │   ├── goonj_tts.py          # Goonj Neural TTS synthesis engine & audio caching
+    │   └── classification.py     # Mathematical heuristic gesture classifier
+    ├── models/                   # Directory for trained model weights (*.pt, *.onnx)
+    ├── main.py                   # FastAPI application routes & endpoints
+    └── requirements.txt          # Backend Python dependencies
 ```
 
 ---
 
 ## Getting Started
 
-### 1. Run the Frontend (Web Application)
+### 1. Run the Backend API
+
+You can start the FastAPI backend server directly from the repository root:
 
 ```bash
-# Navigate to the frontend directory
+# 1. Create and activate a Python virtual environment
+python -m venv .venv
+
+# On Windows:
+.venv\Scripts\activate
+# On Linux / macOS:
+source .venv/bin/activate
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Start the server with uvicorn
+uvicorn main:app --reload --port 8000
+```
+
+> **Tip**: You can also run from inside the `backend/` folder using `uvicorn backend.main:app --reload --port 8000`.
+
+* **Backend Healthcheck**: [http://localhost:8000/](http://localhost:8000/)
+* **Interactive Swagger Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+* **Goonj TTS Personas Endpoint**: [http://localhost:8000/api/tts/personas](http://localhost:8000/api/tts/personas)
+
+---
+
+### 2. Run the Frontend
+
+In a separate terminal:
+
+```bash
+# 1. Navigate to the frontend directory
 cd frontend
 
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Start the development server
+# 3. Start the Next.js development server
 npm run dev
 ```
 
 Open your browser at **[http://localhost:3000](http://localhost:3000)**.
 
-> **Note**: For the best camera tracking and 3D performance, use **Google Chrome** or **Microsoft Edge** and allow camera access when prompted.
+> **Note**: For optimal 3D rendering and camera landmark tracking, use **Google Chrome** or **Microsoft Edge** with hardware acceleration enabled.
 
 ---
 
-### 2. Run the Backend API (Optional / Model Service)
+### 3. Running with Netlify
+
+NrityaVaani includes full configuration for Netlify deployment and local development via `netlify.toml`:
+
+#### Local Development with Netlify CLI
+If you have the Netlify CLI installed (`npm install -g netlify-cli`):
 
 ```bash
-# Navigate to the backend directory
-cd backend
-
-# Create and activate a virtual environment
-python -m venv .venv
-# On Windows:
-.venv\Scripts\activate
-# On Linux/macOS:
-source .venv/bin/activate
-
-# Install requirements
-pip install -r requirements.txt
-
-# Start the FastAPI server
-python main.py
+# Runs frontend on port 3000 and proxies API calls to backend
+netlify dev
 ```
 
-Access the interactive Swagger documentation at **[http://localhost:8000/docs](http://localhost:8000/docs)**.
+#### Deploying on Netlify
+* **Frontend**: Netlify automatically builds `frontend/` using `@netlify/plugin-nextjs`.
+* **Backend API Options**:
+  1. **Netlify Functions**: Pre-configured in `netlify/functions/api.py` with Mangum. Requests to `/api/tts/*` and `/predict` automatically route to the serverless function.
+  2. **Standalone Backend (Render / Railway / Fly.io / VPS)**: Set the `BACKEND_URL` environment variable in your Netlify site settings (e.g. `https://your-api.onrender.com`). Next.js and Netlify will seamlessly proxy all `/api/tts/*` requests to your hosted FastAPI instance.
+
+---
+
+## 🎙️ Goonj Guru Voice Personas
+
+NrityaVaani incorporates 15 distinct Guru voices with tailored pedagogy and acoustics:
+
+| Persona | Gender | Language / Dialect | Tone & Signature | Best Suited For |
+| :--- | :--- | :--- | :--- | :--- |
+| **Guru Priya** | Female | Indian English (`en`) | Articulate & Encouraging | Clear diction, contemporary pedagogy & anatomical precision |
+| **Guru Arjun** | Male | Indian English (`en`) | Commanding & Rhythmic | Adavu footwork, energetic rhythm & driving tala |
+| **Guru Ananya** | Female | Indian English (`en`) | Gentle & Melodic | Delicate mudras, abhinaya nuances & beginners |
+| **Guru Kabir** | Male | Indian English (`en`) | Firm & Authoritative | Strict tala, rhythm drills & stamina |
+| **Guru Divya** | Female | Indian English (`en`) | Meticulous & Poised | Body alignment, knee turnout & balance |
+| **Guru Dev** | Male | Indian English (`en`) | Calm & Measured | Meditative flow, breath awareness & slow practice |
+| **Guru Nisha** | Female | Modern English (`en`) | Crisp & Contemporary | International learners & global clarity |
+| **Guru Sameer** | Male | Indian English (`en`) | Warm & Approachable | Easing beginner tension & building immediate confidence |
+| **Guru Tara** | Female | Indian English (`en`) | Joyful & Radiant | Vitality, uplifting energy & soloist presentation |
+| **Guru Aman** | Male | Indian English (`en`) | Methodical & Patient | Hand-foot coordination drills & breaking complex bols |
+| **Guru Meera** | Female | Classical Hindi (`hi`) | Warm & Emotive | Traditional abhinaya, mudra nuance & devotional rasa |
+| **Guru Atul** | Male | Shastri Baritone (`hi`) | Deep & Resonant | Natyashastra shlokas, sacred chants & dignified recitation |
+| **Guru Shivani** | Female | Vibrant Hindi (`hi`) | Bright & Inspiring | Navarasa, facial abhinaya & eye glances |
+| **Guru Ravi** | Male | Dynamic Hindi (`hi`) | Bold & Motivating | Tandava drills, stamina & vigorous form |
+| **Guru Parampara** | Female | Vedic Sanskrit (`sa`) | Sacred Vedic Intonation | Pure Natyashastra shlokas, invocations & mantras |
 
 ---
 

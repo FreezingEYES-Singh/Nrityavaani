@@ -1,6 +1,8 @@
 import { type Language, type SpokenLine, lineText } from "@/lib/lesson/manifest";
 import { type GuruPersona, getPersona } from "./guruPersonas";
 
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+
 export interface GuruAudioEngineOptions {
   volume?: number;
   muted?: boolean;
@@ -167,7 +169,7 @@ export class GuruAudioEngine {
     this.setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/tts/speak", {
+      const res = await fetch(`${API_BASE}/api/tts/speak`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -292,7 +294,7 @@ export class GuruAudioEngine {
       const cacheKey = `${personaId}:${lang}:${text.trim()}`;
       if (this.audioCache.has(cacheKey)) continue;
 
-      fetch("http://localhost:8000/api/tts/speak", {
+      fetch(`${API_BASE}/api/tts/speak`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
